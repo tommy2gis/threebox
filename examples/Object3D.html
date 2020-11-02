@@ -64,6 +64,16 @@ map.on('style.load', function() {
                 .setCoords(origin)
 
             tb.add(cube)
+
+            var spotLight = new THREE.PointLight( 0xFF0000,1,100);
+            spotLight.position.set( 0, 0, 0 );
+
+
+            spotLight3d = tb.Object3D({ obj: spotLight, adjustment: { x: 0, y: 0, z: 0.5 }})
+                .setCoords(origin)
+
+            tb.add(spotLight3d)
+
         },
         
         render: function(gl, matrix){
