@@ -10,11 +10,34 @@ Threebox works by adding a *Three.js* scene to *Mapbox GL*, creating a new *Mapb
 
 - - -
 
+## Examples
+
+Threebox contains [15 examples](https://github.com/jscastro76/threebox/blob/master/examples/readme.md) to showcase most of its features. Check them out to have a glance of what is possible.
+- [01-basic.html](https://github.com/jscastro76/threebox/blob/master/examples/01-basic.html) 
+- [02-line.html](https://github.com/jscastro76/threebox/blob/master/examples/02-line.html) 
+- [03-tube.html](https://github.com/jscastro76/threebox/blob/master/examples/03-tube.html) 
+- [04-mercator.html](https://github.com/jscastro76/threebox/blob/master/examples/04-mercator.html) 
+- [05-logistics.html](https://github.com/jscastro76/threebox/blob/master/examples/05-logistics.html) 
+- [06-object3d.html](https://github.com/jscastro76/threebox/blob/master/examples/06-object3d.html) 
+- [07-alignmentTest.html](https://github.com/jscastro76/threebox/blob/master/examples/07-alignmentTest.html) 
+- [08-3dbuildings.html](https://github.com/jscastro76/threebox/blob/master/examples/08-3dbuildings.html) 
+- [09-raycaster.html](https://github.com/jscastro76/threebox/blob/master/examples/09-raycaster.html) 
+- [10-stylechange.html](https://github.com/jscastro76/threebox/blob/master/examples/10-stylechange.html) 
+- [11-animation.html](https://github.com/jscastro76/threebox/blob/master/examples/11-animation.html) 
+- [12-add3dmodel.html](https://github.com/jscastro76/threebox/blob/master/examples/12-add3dmodel.html) 
+- [13-eiffel.html](https://github.com/jscastro76/threebox/blob/master/examples/13-eiffel.html) 
+- [14-buildingshadow.html](https://github.com/jscastro76/threebox/blob/master/examples/14-buildingshadow.html) 
+- [15-performance.html](https://github.com/jscastro76/threebox/blob/master/examples/15-performance.html) 
+
+<br>
+
+- - -
+
 ## Threebox
 
 ### Using Threebox
 
-The instance of Threebox will be used normally across the full page, so it's recommended to be created at `window` scope to be used as a global variable, but this also will require to explicitly  `dispose` the instance, otherwise it can produce memory leaks.
+The instance of Threebox will be used normally across the full page, so it's recommended to be created at `window` scope to be used as a global variable, but this also will require to explicitly `dispose` the instance, otherwise it can produce memory leaks.
 
 #### constructor
 
@@ -27,6 +50,7 @@ Sets up a threebox scene inside a [*Mapbox GL* custom layer's onAdd function](ht
 | option | required | default | type   | purpose                                                                                  |
 |-----------|----------|---------|--------|----------------------------------------------------------------------------------------------|
 | `defaultLights`    | no       | false      | boolean | Whether to add some default lighting to the scene. If no lighting added, most objects in the scene will render as black |
+| `realSunlight`    | no       | false      | boolean | It sets lights that simulate Sun position for the map center coords (`map.getCenter`) and user local datetime (`new Date()`). This sunlight can be updated through `tb.setSunlight` method. It calls internally to suncalc module. |
 | `passiveRendering`     | no       | true   | boolean  | Color of line. Unlike other Threebox objects, this color will render on screen precisely as specified, regardless of scene lighting |
 | `enableSelectingFeatures`     | no       | false   | boolean  | Enables the Mouseover and Selection of fill-extrusion features. This will fire the event `SelectedFeatureChange` |
 | `enableSelectingObjects`     | no       | false   | boolean  | Enables the Mouseover and Selection of 3D objects. This will fire the event `SelectedChange`|
@@ -183,6 +207,15 @@ method to add an object to Threebox scene. It will add it to `tb.world.children`
 <br>
 
 
+#### clear 
+```js
+async tb.clear([layerId, dispose])
+```
+This method removes any children from `tb.world`. If it receives a `layerId` this only affects to the objects in that layer. If it receives `true` as a param, it will also call `obj.dispose` to dispose all the resources reserved by those objects.
+
+<br>
+
+
 #### defaultLights 
 ```js
 tb.defaultLights()
@@ -239,10 +272,11 @@ This method can be used for both a Poligon feature for a Fill Extrusion or a Poi
 
 #### loadObj
 ```js
-tb.loadObj(options, callback(obj));
+async tb.loadObj(options, callback(obj));
 ```
 
-This method loads a 3D model in different formats from its respective files. 
+This async method loads a 3D model in different formats from its respective files. 
+It automatically caches the first object for each resource url so the next instances are returned from `obj.duplicate`.
 Note that unlike all the other object classes, this is asynchronous, and returns the object as an argument of the callback function. 
 Internally, uses [`THREE.OBJLoader`](https://github.com/mrdoob/three.js/blob/dev/examples/jsm/loaders/OBJLoader.js), [`THREE.FBXLoader`](https://github.com/mrdoob/three.js/blob/dev/examples/jsm/loaders/FBXLoader.js), [`THREE.GLTFLoader`](https://github.com/mrdoob/three.js/blob/dev/examples/jsm/loaders/GLTFLoader.js) or [`THREE.ColladaLoader`](https://github.com/mrdoob/three.js/blob/dev/examples/jsm/loaders/ColladaLoader.js) respectively to fetch the  assets to each 3D format. [`THREE.FBXLoader`](https://github.com/mrdoob/three.js/blob/dev/examples/jsm/loaders/FBXLoader.js) also dependes on [Zlib](https://github.com/imaya/zlib.js) to open compressed files which this format is based on.
 
@@ -256,7 +290,7 @@ Internally, uses [`THREE.OBJLoader`](https://github.com/mrdoob/three.js/blob/dev
 | `units`    | no       | scene      | string (`"scene"` or `"meters"`) | "meters" is recommended for precision. Units with which to interpret the object's vertices. If meters, Threebox will also rescale the object with changes in latitude, to appear to scale with objects and geography nearby.|
 | `rotation`     | no       | 0   | number or {x, y, z}  | Rotation of the object along the three axes, to align it to desired orientation before future rotations. Note that future rotations apply atop this transformation, and do not overwrite it. `rotate` attribute must be provided in number or per axis ((i.e. for an object rotated 90 degrees over the x axis `rotation: {x: 90, y: 0, z: 0}`|
 | `scale`     | no       | 1   | number or {x, y, z}  | Scale of the object along the three axes, to size it appropriately before future transformations. Note that future scaling applies atop this transformation, rather than overwriting it. `scale` attribute must be provided in number or per axis ((i.e. for an object transformed to 3 times higher than it's default size  `scale: {x: 1, y: 1, z: 3}`|
-| `anchor`     | no       | `bottom-left`   | string ()  | This param will position the pivotal center of the 3D models to the coords it's positioned. This could have the following values `top`, `bottom`, `left`, `right`, `center`, `top-left`, `top-right`, `bottom-left`, `bottom-right`. Default value is `bottom-left` |
+| `anchor`     | no       | `bottom-left`   | string ()  | This param will position the pivotal center of the 3D models to the coords it's positioned. This could have the following values `top`, `bottom`, `left`, `right`, `center`, `top-left`, `top-right`, `bottom-left`, `bottom-right`. Default value is `bottom-left`. `auto` value will do nothing, so the model will use the anchor defined in the model, whatever it is. |
 | `adjustment`     | no       | 1   | {x, y, z}  | 3D models are often not centered in their axes so the object positions and rotates wrongly. `adjustment` param must be provided in units per axis (i.e. `adjustment: {x: 0.5, y: 0.5, z: 0}`), so the model will correct the center position of the object |
 | `normalize`     | no       | 1   | bool  | This param allows to normalize specular values from some 3D models |
 | `feature`     | no       | 1   | [*GeoJson*](https://geojson.org/) feature  | [*GeoJson*](https://geojson.org/) feature instance. `properties` object of the *GeoJson* standard feature could be used to store relavant data to load and paint many different objects such as camera position, zoom, pitch or bearing, apart from the attributes already usually used by [*Mapbox GL* examples](https://docs.mapbox.com/mapbox-gl-js/examples/) such as `height`, `base_height`, `color`|
@@ -345,7 +379,7 @@ function onSelectedChange(e) {
 	map.repaint = true;
 }
 ```
-
+<br>
 
 ##### 3D Formats and MIME types 
 Most of the popular 3D formats extensions (.glb, .gltf, .fbx, .dae, ...) are not standard [MIME types](https://www.iana.org/assignments/media-types/media-types.xhtml), so you will need to configure your web server engine to accept this extensions, otherwise you'll receive different HTTP errors downloading them. 
@@ -368,6 +402,34 @@ If you are using **IIS** server from an *ASP.Net* application, add the xml lines
 	  </staticContent>
 </system.webServer>
 ```
+<br/>
+
+If you are using **ASP.net core** server, add the C# lines below in the `Configure` method of the `Startup` class:
+```C#
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    ...
+
+    // Set up custom content types - associating file extension to MIME type
+    var provider = new FileExtensionContentTypeProvider();
+    // Add new mappings
+    provider.Mappings[".mtl"] = "model/mtl";
+    provider.Mappings[".obj"] = "model/obj";
+    provider.Mappings[".glb"] = "model/gltf-binary";
+    provider.Mappings[".gltf"] = "model/gltf+json";
+    provider.Mappings[".fbx"] = "application/octet-stream";
+
+    app.UseStaticFiles(new StaticFileOptions 
+    {
+        ContentTypeProvider = provider
+    });
+
+    ...
+}
+```
+
+<br/>
+
 If you are using an **nginx** server, add the following lines to the *nginx.conf* file in the `http` object:
 ```
 http {
@@ -390,6 +452,8 @@ model/gltf+json gltf
 model/gltf-binary glb
 application/octet-stream fbx
 ```
+
+
 
 <br>
 
@@ -427,11 +491,29 @@ Takes an input of `{x: number, y: number}` as an object with values representing
 
 <br>
 
+#### realSunlight 
+```js
+tb.realSunlight()
+```
+This method creates the an illumination that simulates Sun light for the Threebox `scene`. It creates a [`THREE.HemisphereLight`](https://threejs.org/docs/index.html#api/en/lights/HemisphereLight) and one [`THREE.DirectionalLight`](https://threejs.org/docs/#api/en/lights/DirectionalLight) 
+that is positioned based on `suncalc.js.` module which calculates the sun position for a given date, time, lng, lat combination. It calls internally to `tb.setSunlight` with `map.getCenter` and `new Date()` as values.
+These lights can be overriden manually adding custom lights to the Threebox `scene`.
+
+<br>
+
 #### remove 
 ```js
 tb.remove(obj)
 ```
 method to remove an object from Threebox scene and the `tb.world.children` array.
+
+<br>
+
+#### removeLayer 
+```js
+tb.removeLayer(layerId)
+```
+method to remove a layer from Mapbox, including all 3D objects from Threebox scene and the `tb.world.children` array. 
 
 <br>
 
@@ -466,10 +548,27 @@ method set the CSS2DObjects zoom range and hide them at the same time the layer 
 ```js
 tb.setLayoutProperty(layerId, name, value)
 ```
-This method to replicates the behaviour of [`map.setLayoutProperty](https://docs.mapbox.com/mapbox-gl-js/api/map/#map#setlayoutproperty) when custom layers are affected but it can used for any layer type.
+This method to replicates the behaviour of [`map.setLayoutProperty`](https://docs.mapbox.com/mapbox-gl-js/api/map/#map#setlayoutproperty) when custom layers are affected but it can used for any layer type. 
 
 <br>
 
+
+#### setStyle 
+```js
+tb.setStyle(styleId[, options])
+```
+This method to replicates the behaviour of [`map.setStyle`](https://docs.mapbox.com/mapbox-gl-js/api/map/#map#setstyle) to remove the 3D objects from `tb.world`.
+It's a direct passthrough to `map.setStyle` but it also calls internally `tb.clear(true)` to remove the children from `tb.world` and also to dispose all the resources reserved by those objects.
+
+<br>
+
+#### setSunlight 
+```js
+tb.setSunlight(newDate = new Date(), coords)
+```
+This method updates Sun light position based on `suncalc.js.` module which calculates the sun position for a given date, time, lng, lat combination. It calls internally to `tb.setSunlight` with `map.getCenter` and `new Date()` as values.
+
+<br>
 
 #### toggleLayer 
 ```js
@@ -1190,7 +1289,8 @@ Returns a clone of the object. Greatly improves performance when handling many i
 
 ## Threebox types
 
-<b>pointGeometry</b> `[longitude, latitude(, meters altitude)]`
+#### pointGeometry 
+`[longitude, latitude(, meters altitude)]`
 
 An array of 2-3 numbers representing longitude, latitude, and optionally altitude (in meters). When altitude is omitted, it is assumed to be 0. When populating this from a [*GeoJson*](https://geojson.org/) Point, this array can be accessed at `point.geometry.coordinates`.  
 
@@ -1238,14 +1338,8 @@ Can be expressed as a string to the corresponding material type (e.g. `"MeshPhys
 
 - - -
 
-## Using vanilla *Three.js* in Threebox
-
-Threebox implements many small affordances to make mapping run in *Three.js* quickly and precisely on a global scale. Whenever possible, use threebox methods to add, change, manage, and remove elements of the scene. Otherwise, here are some best practices:
-
-- Use `threebox.Object3D` to add custom objects to the scene
-- If you must interact directly with the THREE scene, add all objects to `threebox.world`.
-- `tb.projectToWorld` to convert lnglat to the corresponding `Vector3()`
 
 ## Performance considerations
 
-- Use `obj.duplicate()` when adding many identical objects. If your object contains other objects not in the `obj.children` collection, then those objects need to be cloned too.`
+- Use `obj.duplicate()` when adding many identical objects. If your object contains other objects not in the `obj.children` collection, then those objects need to be cloned too.
+- This is a by default behavior when `tb.loadObj` is called. 

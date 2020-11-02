@@ -1,3 +1,82 @@
+## 2.0.7
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+
+- [**#54**](https://github.com/jscastro76/threebox/issues/54) vue and threebox,map not defined.
+- [**#63**](https://github.com/jscastro76/threebox/issues/63) `CSS2DObject` is not disposing properly.
+- Update example [15-performance.html](https://github.com/jscastro76/threebox/blob/master/examples/15-performance.html) to avoid dupplicated calls when dragging the count GUI control.
+
+#### :beetle: Bug fixes
+
+- [**#61**](https://github.com/jscastro76/threebox/issues/61) .userData not refreshed properly on obj.duplicate.
+- [**#62**](https://github.com/jscastro76/threebox/issues/62) Memory Leak on tb.remove(). Tested
+- [**#64**](https://github.com/jscastro76/threebox/issues/64) Cache instance of a loaded model is disposed when the world children is.
+
+<br>
+
+- - - 
+
+
+## 2.0.6
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+
+- [**#43**](https://github.com/jscastro76/threebox/issues/43) Threebox new method `tb.removeLayer` that removes the 3D objects of a layer, apart from removing the layer itself with `map.removeLayer`
+- [**#56**](https://github.com/jscastro76/threebox/issues/56) Objects cache at `tb.loadObj`
+  - `tb.loadObj` now is 100% async and in the first call to an object load by url, then caches the returned object for the sucessive calls to return a clone of the object through `obj.duplicate()`
+  - Closes [**#51**](https://github.com/jscastro76/threebox/issues/51), [**#55**](https://github.com/jscastro76/threebox/issues/55)
+- [**#57**](https://github.com/jscastro76/threebox/issues/57) Add a new sample to measure performance
+  - Added new example to demonstrate add thousands of objects and measure performance [Threebox Performance](https://github.com/jscastro76/threebox/blob/master/examples/15-performance.html).
+- [**#58**](https://github.com/jscastro76/threebox/issues/58) Refactor `tb.remove`
+- [**#59**](https://github.com/jscastro76/threebox/issues/59) Refactor `tb.clear` to add `layerId`.
+- [**#60**](https://github.com/jscastro76/threebox/issues/58) Refactor `tb.dispose`
+- All the examples reviewed and updated and added to the [Examples list](https://github.com/jscastro76/threebox/tree/master/examples)
+
+<br>
+
+- - - 
+
+## 2.0.5
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+
+- [**#28**](https://github.com/jscastro76/threebox/issues/28) Create a realistic illumination at any given lnglat, date and time
+  - Added [SunCalc](https://github.com/mourner/suncalc) for sun position calculations
+  - Threebox can receive now a new param `realSunlight : true` at instantiation
+  - Threebox new method `tb.realSunlight` that sets the lights for the scene with default map center position and current datetime.
+  - Threebox new method `tb.getSunPosition(date, lng, lat)` that allows to get sun altitude and azimuth from [SunCalc](https://github.com/mourner/suncalc)
+  - Threebox new method `tb.setBuildingShadows(options)` that instantiates a new `BuildingShadows` class.
+  - Threebox new method `tb.setSunlight (newDate = new Date(), coords)` that calculates real Sun light position at a given datetime and lnglat calling `tb.getSunPosition(date, lng, lat)`.
+  - Added `this.lights` to enable access to lights configured for the scene through `defaultLights` or `realSunLight`. 
+  - Light Helpers (if any) are now updated on `tb.update` calling `this.updateLightHelper()`, useful to see the sun direction on animations.
+- [**#30**](https://github.com/jscastro76/threebox/issues/30) Shadow examples
+  - Added new example to demonstrate how to change style [Change map style for Eiffel Tower](https://github.com/jscastro76/threebox/blob/master/examples/stylechange.html).
+  - Added new example boosting @andrewharvey original sample but with real sunlight and built-in shadows [Add a 3D model](https://github.com/jscastro76/threebox/blob/master/examples/add-3d-model.html).
+  - Added new example to show default fill extrusion buildings shadow [Building Sun light and shadows](https://github.com/jscastro76/threebox/blob/master/examples/buildingshadow.html). 
+  - Improved Eiffel example with real sun light slider and shadows on 3D models and Buildings extrusions [Statue of Liberty and Eiffel Tower with Shadows](https://github.com/jscastro76/threebox/blob/master/examples/eiffel.html)
+- `tb.Constants` are now accessible through instance (usefull for HTML/js side calculations)
+- [**#31**](https://github.com/jscastro76/threebox/issues/31) Create/Remove the shadow plane automatically on `obj.castShadow`
+- [**#33**](https://github.com/jscastro76/threebox/issues/33) Refactored methods `òbj.add` and `obj.remove` to enable add an object to them (honestly this never worked as it was referring to root which is the function.)
+- [**#34**](https://github.com/jscastro76/threebox/issues/34) Added shadows for fill extrusion layers
+  - Synced with Custom Layers `tb.setSunLight` through `tb.setBuildingShadows(options)`
+  - Added new example on fill-extrusion shadows.
+- [**#36**](https://github.com/jscastro76/threebox/issues/36) Clean up after use. Implemented a new method `tb.clear(dispose)` that removes all the children from `tb.children`
+- [**#37**](https://github.com/jscastro76/threebox/issues/37) Anchor options. Implement the option `'auto'` that won't do anything to position the anchor, so the 3D Object will use it's default anchor defined in the model itself.
+
+#### :beetle: Bug fixes
+- [**#32**](https://github.com/jscastro76/threebox/issues/32) Hide PlaneGeometry used for shadow from raycaster.
+- [**#35**](https://github.com/jscastro76/threebox/issues/35) Refresh of map after map style change creating a new `tb.setStyle` that replicates `map.setStyle` and calls a new method `tb.clear`
+
+<br>
+
+- - - 
+
 ## 2.0.4
 
 Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 

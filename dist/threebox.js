@@ -2,10 +2,16 @@
 window.Threebox = require('./src/Threebox.js'),
 window.THREE = require('./src/three.js')
 
-},{"./src/Threebox.js":2,"./src/three.js":21}],2:[function(require,module,exports){
+},{"./src/Threebox.js":2,"./src/three.js":22}],2:[function(require,module,exports){
+/**
+ * @author peterqliu / https://github.com/peterqliu
+ * @author jscastro / https://github.com/jscastro76
+ */
+
 var THREE = require("./three.js");
 var CameraSync = require("./camera/CameraSync.js");
 var utils = require("./utils/utils.js");
+var SunCalc = require("./utils/suncalc.js");
 var AnimationManager = require("./animation/AnimationManager.js");
 var ThreeboxConstants = require("./utils/constants.js");
 
@@ -14,11 +20,12 @@ var material = require("./utils/material.js");
 var sphere = require("./objects/sphere.js");
 var label = require("./objects/label.js");
 var tooltip = require("./objects/tooltip.js");
-var loadObj = require("./objects/loadObj.js");
+var loader = require("./objects/loadObj.js");
 var Object3D = require("./objects/Object3D.js");
 var line = require("./objects/line.js");
 var tube = require("./objects/tube.js");
 var LabelRenderer = require("./objects/LabelRenderer.js");
+var BuildingShadows = require("./objects/effects/BuildingShadows.js");
 
 function Threebox(map, glContext, options){
 
@@ -46,11 +53,13 @@ Threebox.prototype = {
 		this.map = map;
 		this.map.tb = this; //[jscastro] needed if we want to queryRenderedFeatures from map.onload
 
+		this.objects = new Objects();
+
 		// Set up a THREE.js scene
 		this.renderer = new THREE.WebGLRenderer({
 			alpha: true,
 			antialias: true,
-			preserveDrawingBuffer: true,
+			//preserveDrawingBuffer: true,
 			canvas: map.getCanvas(),
 			context: glContext
 		});
@@ -58,7 +67,6 @@ Threebox.prototype = {
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(this.map.getCanvas().clientWidth, this.map.getCanvas().clientHeight);
 		this.renderer.outputEncoding = THREE.sRGBEncoding;
-		//this.renderer.shadowMap.enabled = true;
 		this.renderer.autoClear = false;
 
 		// [jscastro] set labelRendered
@@ -74,10 +82,11 @@ Threebox.prototype = {
 		// projection matrix itself (as is field of view and near/far clipping)
 		// It automatically registers to listen for move events on the map so we don't need to do that here
 		this.world = new THREE.Group();
+		this.world.name = "world";
 		this.scene.add(this.world);
 
-		this.objectsCache = [];
-
+		this.objectsCache = new Map();
+		
 		this.cameraSync = new CameraSync(this.map, this.camera, this.world);
 
 		//raycaster for mouse events
@@ -85,12 +94,21 @@ Threebox.prototype = {
 		this.raycaster.layers.set(0);
 		//this.raycaster.params.Points.threshold = 100;
 
+		this.mapCenter = this.map.getCenter();
+		this.mapCenterUnits = utils.projectToWorld([this.mapCenter.lng, this.mapCenter.lat]);
+		this.lightDateTime = new Date();
+		this.lightLng = this.mapCenter.lng;
+		this.lightLat = this.mapCenter.lat;
+		this.sunPosition;
+
+		this.lights = this.initLights;
 		if (this.options.defaultLights) this.defaultLights();
-		if (this.options.enableSelectingFeatures) this.enableSelectingFeatures = this.options.enableSelectingFeatures; 
-		if (this.options.enableSelectingObjects) this.enableSelectingObjects = this.options.enableSelectingObjects; 
-		if (this.options.enableDraggingObjects) this.enableDraggingObjects = this.options.enableDraggingObjects; 
-		if (this.options.enableRotatingObjects) this.enableRotatingObjects = this.options.enableRotatingObjects; 
-		if (this.options.enableTooltips) this.enableTooltips = this.options.enableTooltips; 
+		if (this.options.realSunlight) this.realSunlight();
+		if (this.options.enableSelectingFeatures) this.enableSelectingFeatures = this.options.enableSelectingFeatures;
+		if (this.options.enableSelectingObjects) this.enableSelectingObjects = this.options.enableSelectingObjects;
+		if (this.options.enableDraggingObjects) this.enableDraggingObjects = this.options.enableDraggingObjects;
+		if (this.options.enableRotatingObjects) this.enableRotatingObjects = this.options.enableRotatingObjects;
+		if (this.options.enableTooltips) this.enableTooltips = this.options.enableTooltips;
 
 		//[jscastro] new event map on load
 		this.map.on('load', function () {
@@ -181,7 +199,7 @@ Threebox.prototype = {
 			}
 
 			function addTooltip(f, map) {
-				if (!map.tb.enableTooltips) return; 
+				if (!map.tb.enableTooltips) return;
 				let coordinates = map.tb.getFeatureCenter(f);
 				let t = map.tb.tooltip({
 					text: f.properties.name || f.id || f.type,
@@ -448,8 +466,6 @@ Threebox.prototype = {
 
 	// Objects
 
-	objects: new Objects(AnimationManager),
-
 	sphere: sphere,
 
 	line: line,
@@ -466,7 +482,37 @@ Threebox.prototype = {
 		return Object3D(obj, o)
 	},
 
-	loadObj: loadObj,
+	loadObj: async function loadObj(options, cb) {
+
+		//[jscastro] new added cache for 3D Objects
+		let cache = this.objectsCache.get(options.obj);
+		if (cache) {
+			cache.promise
+				.then(obj => {
+					//console.log("Cloning " + options.obj);
+					cb(obj.duplicate(options));
+				})
+				.catch(err => {
+					this.objectsCache.delete(options.obj);
+					console.error("Could not load model file: " + options.obj);
+				});
+		} else {
+			this.objectsCache.set(options.obj, {
+				promise: new Promise(
+					function (resolve, reject) {
+						loader(options, cb, function (obj) {
+							//console.log("Loading " + options.obj);
+							if (obj.duplicate) {
+								resolve(obj.duplicate());
+							} else {
+								reject(obj);
+							}
+						});
+					})
+			});
+
+		}
+	},
 
 	// Material
 
@@ -474,7 +520,20 @@ Threebox.prototype = {
 		return material(o)
 	},
 
+	initLights : {
+		ambientLight: null,
+		dirLight: null,
+		dirLightBack: null,
+		dirLightHelper: null,
+		hemiLight: null,
+		pointLight: null
+	},
+
 	utils: utils,
+
+	SunCalc: SunCalc,
+
+	Constants: ThreeboxConstants,
 
 	projectToWorld: function (coords) {
 		return this.utils.projectToWorld(coords)
@@ -526,6 +585,11 @@ Threebox.prototype = {
 		return result;
 	},
 
+	//[jscastro] method set the CSS2DObjects zoom range and hide them at the same time the layer is
+	setLabelZoomRange: function (minzoom, maxzoom) {
+		this.labelRenderer.setZoomRange(minzoom, maxzoom);
+	},
+
 	//[jscastro] method to replicate behaviour of map.setLayoutProperty when Threebox are affected
 	setLayoutProperty: function (layerId, name, value) {
 		//first set layout property at the map
@@ -574,17 +638,18 @@ Threebox.prototype = {
 		}
 	},
 
+	//[jscastro] mapbox setStyle removes all the layers, including custom layers, so tb.world must be cleaned up too
+	setStyle: function (styleId, options) {
+		this.map.setStyle(styleId, options);
+		this.clear(null, true);
+	},
+
 	//[jscastro] method to toggle Layer visibility
 	toggleLayer: function (layerId, visible) {
 		if (this.map.getLayer(layerId)) {
 			//call
 			this.setLayoutProperty(layerId, 'visibility', (visible ? 'visible' : 'none'))
 		};
-	},
-
-	//[jscastro] method set the CSS2DObjects zoom range and hide them at the same time the layer is
-	setLabelZoomRange: function (minzoom, maxzoom) {
-		this.labelRenderer.setZoomRange(minzoom, maxzoom);
 	},
 
 	update: function () {
@@ -595,6 +660,8 @@ Threebox.prototype = {
 
 		// Update any animations
 		this.objects.animationManager.update(timestamp);
+
+		this.updateLightHelper();
 
 		// Render the scene and repaint the map
 		this.renderer.state.reset();
@@ -613,10 +680,112 @@ Threebox.prototype = {
 	},
 
 	remove: function (obj) {
-		//[jscastro] remove also the label if exists dispatching the event removed to fire CSS2DRenderer "removed" listener
-		if (obj.label) { obj.label.remove() };
-		if (obj.tooltip) { obj.tooltip.remove() };
+		obj.dispose()
 		this.world.remove(obj);
+		obj = null;
+	},
+
+	//[jscastro] this clears tb.world in order to dispose properly the resources
+	clear: async function (layerId = null, dispose = false) {
+		return new Promise((resolve, reject) => {
+			let objects = [];
+			this.world.children.forEach(function (object) {
+				objects.push(object);
+			});
+			for (let i = 0; i < objects.length; i++) {
+				let obj = objects[i];
+				//if layerId, check the layer to remove, otherwise always remove
+				if ((layerId && obj.userData.feature.layer === layerId) || !layerId) {
+					this.remove(obj);
+				}
+			}
+			resolve("clear");
+		});
+	},
+
+	//[jscastro] remove a layer clearing first the 3D objects from this layer in tb.world
+	removeLayer: function (layerId) {
+		this.clear(layerId, true).then( () => {
+			this.map.removeLayer(layerId);
+		});
+	},
+
+	//[jscastro] get the sun position (azimuth, altitude) from a given datetime, lng, lat
+	getSunPosition: function (date, lng, lat) {
+		return SunCalc.getPosition(date, lat, lng);  
+	},
+
+	//[jscastro] set shadows for fill-extrusion layers
+	setBuildingShadows: function (options) {
+		if (this.map.getLayer(options.buildingsLayerId)) {
+			let layer = new BuildingShadows(options, this);
+			this.map.addLayer(layer, options.buildingsLayerId);
+		}
+		else {
+			console.warn("The layer '" + options.buildingsLayerId + "' does not exist in the map.");
+		}
+	},
+
+	//[jscastro] This method set the sun light for a given datetime and lnglat
+	setSunlight: function (newDate = new Date(), coords) {
+		if (!this.lights.dirLight || !this.options.realSunlight) {
+			console.warn("To use setSunlight it's required to set realSunlight : true in Threebox initial options.");
+			return;
+		}
+
+		var date = new Date(newDate.getTime());
+
+		if (coords) {
+			this.mapCenter = { lng: coords[0], lat: coords[1] };
+		}
+		else {
+			this.mapCenter = this.map.getCenter();
+		}
+
+		if (this.lightDateTime && this.lightDateTime.getTime() === date.getTime() && this.lightLng === this.mapCenter.lng && this.lightLat === this.mapCenter.lat) {
+			return; //setSunLight could be called on render, so due to performance, avoid duplicated calls
+		}
+
+		this.lightDateTime = date;
+		this.lightLng = this.mapCenter.lng; 
+		this.lightLat = this.mapCenter.lat
+		this.sunPosition = this.getSunPosition(date, this.mapCenter.lng, this.mapCenter.lat);  
+		let altitude = this.sunPosition.altitude;
+		let azimuth = Math.PI + this.sunPosition.azimuth;
+		//console.log("Altitude: " + utils.degreeify(altitude) + ", Azimuth: " + (utils.degreeify(azimuth)));
+
+		let radius = ThreeboxConstants.WORLD_SIZE / 2;
+		let alt = Math.sin(altitude);
+		let altRadius = Math.cos(altitude);
+		let azCos = Math.cos(azimuth) * altRadius;
+		let azSin = Math.sin(azimuth) * altRadius;
+
+		this.lights.dirLight.position.set(azSin, azCos, alt);
+		this.lights.dirLight.position.multiplyScalar(radius);
+		this.lights.dirLight.intensity = Math.max(alt, -0.15);
+		//this.lights.hemiLight.intensity = alt * 0.6;
+		//console.log("Intensity:" + this.lights.dirLight.intensity);
+		this.lights.dirLight.updateMatrixWorld();
+		this.updateLightHelper();
+		if (this.map.loaded()) {
+			this.map.setLight({
+				anchor: 'map',
+				position: [1.5, 180 + this.sunPosition.azimuth * 180 / Math.PI, 90 - this.sunPosition.altitude * 180 / Math.PI],
+				'position-transition': { duration: 0 },
+				//color: '#fdb'
+				color: `hsl(40, ${50 * Math.cos(this.sunPosition.altitude)}%, ${96 * Math.sin(this.sunPosition.altitude)}%)`
+			}, { duration: 0 });
+			//console.log(pos.altitude);
+		}
+	},
+
+	//[jscastro] this updates the directional light helper
+	updateLightHelper: function () {
+		if (this.lights.dirLightHelper) {
+			this.lights.dirLightHelper.position.setFromMatrixPosition(this.lights.dirLight.matrixWorld);
+			this.lights.dirLightHelper.updateMatrix();
+			this.lights.dirLightHelper.update();
+		}
 	},
 
 	//[jscastro] method to fully dispose the resources, watch out is you call this without navigating to other page
@@ -626,42 +795,7 @@ Threebox.prototype = {
 		//console.log(window.performance.memory);
 
 		return new Promise(disposed => {
-			this.world.traverse(function (obj) {
-				if (obj.geometry) {
-					obj.geometry.dispose();
-				}
-				if (obj.material) {
-					if (obj.material instanceof THREE.MeshFaceMaterial) {
-						obj.material.materials.forEach(function (m) {
-							m.dispose();
-							if (m.map) {
-								m.map.dispose();
-							}
-						});
-					} else {
-						obj.material.dispose();
-					}
-
-					let m = obj.material;
-					let md = (m.map || m.alphaMap || m.aoMap || m.bumpMap || m.displacementMap || m.emissiveMap || m.envMap || m.lightMap || m.metalnessMap || m.normalMap || m.roughnessMap)
-					if (md) {
-						if (m.map) m.map.dispose();
-						if (m.alphaMap) m.alphaMap.dispose();
-						if (m.aoMap) m.aoMap.dispose();
-						if (m.bumpMap) m.bumpMap.dispose();
-						if (m.displacementMap) m.displacementMap.dispose();
-						if (m.emissiveMap) m.emissiveMap.dispose();
-						if (m.envMap) m.envMap.dispose();
-						if (m.lightMap) m.lightMap.dispose();
-						if (m.metalnessMap) m.metalnessMap.dispose();
-						if (m.normalMap) m.normalMap.dispose();
-						if (m.roughnessMap) m.roughnessMap.dispose();
-					}
-				}
-				if (obj.dispose) {
-					obj.dispose();
-				}
-			});
+			this.clear(null, true);
 			this.map.remove();
 			this.map = {};
 			this.scene.remove(this.world);
@@ -679,16 +813,44 @@ Threebox.prototype = {
 
 	defaultLights: function () {
 
-		let ambientLight = new THREE.AmbientLight(new THREE.Color('hsl(0, 0%, 100%)'), 0.75);
-		this.scene.add(ambientLight);
+		this.lights.ambientLight = new THREE.AmbientLight(new THREE.Color('hsl(0, 0%, 100%)'), 0.75);
+		this.scene.add(this.lights.ambientLight);
 
-		let directionalLightBack = new THREE.DirectionalLight(new THREE.Color('hsl(0, 0%, 100%)'), 0.25);
-		directionalLightBack.position.set(30, 100, 100);
-		this.scene.add(directionalLightBack);
+		this.lights.dirLightBack = new THREE.DirectionalLight(new THREE.Color('hsl(0, 0%, 100%)'), 0.25);
+		this.lights.dirLightBack.position.set(30, 100, 100);
+		this.scene.add(this.lights.dirLightBack);
 
-		let directionalLightFront = new THREE.DirectionalLight(new THREE.Color('hsl(0, 0%, 100%)'), 0.25);
-		directionalLightFront.position.set(-30, 100, -100);
-		this.scene.add(directionalLightFront);
+		this.lights.dirLight  = new THREE.DirectionalLight(new THREE.Color('hsl(0, 0%, 100%)'), 0.25);
+		this.lights.dirLight.position.set(-30, 100, -100);
+		this.scene.add(this.lights.dirLight);
+
+	},
+
+	realSunlight: function () {
+
+		this.renderer.shadowMap.enabled = true;
+		//this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		this.lights.dirLight = new THREE.DirectionalLight(0xffffff, 1);
+		this.scene.add(this.lights.dirLight);
+		this.lights.dirLightHelper = new THREE.DirectionalLightHelper(this.lights.dirLight, 5);
+		this.scene.add(this.lights.dirLightHelper);
+		let d2 = 1000; let r2 = 2; let mapSize2 = 8192;
+		this.lights.dirLight.castShadow = true;
+		this.lights.dirLight.shadow.radius = r2;
+		this.lights.dirLight.shadow.mapSize.width = mapSize2;
+		this.lights.dirLight.shadow.mapSize.height = mapSize2;
+		this.lights.dirLight.shadow.camera.top = this.lights.dirLight.shadow.camera.right = d2;
+		this.lights.dirLight.shadow.camera.bottom = this.lights.dirLight.shadow.camera.left = -d2;
+		this.lights.dirLight.shadow.camera.near = 1;
+		this.lights.dirLight.shadow.camera.visible = true;
+		this.lights.dirLight.shadow.camera.far = 400000000; 
+
+		this.lights.hemiLight = new THREE.HemisphereLight(new THREE.Color(0xffffff), new THREE.Color(0xffffff), 0.6);
+		this.lights.hemiLight.color.setHSL(0.661, 0.96, 0.12);
+		this.lights.hemiLight.groundColor.setHSL(0.11, 0.96, 0.14);
+		this.lights.hemiLight.position.set(0, 0, 50);
+		this.scene.add(this.lights.hemiLight);
+		this.setSunlight();
 
 	},
 
@@ -696,12 +858,13 @@ Threebox.prototype = {
 
 	programs: function () { return this.renderer.info.programs.length },
 
-	version: '2.0.4',
+	version: '2.0.7',
 
 }
 
 var defaultOptions = {
-    defaultLights: false,
+	defaultLights: false,
+	realSunlight: false,
 	passiveRendering: true,
 	enableSelectingFeatures: false,
 	enableSelectingObjects: false,
@@ -712,7 +875,7 @@ var defaultOptions = {
 module.exports = exports = Threebox;
 
 
-},{"./animation/AnimationManager.js":3,"./camera/CameraSync.js":4,"./objects/LabelRenderer.js":6,"./objects/Object3D.js":7,"./objects/label.js":9,"./objects/line.js":10,"./objects/loadObj.js":11,"./objects/objects.js":17,"./objects/sphere.js":18,"./objects/tooltip.js":19,"./objects/tube.js":20,"./three.js":21,"./utils/constants.js":22,"./utils/material.js":23,"./utils/utils.js":24}],3:[function(require,module,exports){
+},{"./animation/AnimationManager.js":3,"./camera/CameraSync.js":4,"./objects/LabelRenderer.js":6,"./objects/Object3D.js":7,"./objects/effects/BuildingShadows.js":9,"./objects/label.js":10,"./objects/line.js":11,"./objects/loadObj.js":12,"./objects/objects.js":18,"./objects/sphere.js":19,"./objects/tooltip.js":20,"./objects/tube.js":21,"./three.js":22,"./utils/constants.js":23,"./utils/material.js":24,"./utils/suncalc.js":25,"./utils/utils.js":26}],3:[function(require,module,exports){
 const THREE = require('../three.js');
 var threebox = require('../Threebox.js');
 var utils = require("../utils/utils.js");
@@ -727,6 +890,10 @@ function AnimationManager(map) {
 };
 
 AnimationManager.prototype = {
+
+	unenroll: function (obj) {
+		this.enrolledObjects.splice(this.enrolledObjects.indexOf(obj), 1);
+	},
 
 	enroll: function (obj) {
 
@@ -786,7 +953,6 @@ AnimationManager.prototype = {
 		})
 
 		/* Extend the provided object with animation-specific properties and track in the animation manager */
-
 		this.enrolledObjects.push(obj);
 
 		// Give this object its own internal animation queue
@@ -843,7 +1009,7 @@ AnimationManager.prototype = {
 				this.animationQueue
 					.push(entry);
 
-				map.repaint = true;
+				tb.map.repaint = true;
 			}
 
 			//if no duration set, stop object's existing animations and go to that state immediately
@@ -893,7 +1059,7 @@ AnimationManager.prototype = {
 			this.animationQueue
 				.push(entry);
 
-			map.repaint = true;
+			tb.map.repaint = true;
 
 			return this;
 		};
@@ -930,7 +1096,7 @@ AnimationManager.prototype = {
 			if (w) this.position.copy(w);
 
 			this.updateMatrixWorld();
-			map.repaint = true
+			tb.map.repaint = true
 		};
 
 		//[jscastro] play default animation
@@ -953,7 +1119,7 @@ AnimationManager.prototype = {
 				this.animationQueue
 					.push(entry);
 
-				map.repaint = true
+				tb.map.repaint = true
 				return this;
 			}
 		}
@@ -1013,7 +1179,7 @@ AnimationManager.prototype = {
 				// Update the animation mixer and render this frame
 				obj.mixer.update(0.01);
 			}
-			map.repaint = true;
+			tb.map.repaint = true;
 			return this;
 		}
 
@@ -1128,7 +1294,7 @@ AnimationManager.prototype = {
 						object.isPlaying = true;
 						object.animationMethod = requestAnimationFrame(this.update);
 						object.mixer.update(object.clock.getDelta());
-						map.repaint = true;
+						tb.map.repaint = true;
 					}
 
 				}
@@ -1149,7 +1315,7 @@ const defaults = {
     }
 }
 module.exports = exports = AnimationManager;
-},{"../Threebox.js":2,"../three.js":21,"../utils/utils.js":24,"../utils/validate.js":25}],4:[function(require,module,exports){
+},{"../Threebox.js":2,"../three.js":22,"../utils/utils.js":26,"../utils/validate.js":27}],4:[function(require,module,exports){
 var THREE = require("../three.js");
 var utils = require("../utils/utils.js");
 var ThreeboxConstants = require("../utils/constants.js");
@@ -1273,7 +1439,7 @@ CameraSync.prototype = {
 }
 
 module.exports = exports = CameraSync;
-},{"../three.js":21,"../utils/constants.js":22,"../utils/utils.js":24}],5:[function(require,module,exports){
+},{"../three.js":22,"../utils/constants.js":23,"../utils/utils.js":26}],5:[function(require,module,exports){
 /**
  * @author mrdoob / http://mrdoob.com/
  */
@@ -1292,6 +1458,8 @@ THREE.CSS2DObject = function (element) {
 
 	this.dispose = function () {
 		this.remove();
+		this.element = null;
+		if (this.parent) this.parent.remove(this);
 	}
 
 	this.remove = function () {
@@ -1503,7 +1671,7 @@ THREE.CSS2DRenderer = function () {
 module.exports = exports = { CSS2DRenderer: THREE.CSS2DRenderer, CSS2DObject: THREE.CSS2DObject };
 
 
-},{"../three.js":21}],6:[function(require,module,exports){
+},{"../three.js":22}],6:[function(require,module,exports){
 /**
  * @author jscastro / https://github.com/jscastro76
  */
@@ -1612,8 +1780,8 @@ function Object3D(options) {
 	var projScaleGroup = new THREE.Group();
 	projScaleGroup.add(obj);
 	var userScaleGroup = Objects.prototype._makeGroup(projScaleGroup, options);
-
-	userScaleGroup.model = options.obj;
+	options.obj.name = "model";
+	//userScaleGroup.model = options.obj;
 
 	Objects.prototype._addMethods(userScaleGroup);
 	//[jscastro] calculate automatically the pivotal center of the object
@@ -1635,7 +1803,7 @@ function Object3D(options) {
 
 
 module.exports = exports = Object3D;
-},{"../utils/utils.js":24,"./objects.js":17}],8:[function(require,module,exports){
+},{"../utils/utils.js":26,"./objects.js":18}],8:[function(require,module,exports){
 /** @license zlib.js 2012 - imaya [ https://github.com/imaya/zlib.js ] The MIT License */var mod = {}, l = void 0, aa = mod; function r(c, d) { var a = c.split("."), b = aa; !(a[0] in b) && b.execScript && b.execScript("var " + a[0]); for (var e; a.length && (e = a.shift());)!a.length && d !== l ? b[e] = d : b = b[e] ? b[e] : b[e] = {} }; var t = "undefined" !== typeof Uint8Array && "undefined" !== typeof Uint16Array && "undefined" !== typeof Uint32Array && "undefined" !== typeof DataView; function v(c) { var d = c.length, a = 0, b = Number.POSITIVE_INFINITY, e, f, g, h, k, m, n, p, s, x; for (p = 0; p < d; ++p)c[p] > a && (a = c[p]), c[p] < b && (b = c[p]); e = 1 << a; f = new (t ? Uint32Array : Array)(e); g = 1; h = 0; for (k = 2; g <= a;) { for (p = 0; p < d; ++p)if (c[p] === g) { m = 0; n = h; for (s = 0; s < g; ++s)m = m << 1 | n & 1, n >>= 1; x = g << 16 | p; for (s = m; s < e; s += k)f[s] = x; ++h } ++g; h <<= 1; k <<= 1 } return [f, a, b] }; function w(c, d) {
 this.g = []; this.h = 32768; this.d = this.f = this.a = this.l = 0; this.input = t ? new Uint8Array(c) : c; this.m = !1; this.i = y; this.r = !1; if (d || !(d = {})) d.index && (this.a = d.index), d.bufferSize && (this.h = d.bufferSize), d.bufferType && (this.i = d.bufferType), d.resize && (this.r = d.resize); switch (this.i) {
 	case A: this.b = 32768; this.c = new (t ? Uint8Array : Array)(32768 + this.h + 258); break; case y: this.b = 0; this.c = new (t ? Uint8Array : Array)(this.h); this.e = this.z; this.n = this.v; this.j = this.w; break; default: throw Error("invalid inflate mode");
@@ -1668,9 +1836,121 @@ var Zlib = mod.Zlib;
 module.exports = exports = Zlib;
 
 },{}],9:[function(require,module,exports){
+const SunCalc = require('../../utils/suncalc.js');
+
+class BuildingShadows {
+	constructor(options, threebox) {
+		this.id = options.layerId;
+		this.type = 'custom';
+		this.renderingMode = '3d';
+		this.opacity = 0.5;
+		this.buildingsLayerId = options.buildingsLayerId;
+		this.minAltitude = options.minAltitude || 0.10;
+		this.tb = threebox;
+	}
+	onAdd(map, gl) {
+		this.map = map;
+		const vertexSource = `
+			uniform mat4 u_matrix;
+			uniform float u_height_factor;
+			uniform float u_altitude;
+			uniform float u_azimuth;
+			attribute vec2 a_pos;
+			attribute vec4 a_normal_ed;
+			attribute lowp vec2 a_base;
+			attribute lowp vec2 a_height;
+			void main() {
+				float base = max(0.0, a_base.x);
+				float height = max(0.0, a_height.x);
+				float t = mod(a_normal_ed.x, 2.0);
+				vec4 pos = vec4(a_pos, t > 0.0 ? height : base, 1);
+				float len = pos.z * u_height_factor / tan(u_altitude);
+				pos.x += cos(u_azimuth) * len;
+				pos.y += sin(u_azimuth) * len;
+				pos.z = 0.0;
+				gl_Position = u_matrix * pos;
+			}
+			`;
+		const fragmentSource = `
+			void main() {
+				gl_FragColor = vec4(0.0, 0.0, 0.0, 0.7);
+			}
+			`;
+		const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, vertexSource);
+		gl.compileShader(vertexShader);
+		const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, fragmentSource);
+		gl.compileShader(fragmentShader);
+		this.program = gl.createProgram();
+		gl.attachShader(this.program, vertexShader);
+		gl.attachShader(this.program, fragmentShader);
+		gl.linkProgram(this.program);
+		gl.validateProgram(this.program);
+		this.uMatrix = gl.getUniformLocation(this.program, "u_matrix");
+		this.uHeightFactor = gl.getUniformLocation(this.program, "u_height_factor");
+		this.uAltitude = gl.getUniformLocation(this.program, "u_altitude");
+		this.uAzimuth = gl.getUniformLocation(this.program, "u_azimuth");
+		this.aPos = gl.getAttribLocation(this.program, "a_pos");
+		this.aNormal = gl.getAttribLocation(this.program, "a_normal_ed");
+		this.aBase = gl.getAttribLocation(this.program, "a_base");
+		this.aHeight = gl.getAttribLocation(this.program, "a_height");
+	}
+	render(gl, matrix) {
+		gl.useProgram(this.program);
+		const source = this.map.style.sourceCaches['composite'];
+		const coords = source.getVisibleCoordinates().reverse();
+		const buildingsLayer = map.getLayer(this.buildingsLayerId);
+		const context = this.map.painter.context;
+		const { lng, lat } = this.map.getCenter();
+		const pos = this.tb.getSunPosition(this.tb.lightDateTime, lng, lat);
+		gl.uniform1f(this.uAltitude, (pos.altitude > this.minAltitude ? pos.altitude : 0));
+		gl.uniform1f(this.uAzimuth, pos.azimuth + 3 * Math.PI / 2);
+		//this.opacity = Math.sin(Math.max(pos.altitude, 0)) * 0.6;
+		gl.enable(gl.BLEND);
+		//gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.DST_ALPHA, gl.SRC_ALPHA);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+		var ext = gl.getExtension('EXT_blend_minmax');
+		//gl.blendEquationSeparate(gl.FUNC_SUBTRACT, ext.MIN_EXT);
+		//gl.blendEquation(gl.FUNC_ADD);
+		gl.disable(gl.DEPTH_TEST);
+		for (const coord of coords) {
+			const tile = source.getTile(coord);
+			const bucket = tile.getBucket(buildingsLayer);
+			if (!bucket) continue;
+			const [heightBuffer, baseBuffer] = bucket.programConfigurations.programConfigurations[this.buildingsLayerId]._buffers;
+			gl.uniformMatrix4fv(this.uMatrix, false, coord.posMatrix);
+			gl.uniform1f(this.uHeightFactor, Math.pow(2, coord.overscaledZ) / tile.tileSize / 8);
+			for (const segment of bucket.segments.get()) {
+				const numPrevAttrib = context.currentNumAttributes || 0;
+				const numNextAttrib = 2;
+				for (let i = numNextAttrib; i < numPrevAttrib; i++) gl.disableVertexAttribArray(i);
+				const vertexOffset = segment.vertexOffset || 0;
+				gl.enableVertexAttribArray(this.aPos);
+				gl.enableVertexAttribArray(this.aNormal);
+				gl.enableVertexAttribArray(this.aHeight);
+				gl.enableVertexAttribArray(this.aBase);
+				bucket.layoutVertexBuffer.bind();
+				gl.vertexAttribPointer(this.aPos, 2, gl.SHORT, false, 12, 12 * vertexOffset);
+				gl.vertexAttribPointer(this.aNormal, 4, gl.SHORT, false, 12, 4 + 12 * vertexOffset);
+				heightBuffer.bind();
+				gl.vertexAttribPointer(this.aHeight, 1, gl.FLOAT, false, 4, 4 * vertexOffset);
+				baseBuffer.bind();
+				gl.vertexAttribPointer(this.aBase, 1, gl.FLOAT, false, 4, 4 * vertexOffset);
+				bucket.indexBuffer.bind();
+				context.currentNumAttributes = numNextAttrib;
+				gl.drawElements(gl.TRIANGLES, segment.primitiveLength * 3, gl.UNSIGNED_SHORT, segment.primitiveOffset * 3 * 2);
+			}
+		}
+	}
+}
+
+
+module.exports = exports = BuildingShadows;
+},{"../../utils/suncalc.js":25}],10:[function(require,module,exports){
 const utils = require("../utils/utils.js");
 const Objects = require('./objects.js');
-const CSS2D = require('./CSS2DRenderer.js');
+const THREE = require('./CSS2DRenderer.js');
 
 function Label(obj) {
 
@@ -1678,13 +1958,13 @@ function Label(obj) {
 
 	let div = Objects.prototype.drawLabelHTML(obj.htmlElement, obj.cssClass);
 
-	let label = new CSS2D.CSS2DObject(div);
+	let label = new THREE.CSS2DObject(div);
+	label.name = "label";
 	label.visible = obj.alwaysVisible;
 	label.alwaysVisible = obj.alwaysVisible;
 
 	var userScaleGroup = Objects.prototype._makeGroup(label, obj);
 	Objects.prototype._addMethods(userScaleGroup);
-	userScaleGroup.label = label;
 	userScaleGroup.visibility = obj.alwaysVisible;
 
 	return userScaleGroup;
@@ -1692,7 +1972,7 @@ function Label(obj) {
 
 
 module.exports = exports = Label;
-},{"../utils/utils.js":24,"./CSS2DRenderer.js":5,"./objects.js":17}],10:[function(require,module,exports){
+},{"../utils/utils.js":26,"./CSS2DRenderer.js":5,"./objects.js":18}],11:[function(require,module,exports){
 var THREE = require("../three.js");
 var utils = require("../utils/utils.js");
 var Objects = require('./objects.js');
@@ -2687,7 +2967,7 @@ THREE.Wireframe.prototype = Object.assign( Object.create( THREE.Mesh.prototype )
 
 } );
 
-},{"../three.js":21,"../utils/utils.js":24,"./objects.js":17}],11:[function(require,module,exports){
+},{"../three.js":22,"../utils/utils.js":26,"./objects.js":18}],12:[function(require,module,exports){
 var utils = require("../utils/utils.js");
 var Objects = require('./objects.js');
 const OBJLoader = require("./loaders/OBJLoader.js");
@@ -2701,13 +2981,14 @@ const gltfLoader = new GLTFLoader();
 const fbxLoader = new FBXLoader();
 const daeLoader = new ColladaLoader();
 
-function loadObj(options, cb) {
+function loadObj(options, cb, promise) {
 
 	if (options === undefined) return console.error("Invalid options provided to loadObj()");
 
 	options = utils._validate(options, Objects.prototype._defaults.loadObj);
 
 	this.loaded = false;
+
 	//console.time('loadObj Start ');
 	const modelComplete = (m) => {
 		console.log("Model complete!", m);
@@ -2748,7 +3029,7 @@ function loadObj(options, cb) {
 		loader.load(options.obj, obj => {
 
 			//[jscastro] MTL/GLTF/FBX models have a different structure
-			let animations;
+			let animations = [];
 			switch (options.type) {
 				case "mtl":
 					obj = obj.children[0];
@@ -2762,7 +3043,7 @@ function loadObj(options, cb) {
 					animations = obj.animations;
 					break;
 			}
-
+			obj.animations = animations;
 			// [jscastro] options.rotation was wrongly used
 			var r = utils.types.rotation(options.rotation, [0, 0, 0]);
 			var s = utils.types.scale(options.scale, [1, 1, 1]);
@@ -2770,11 +3051,12 @@ function loadObj(options, cb) {
 			obj.scale.set(s[0], s[1], s[2]);
 			// [jscastro] normalize specular/metalness/shininess from meshes in FBX and GLB model as it would need 5 lights to illuminate them properly
 			if (options.normalize) { normalizeSpecular(obj); }
-
+			obj.name = "model";
 			var projScaleGroup = new THREE.Group();
+			projScaleGroup.name = "group";
 			projScaleGroup.add(obj)
 			var userScaleGroup = Objects.prototype._makeGroup(projScaleGroup, options);
-			userScaleGroup.model = obj;
+			userScaleGroup.name = "object";
 			//[jscastro] assign the animations to the userScaleGroup before enrolling it in AnimationsManager through _addMethods
 			userScaleGroup.animations = animations;
 
@@ -2784,6 +3066,8 @@ function loadObj(options, cb) {
 			//[jscastro] override the center calculated if the object has adjustments
 			userScaleGroup.setCenter(options.adjustment);
 
+			let anim = userScaleGroup.animations;
+
 			// [jscastro] after adding methods create the bounding box at userScaleGroup but add it to its children for positioning
 			let boxGrid = userScaleGroup.drawBoundingBox();
 			projScaleGroup.add(boxGrid);
@@ -2792,12 +3076,14 @@ function loadObj(options, cb) {
 			userScaleGroup.addTooltip(userScaleGroup.uuid, true, userScaleGroup.anchor);
 
 			cb(userScaleGroup);
+			promise(userScaleGroup);
 
 			// [jscastro] initialize the default animation to avoid issues with position
 			userScaleGroup.idle();
 
 		}, () => (null), error => {
-			console.error("Could not load model file: " + options.obj + " \n " + error.stack);
+				console.error("Could not load model file: " + options.obj + " \n " + error.stack);
+				promise("Error loading the model");
 		});
 
 	};
@@ -2829,36 +3115,10 @@ function loadObj(options, cb) {
 		});
 	}
 
-	//[jscastro] new added cache for 3D Objects
-	function cache(obj) {
-		let found = false;
-		objectsCache.forEach(function (c) {
-			if (c.userData.obj == obj.userData.obj) {
-				found = true;
-				return;
-			}
-		});
-		if (!found) {
-			objectsCache.push(obj);
-		}
-		return found;
-	};
-
-	//[jscastro] new added cache for 3D Objects
-	function getFromCache(objUrl) {
-		let dup = null;
-		objectsCache.forEach(function (c) {
-			if (c.userData.obj == objUrl) {
-				dup = c.duplicate();
-			}
-		});
-		return dup;
-	};
-
 }
 
 module.exports = exports = loadObj;
-},{"../utils/utils.js":24,"./loaders/ColladaLoader.js":12,"./loaders/FBXLoader.js":13,"./loaders/GLTFLoader.js":14,"./loaders/MTLLoader.js":15,"./loaders/OBJLoader.js":16,"./objects.js":17}],12:[function(require,module,exports){
+},{"../utils/utils.js":26,"./loaders/ColladaLoader.js":13,"./loaders/FBXLoader.js":14,"./loaders/GLTFLoader.js":15,"./loaders/MTLLoader.js":16,"./loaders/OBJLoader.js":17,"./objects.js":18}],13:[function(require,module,exports){
 const THREE = require('../../three.js');
 
 /**
@@ -6844,7 +7104,7 @@ THREE.ColladaLoader.prototype = Object.assign(Object.create(THREE.Loader.prototy
 
 module.exports = exports = THREE.ColladaLoader;
 
-},{"../../three.js":21}],13:[function(require,module,exports){
+},{"../../three.js":22}],14:[function(require,module,exports){
 const THREE = require('../../three.js');
 const Zlib = require('../Zlib.Inflate.js');
 
@@ -10979,7 +11239,7 @@ THREE.FBXLoader = (function () {
 
 module.exports = exports = THREE.FBXLoader;
 
-},{"../../three.js":21,"../Zlib.Inflate.js":8}],14:[function(require,module,exports){
+},{"../../three.js":22,"../Zlib.Inflate.js":8}],15:[function(require,module,exports){
 const THREE = require('../../three.js');
 /**
  * @author Rich Tibbett / https://github.com/richtr
@@ -14425,7 +14685,7 @@ THREE.GLTFLoader = (function () {
 })();
 
 module.exports = exports = THREE.GLTFLoader;
-},{"../../three.js":21}],15:[function(require,module,exports){
+},{"../../three.js":22}],16:[function(require,module,exports){
 const THREE = require('../../three.js');
 
 const MTLLoader = function ( manager ) {
@@ -14985,7 +15245,7 @@ THREE.MTLLoader.MaterialCreator.prototype = {
 };
 
 module.exports = exports = THREE.MTLLoader;
-},{"../../three.js":21}],16:[function(require,module,exports){
+},{"../../three.js":22}],17:[function(require,module,exports){
 /**
  * @author mrdoob / http://mrdoob.com/
  */
@@ -15861,7 +16121,12 @@ THREE.OBJLoader = (function () {
 })();
 
 module.exports = exports = THREE.OBJLoader;
-},{"../../three.js":21}],17:[function(require,module,exports){
+},{"../../three.js":22}],18:[function(require,module,exports){
+/**
+ * @author peterqliu / https://github.com/peterqliu
+ * @author jscastro / https://github.com/jscastro76
+ */
+
 var utils = require("../utils/utils.js");
 var material = require("../utils/material.js");
 const THREE = require('../three.js');
@@ -15903,6 +16168,21 @@ Objects.prototype = {
 	},
 
 	extrusion: function (options) {
+
+	},
+
+	unenroll: function (obj, isStatic) {
+		var root = this;
+
+		if (isStatic) {
+
+		}
+
+		else {
+			// Bestow this mesh with animation superpowers and keeps track of its movements in the global animation queue			
+			root.animationManager.unenroll(obj);
+
+		}
 
 	},
 
@@ -16016,24 +16296,22 @@ Objects.prototype = {
 				model.position.add(point); // re-add the offset
 				model.rotateOnAxis(axis, theta)
 
-				map.repaint = true;
+				tb.map.repaint = true;
 			}
 
 			let _boundingBox;
 			//[jscastro] added property for boundingBox helper
 			Object.defineProperty(obj, 'boundingBox', {
-				get() { return _boundingBox; },
-				set(value) {
-					_boundingBox = value;
+				get() {
+					return obj.getObjectByName("BoxModel");
 				}
 			})
 
 			let _boundingBoxShadow;
 			//[jscastro] added property for boundingBox helper
 			Object.defineProperty(obj, 'boundingBoxShadow', {
-				get() { return _boundingBoxShadow; },
-				set(value) {
-					_boundingBoxShadow = value;
+				get() {
+					return obj.getObjectByName("BoxShadow");
 				}
 			})
 
@@ -16049,7 +16327,7 @@ Objects.prototype = {
 				boxModel.name = "BoxModel";
 				boxGrid.add(boxModel);
 				boxModel.layers.disable(0); // it makes the object invisible for the raycaster
-				obj.boundingBox = boxModel;
+				//obj.boundingBox = boxModel;
 
 				//it needs to clone, to avoid changing the object by reference
 				let bb2 = bb.clone();
@@ -16060,7 +16338,7 @@ Objects.prototype = {
 
 				boxGrid.add(boxShadow);
 				boxShadow.layers.disable(0); // it makes the object invisible for the raycaster
-				obj.boundingBoxShadow = boxShadow;
+				//obj.boundingBoxShadow = boxShadow;
 
 				boxGrid.visible = false; // visibility is managed from the parent
 				return boxGrid;
@@ -16073,11 +16351,13 @@ Objects.prototype = {
 					obj.boundingBoxShadow.box.min.z = -obj.modelHeight;
 				}
 			}
+
 			//[jscastro] Set the positional and pivotal anchor automatically from string param  
 			obj.setAnchor = function (anchor) {
 				const box = obj.box3();
 				const size = box.getSize(new THREE.Vector3());
 				const center = box.getCenter(new THREE.Vector3());
+				obj.none = { x: 0, y: 0, z: 0 };
 				obj.center = { x: center.x, y: center.y, z: box.min.z };
 				obj.bottom = { x: center.x, y: box.max.y, z: box.min.z };
 				obj.bottomLeft = { x: box.max.x, y: box.max.y, z: box.min.z };
@@ -16090,7 +16370,6 @@ Objects.prototype = {
 
 				switch (anchor) {
 					case 'center':
-					case 'auto':
 						obj.anchor = obj.center;
 						break;
 					case 'top':
@@ -16118,12 +16397,16 @@ Objects.prototype = {
 					case 'bottom-right':
 						obj.anchor = obj.bottomRight;
 						break;
+					case 'auto':
+					case 'none':
+						obj.anchor = obj.none;
 				}
 
 				obj.model.position.set(-obj.anchor.x, -obj.anchor.y, -obj.anchor.z);
 
 			}
-			//[jscastro] Set the positional and pivotal anchor based on (x, y, z) size units  
+
+			//[jscastro] Set the positional and pivotal anchor based on (x, y, z) size units
 			obj.setCenter = function (center) {
 				//[jscastro] if the object options have an adjustment to center the 3D Object different to 0
 				if (center && (center.x != 0 || center.y != 0 || center.z != 0)) {
@@ -16134,21 +16417,27 @@ Objects.prototype = {
 			}
 
 			let _label;
-			//[jscastro] added property for wireframes state
+			//[jscastro] added property for simulated label
 			Object.defineProperty(obj, 'label', {
-				get() { return _label; },
-				set(value) {
-					_label = value;
-				}
+				get() { return obj.getObjectByName("label"); }
 			});
 
 			let _tooltip;
 			//[jscastro] added property for simulated tooltip
 			Object.defineProperty(obj, 'tooltip', {
-				get() { return _tooltip; },
-				set(value) {
-					_tooltip = value;
-				}
+				get() { return obj.getObjectByName("tooltip"); }
+			});
+
+			//[jscastro] added property for the internal 3D model
+			Object.defineProperty(obj, 'model', {
+				get() { return obj.getObjectByName("model"); }
+			});
+
+			let _animations;
+			//[jscastro] added property for the internal 3D model
+			Object.defineProperty(obj, 'animations', {
+				get() { return _animations},
+				set(value) { _animations = value}
 			});
 
 			//[jscastro] added property to redefine visible, including the label and tooltip
@@ -16202,13 +16491,14 @@ Objects.prototype = {
 				const box = obj.box3();
 				const size = box.getSize(new THREE.Vector3());
 				let bottomLeft = { x: box.max.x, y: box.max.y, z: box.min.z };
-				if (obj.label) { obj.label.remove; obj.label = null; }
-				obj.label = new CSS2D.CSS2DObject(div);
-				obj.label.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z * 0.5); //middle-centered
-				obj.label.visible = visible;
-				obj.label.alwaysVisible = visible;
+				if (obj.label) { obj.label.remove; }
+				let label = new CSS2D.CSS2DObject(div);
+				label.name = "label";
+				label.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z * 0.5); //middle-centered
+				label.visible = visible;
+				label.alwaysVisible = visible;
 
-				return obj.label;
+				return label;
 			}
 
 			//[jscastro] add tooltip method 
@@ -16218,14 +16508,64 @@ Objects.prototype = {
 					const box = obj.box3();
 					const size = box.getSize(new THREE.Vector3());
 					let bottomLeft = { x: box.max.x, y: box.max.y, z: box.min.z };
-					if (obj.tooltip) { obj.tooltip.remove; obj.tooltip = null; }
-					obj.tooltip = new CSS2D.CSS2DObject(divToolTip);
-					obj.tooltip.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z); //top-centered
-					obj.tooltip.visible = false; //only visible on mouseover or selected
+					if (obj.tooltip) { obj.tooltip.remove; }
+					let tooltip = new CSS2D.CSS2DObject(divToolTip);
+					tooltip.name = "tooltip";
+					tooltip.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z); //top-centered
+					tooltip.visible = false; //only visible on mouseover or selected
 					//we add it to the first children to get same boxing and position
-					obj.children[0].add(obj.tooltip);
+					obj.children[0].add(tooltip);
 				}
 			}
+
+			let _castShadow = false;
+			//[jscastro] added property for traverse an object to cast a shadow
+			Object.defineProperty(obj, 'castShadow', {
+				get() { return _castShadow; },
+				set(value) {
+					if (_castShadow != value) {
+						obj.model.traverse(function (c) {
+							if (c.isMesh) c.castShadow = true;
+						});
+						if (value) {
+							// we add the shadow plane automatically 
+							const s = obj.modelSize;
+							const sizes = [s.x, s.y, s.z];
+							const planeSize = Math.max(...sizes) * 10;
+							const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
+							const planeMat = new THREE.ShadowMaterial();
+							planeMat.opacity = 0.5;
+							let plane = new THREE.Mesh(planeGeo, planeMat);
+							plane.layers.enable(1); plane.layers.disable(0); // it makes the object invisible for the raycaster
+							plane.receiveShadow = value;
+							obj.add(plane);
+						} else {
+							// or we remove it 
+							obj.traverse(function (c) {
+								if (c.isMesh && c.material instanceof THREE.ShadowMaterial)
+									obj.remove(c);	
+							});
+
+						}
+						_castShadow = value;
+					}
+				}
+			})
+
+			let _receiveShadow = false;
+			//[jscastro] added property for traverse an object to cast a shadow
+			Object.defineProperty(obj, 'receiveShadow', {
+				get() { return _receiveShadow; },
+				set(value) {
+					if (_receiveShadow != value) {
+
+						obj.model.traverse(function (c) {
+							if (c.isMesh) c.receiveShadow = true;
+						});
+						_receiveShadow = value;
+					}
+				}
+			})
 
 			let _wireframe = false;
 			//[jscastro] added property for wireframes state
@@ -16340,9 +16680,9 @@ Objects.prototype = {
 				if (obj.model) {
 					//let's clone the object before manipulate it
 					let dup = obj.clone(true);
-					dup.model = obj.model.clone();
+					let model = obj.model.clone();
 					//get the size of the model because the object is translated and has boundingBoxShadow
-					bounds = new THREE.Box3().setFromObject(dup.model);
+					bounds = new THREE.Box3().setFromObject(model);
 					//if the object has parent it's already in the added to world so it's scaled and it could be rotated
 					if (obj.parent) {
 						//first, we return the object to it's original position of rotation, extract rotation and apply inversed
@@ -16352,7 +16692,7 @@ Objects.prototype = {
 						rm.getInverse(rmi);
 						dup.setRotationFromMatrix(rmi);
 						//now the object inside will give us a NAABB Non-Axes Aligned Bounding Box 
-						bounds = new THREE.Box3().setFromObject(dup.model);
+						bounds = new THREE.Box3().setFromObject(model);
 					}
 				}
 				return bounds;
@@ -16388,22 +16728,21 @@ Objects.prototype = {
 
 		}
 
-		obj.add = function () {
-			tb.add(obj);
-			if (!isStatic) obj.set({ position: obj.coordinates });
-			return obj;
+		obj.add = function (o) {
+			obj.children[0].add(o);
+			o.position.z = (obj.coordinates[2] ? -obj.coordinates[2] : 0);
+			return o;
 		}
 
-		obj.remove = function () {
-			tb.remove(obj);
+		obj.remove = function (o) {
+			obj.children[0].remove(o);
 			tb.map.repaint = true;
 		}
+
 		//[jscastro] clone + assigning all the attributes
-		obj.duplicate = function () {
-			var dupe = obj.clone(true);
-			dupe.userData = obj.userData;
-			dupe.model = dupe.children[0].children[0];
-			dupe.animations = dupe.model.animations;
+		obj.duplicate = function (options) {
+			let dupe = obj.clone(true);
+			dupe.userData = options || obj.userData;
 			root._addMethods(dupe);
 			dupe.deepCopy(obj);
 
@@ -16413,26 +16752,73 @@ Objects.prototype = {
 		obj.deepCopy = function (o) {
 
 			obj.anchor = o.anchor;
+			obj.none = { x: 0, y: 0, z: 0 };
+			obj.center = o.center;
 			obj.bottom = o.bottom;
 			obj.bottomLeft = o.bottomLeft;
 			obj.bottomRight = o.bottomRight;
-			obj.center = o.center;
-			obj.left = o.left;
-			obj.right = o.right;
 			obj.top = o.top;
 			obj.topLeft = o.topLeft;
 			obj.topRight = o.topRight;
-			obj.boundingBox = obj.children[0].children[1].children[0];
-			obj.boundingBoxShadow = obj.children[0].children[1].children[1];
-			obj.tooltip = obj.children[0].children[2];
+			obj.left = o.left;
+			obj.right = o.right;
 
 			return obj;
 		}
 
 		obj.dispose = function () {
-			if (obj.label) { obj.label.dispose() };
-			if (obj.tooltip) { obj.tooltip.dispose() };
-			if (obj.model) { obj.model = {} };
+
+			Objects.prototype.unenroll(obj);
+
+			obj.traverse(o => {
+				//don't dispose th object itself as it will be recursive
+				if (o.parent && o.parent.name == "world") return;
+				if (o.isMesh) {
+					//console.log('dispose geometry!')
+					o.geometry.dispose();
+
+					if (o.material.isMaterial) {
+						cleanMaterial(o.material)
+					} else {
+						// an array of materials
+						for (const material of o.material) cleanMaterial(material)
+					}
+				}
+				if (o.dispose) o.dispose();
+
+			})
+
+			obj.children = [];
+
+		}
+
+		const cleanMaterial = material => {
+			//console.log('dispose material!')
+			material.dispose()
+
+			// dispose textures
+			for (const key of Object.keys(material)) {
+				const value = material[key]
+				if (value && typeof value === 'object' && 'minFilter' in value) {
+					//console.log('dispose texture!')
+					value.dispose()
+				}
+			}
+			let m = material;
+			let md = (m.map || m.alphaMap || m.aoMap || m.bumpMap || m.displacementMap || m.emissiveMap || m.envMap || m.lightMap || m.metalnessMap || m.normalMap || m.roughnessMap)
+			if (md) {
+				if (m.map) m.map.dispose();
+				if (m.alphaMap) m.alphaMap.dispose();
+				if (m.aoMap) m.aoMap.dispose();
+				if (m.bumpMap) m.bumpMap.dispose();
+				if (m.displacementMap) m.displacementMap.dispose();
+				if (m.emissiveMap) m.emissiveMap.dispose();
+				if (m.envMap) m.envMap.dispose();
+				if (m.lightMap) m.lightMap.dispose();
+				if (m.metalnessMap) m.metalnessMap.dispose();
+				if (m.normalMap) m.normalMap.dispose();
+				if (m.roughnessMap) m.roughnessMap.dispose();
+			}
 		}
 
 		return obj
@@ -16591,7 +16977,7 @@ Objects.prototype = {
 }
 
 module.exports = exports = Objects;
-},{"../animation/AnimationManager.js":3,"../three.js":21,"../utils/material.js":23,"../utils/utils.js":24,"./CSS2DRenderer.js":5}],18:[function(require,module,exports){
+},{"../animation/AnimationManager.js":3,"../three.js":22,"../utils/material.js":24,"../utils/utils.js":26,"./CSS2DRenderer.js":5}],19:[function(require,module,exports){
 var utils = require("../utils/utils.js");
 var material = require("../utils/material.js");
 var Objects = require('./objects.js');
@@ -16611,7 +16997,7 @@ function Sphere(options) {
 
 
 module.exports = exports = Sphere;
-},{"../utils/material.js":23,"../utils/utils.js":24,"./Object3D.js":7,"./objects.js":17}],19:[function(require,module,exports){
+},{"../utils/material.js":24,"../utils/utils.js":26,"./Object3D.js":7,"./objects.js":18}],20:[function(require,module,exports){
 const utils = require("../utils/utils.js");
 const Objects = require('./objects.js');
 const CSS2D = require('./CSS2DRenderer.js');
@@ -16626,17 +17012,16 @@ function Tooltip(obj) {
 
 		let tooltip = new CSS2D.CSS2DObject(divToolTip);
 		tooltip.visible = false;
+		tooltip.name = "tooltip";
 		var userScaleGroup = Objects.prototype._makeGroup(tooltip, obj);
 		Objects.prototype._addMethods(userScaleGroup);
-		userScaleGroup.tooltip = tooltip;
-
 		return userScaleGroup;
 	}
 
 }
 
 module.exports = exports = Tooltip;
-},{"../utils/utils.js":24,"./CSS2DRenderer.js":5,"./objects.js":17}],20:[function(require,module,exports){
+},{"../utils/utils.js":26,"./CSS2DRenderer.js":5,"./objects.js":18}],21:[function(require,module,exports){
 var utils = require("../utils/utils.js");
 var material = require("../utils/material.js");
 var Objects = require('./objects.js');
@@ -16841,7 +17226,7 @@ tube.prototype = {
 module.exports = exports = tube;
 
 
-},{"../three.js":21,"../utils/material.js":23,"../utils/utils.js":24,"./Object3D.js":7,"./objects.js":17}],21:[function(require,module,exports){
+},{"../three.js":22,"../utils/material.js":24,"../utils/utils.js":26,"./Object3D.js":7,"./objects.js":18}],22:[function(require,module,exports){
 // threejs.org/license
 (function(k,ua){"object"===typeof exports&&"undefined"!==typeof module?ua(exports):"function"===typeof define&&define.amd?define(["exports"],ua):(k=k||self,ua(k.THREE={}))})(this,function(k){function ua(){}function v(a,b){this.x=a||0;this.y=b||0}function ya(){this.elements=[1,0,0,0,1,0,0,0,1];0<arguments.length&&console.error("THREE.Matrix3: the constructor no longer reads arguments. use .set() instead.")}function W(a,b,c,d,e,f,g,h,l,m){Object.defineProperty(this,"id",{value:ej++});this.uuid=O.generateUUID();
 this.name="";this.image=void 0!==a?a:W.DEFAULT_IMAGE;this.mipmaps=[];this.mapping=void 0!==b?b:W.DEFAULT_MAPPING;this.wrapS=void 0!==c?c:1001;this.wrapT=void 0!==d?d:1001;this.magFilter=void 0!==e?e:1006;this.minFilter=void 0!==f?f:1008;this.anisotropy=void 0!==l?l:1;this.format=void 0!==g?g:1023;this.internalFormat=null;this.type=void 0!==h?h:1009;this.offset=new v(0,0);this.repeat=new v(1,1);this.center=new v(0,0);this.rotation=0;this.matrixAutoUpdate=!0;this.matrix=new ya;this.generateMipmaps=
@@ -17897,7 +18282,7 @@ Oh;k.UnsignedByteType=1009;k.UnsignedInt248Type=1020;k.UnsignedIntType=1014;k.Un
 Ba;k.WebGLRenderTargetCube=function(a,b,c){console.warn("THREE.WebGLRenderTargetCube( width, height, options ) is now WebGLCubeRenderTarget( size, options ).");return new Zb(a,c)};k.WebGLRenderer=jg;k.WebGLUtils=Th;k.WireframeGeometry=Pc;k.WireframeHelper=function(a,b){console.warn("THREE.WireframeHelper has been removed. Use THREE.WireframeGeometry instead.");return new ma(new Pc(a.geometry),new da({color:void 0!==b?b:16777215}))};k.WrapAroundEnding=2402;k.XHRLoader=function(a){console.warn("THREE.XHRLoader has been renamed to THREE.FileLoader.");
 return new Ta(a)};k.ZeroCurvatureEnding=2400;k.ZeroFactor=200;k.ZeroSlopeEnding=2401;k.ZeroStencilOp=0;k.sRGBEncoding=3001;Object.defineProperty(k,"__esModule",{value:!0})});
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 const WORLD_SIZE = 1024000;
 const MERCATOR_A = 6378137.0;
 const FOV = Math.atan(3/4);
@@ -17913,7 +18298,7 @@ module.exports = exports = {
     FOV_DEGREES: FOV * 360 / (Math.PI * 2), // Math.atan(3/4) in degrees
     TILE_SIZE: 512
 }
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 // This module creates a THREE material from the options object provided into the Objects class.
 // Users can do this in one of three ways:
 
@@ -17966,7 +18351,328 @@ function material (options) {
 
 module.exports = exports = material;
 
-},{"../three.js":21,"../utils/utils.js":24}],24:[function(require,module,exports){
+},{"../three.js":22,"../utils/utils.js":26}],25:[function(require,module,exports){
+/*
+ (c) 2011-2015, Vladimir Agafonkin
+ SunCalc is a JavaScript library for calculating sun/moon position and light phases.
+ https://github.com/mourner/suncalc
+*/
+
+(function () {
+    'use strict';
+
+    // shortcuts for easier to read formulas
+
+    var PI = Math.PI,
+        sin = Math.sin,
+        cos = Math.cos,
+        tan = Math.tan,
+        asin = Math.asin,
+        atan = Math.atan2,
+        acos = Math.acos,
+        rad = PI / 180;
+
+    // sun calculations are based on http://aa.quae.nl/en/reken/zonpositie.html formulas
+
+
+    // date/time constants and conversions
+
+    var dayMs = 1000 * 60 * 60 * 24,
+        J1970 = 2440588,
+        J2000 = 2451545;
+
+    function toJulian(date) { return date.valueOf() / dayMs - 0.5 + J1970; }
+    function fromJulian(j) { return new Date((j + 0.5 - J1970) * dayMs); }
+    function toDays(date) { return toJulian(date) - J2000; }
+
+
+    // general calculations for position
+
+    var e = rad * 23.4397; // obliquity of the Earth
+
+    function rightAscension(l, b) { return atan(sin(l) * cos(e) - tan(b) * sin(e), cos(l)); }
+    function declination(l, b) { return asin(sin(b) * cos(e) + cos(b) * sin(e) * sin(l)); }
+
+    function azimuth(H, phi, dec) { return atan(sin(H), cos(H) * sin(phi) - tan(dec) * cos(phi)); }
+    function altitude(H, phi, dec) { return asin(sin(phi) * sin(dec) + cos(phi) * cos(dec) * cos(H)); }
+
+    function siderealTime(d, lw) { return rad * (280.16 + 360.9856235 * d) - lw; }
+
+    function astroRefraction(h) {
+        if (h < 0) // the following formula works for positive altitudes only.
+            h = 0; // if h = -0.08901179 a div/0 would occur.
+
+        // formula 16.4 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
+        // 1.02 / tan(h + 10.26 / (h + 5.10)) h in degrees, result in arc minutes -> converted to rad:
+        return 0.0002967 / Math.tan(h + 0.00312536 / (h + 0.08901179));
+    }
+
+    // general sun calculations
+
+    function solarMeanAnomaly(d) { return rad * (357.5291 + 0.98560028 * d); }
+
+    function eclipticLongitude(M) {
+
+        var C = rad * (1.9148 * sin(M) + 0.02 * sin(2 * M) + 0.0003 * sin(3 * M)), // equation of center
+            P = rad * 102.9372; // perihelion of the Earth
+
+        return M + C + P + PI;
+    }
+
+    function sunCoords(d) {
+
+        var M = solarMeanAnomaly(d),
+            L = eclipticLongitude(M);
+
+        return {
+            dec: declination(L, 0),
+            ra: rightAscension(L, 0)
+        };
+    }
+
+
+    var SunCalc = {};
+
+
+    // calculates sun position for a given date and latitude/longitude
+
+    SunCalc.getPosition = function (date, lat, lng) {
+
+        var lw = rad * -lng,
+            phi = rad * lat,
+            d = toDays(date),
+
+            c = sunCoords(d),
+            H = siderealTime(d, lw) - c.ra;
+
+        return {
+            azimuth: azimuth(H, phi, c.dec),
+            altitude: altitude(H, phi, c.dec)
+        };
+    };
+
+
+    // sun times configuration (angle, morning name, evening name)
+
+    var times = SunCalc.times = [
+        [-0.833, 'sunrise', 'sunset'],
+        [-0.3, 'sunriseEnd', 'sunsetStart'],
+        [-6, 'dawn', 'dusk'],
+        [-12, 'nauticalDawn', 'nauticalDusk'],
+        [-18, 'nightEnd', 'night'],
+        [6, 'goldenHourEnd', 'goldenHour']
+    ];
+
+    // adds a custom time to the times config
+
+    SunCalc.addTime = function (angle, riseName, setName) {
+        times.push([angle, riseName, setName]);
+    };
+
+
+    // calculations for sun times
+
+    var J0 = 0.0009;
+
+    function julianCycle(d, lw) { return Math.round(d - J0 - lw / (2 * PI)); }
+
+    function approxTransit(Ht, lw, n) { return J0 + (Ht + lw) / (2 * PI) + n; }
+    function solarTransitJ(ds, M, L) { return J2000 + ds + 0.0053 * sin(M) - 0.0069 * sin(2 * L); }
+
+    function hourAngle(h, phi, d) { return acos((sin(h) - sin(phi) * sin(d)) / (cos(phi) * cos(d))); }
+    function observerAngle(height) { return -2.076 * Math.sqrt(height) / 60; }
+
+    // returns set time for the given sun altitude
+    function getSetJ(h, lw, phi, dec, n, M, L) {
+
+        var w = hourAngle(h, phi, dec),
+            a = approxTransit(w, lw, n);
+        return solarTransitJ(a, M, L);
+    }
+
+
+    // calculates sun times for a given date, latitude/longitude, and, optionally,
+    // the observer height (in meters) relative to the horizon
+
+    SunCalc.getTimes = function (date, lat, lng, height) {
+
+        height = height || 0;
+
+        var lw = rad * -lng,
+            phi = rad * lat,
+
+            dh = observerAngle(height),
+
+            d = toDays(date),
+            n = julianCycle(d, lw),
+            ds = approxTransit(0, lw, n),
+
+            M = solarMeanAnomaly(ds),
+            L = eclipticLongitude(M),
+            dec = declination(L, 0),
+
+            Jnoon = solarTransitJ(ds, M, L),
+
+            i, len, time, h0, Jset, Jrise;
+
+
+        var result = {
+            solarNoon: fromJulian(Jnoon),
+            nadir: fromJulian(Jnoon - 0.5)
+        };
+
+        for (i = 0, len = times.length; i < len; i += 1) {
+            time = times[i];
+            h0 = (time[0] + dh) * rad;
+
+            Jset = getSetJ(h0, lw, phi, dec, n, M, L);
+            Jrise = Jnoon - (Jset - Jnoon);
+
+            result[time[1]] = fromJulian(Jrise);
+            result[time[2]] = fromJulian(Jset);
+        }
+
+        return result;
+    };
+
+
+    // moon calculations, based on http://aa.quae.nl/en/reken/hemelpositie.html formulas
+
+    function moonCoords(d) { // geocentric ecliptic coordinates of the moon
+
+        var L = rad * (218.316 + 13.176396 * d), // ecliptic longitude
+            M = rad * (134.963 + 13.064993 * d), // mean anomaly
+            F = rad * (93.272 + 13.229350 * d),  // mean distance
+
+            l = L + rad * 6.289 * sin(M), // longitude
+            b = rad * 5.128 * sin(F),     // latitude
+            dt = 385001 - 20905 * cos(M);  // distance to the moon in km
+
+        return {
+            ra: rightAscension(l, b),
+            dec: declination(l, b),
+            dist: dt
+        };
+    }
+
+    SunCalc.getMoonPosition = function (date, lat, lng) {
+
+        var lw = rad * -lng,
+            phi = rad * lat,
+            d = toDays(date),
+
+            c = moonCoords(d),
+            H = siderealTime(d, lw) - c.ra,
+            h = altitude(H, phi, c.dec),
+            // formula 14.1 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
+            pa = atan(sin(H), tan(phi) * cos(c.dec) - sin(c.dec) * cos(H));
+
+        h = h + astroRefraction(h); // altitude correction for refraction
+
+        return {
+            azimuth: azimuth(H, phi, c.dec),
+            altitude: h,
+            distance: c.dist,
+            parallacticAngle: pa
+        };
+    };
+
+
+    // calculations for illumination parameters of the moon,
+    // based on http://idlastro.gsfc.nasa.gov/ftp/pro/astro/mphase.pro formulas and
+    // Chapter 48 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
+
+    SunCalc.getMoonIllumination = function (date) {
+
+        var d = toDays(date || new Date()),
+            s = sunCoords(d),
+            m = moonCoords(d),
+
+            sdist = 149598000, // distance from Earth to Sun in km
+
+            phi = acos(sin(s.dec) * sin(m.dec) + cos(s.dec) * cos(m.dec) * cos(s.ra - m.ra)),
+            inc = atan(sdist * sin(phi), m.dist - sdist * cos(phi)),
+            angle = atan(cos(s.dec) * sin(s.ra - m.ra), sin(s.dec) * cos(m.dec) -
+                cos(s.dec) * sin(m.dec) * cos(s.ra - m.ra));
+
+        return {
+            fraction: (1 + cos(inc)) / 2,
+            phase: 0.5 + 0.5 * inc * (angle < 0 ? -1 : 1) / Math.PI,
+            angle: angle
+        };
+    };
+
+
+    function hoursLater(date, h) {
+        return new Date(date.valueOf() + h * dayMs / 24);
+    }
+
+    // calculations for moon rise/set times are based on http://www.stargazing.net/kepler/moonrise.html article
+
+    SunCalc.getMoonTimes = function (date, lat, lng, inUTC) {
+        var t = new Date(date);
+        if (inUTC) t.setUTCHours(0, 0, 0, 0);
+        else t.setHours(0, 0, 0, 0);
+
+        var hc = 0.133 * rad,
+            h0 = SunCalc.getMoonPosition(t, lat, lng).altitude - hc,
+            h1, h2, rise, set, a, b, xe, ye, d, roots, x1, x2, dx;
+
+        // go in 2-hour chunks, each time seeing if a 3-point quadratic curve crosses zero (which means rise or set)
+        for (var i = 1; i <= 24; i += 2) {
+            h1 = SunCalc.getMoonPosition(hoursLater(t, i), lat, lng).altitude - hc;
+            h2 = SunCalc.getMoonPosition(hoursLater(t, i + 1), lat, lng).altitude - hc;
+
+            a = (h0 + h2) / 2 - h1;
+            b = (h2 - h0) / 2;
+            xe = -b / (2 * a);
+            ye = (a * xe + b) * xe + h1;
+            d = b * b - 4 * a * h1;
+            roots = 0;
+
+            if (d >= 0) {
+                dx = Math.sqrt(d) / (Math.abs(a) * 2);
+                x1 = xe - dx;
+                x2 = xe + dx;
+                if (Math.abs(x1) <= 1) roots++;
+                if (Math.abs(x2) <= 1) roots++;
+                if (x1 < -1) x1 = x2;
+            }
+
+            if (roots === 1) {
+                if (h0 < 0) rise = i + x1;
+                else set = i + x1;
+
+            } else if (roots === 2) {
+                rise = i + (ye < 0 ? x2 : x1);
+                set = i + (ye < 0 ? x1 : x2);
+            }
+
+            if (rise && set) break;
+
+            h0 = h2;
+        }
+
+        var result = {};
+
+        if (rise) result.rise = hoursLater(t, rise);
+        if (set) result.set = hoursLater(t, set);
+
+        if (!rise && !set) result[ye > 0 ? 'alwaysUp' : 'alwaysDown'] = true;
+
+        return result;
+    };
+
+
+    //// export as Node module / AMD module / browser variable
+    //if (typeof exports === 'object' && typeof module !== 'undefined') module.exports = SunCalc;
+    //else if (typeof define === 'function' && define.amd) define(SunCalc);
+    //else window.SunCalc = SunCalc;
+    module.exports = exports = SunCalc
+}());
+
+
+},{}],26:[function(require,module,exports){
 var THREE = require("../three.js");
 var Constants = require("./constants.js");
 var validate = require("./validate.js");
@@ -18213,12 +18919,12 @@ var utils = {
 	},
 
 	extend: function (original, addition) {
-		for (key in addition) original[key] = addition[key];
+		for (let key in addition) original[key] = addition[key];
 	},
 
 	clone: function (original) {
 		var clone = {};
-		for (key in original) clone[key] = original[key];
+		for (let key in original) clone[key] = original[key];
 		return clone;
 	},
 
@@ -18268,7 +18974,7 @@ var utils = {
 		var validatedOutput = {};
 		utils.extend(validatedOutput, userInputs);
 
-		for (key of Object.keys(defaults)) {
+		for (let key of Object.keys(defaults)) {
 
 			if (userInputs[key] === undefined) {
 				//make sure required params are present
@@ -18291,7 +18997,7 @@ var utils = {
 }
 
 module.exports = exports = utils
-},{"../three.js":21,"./constants.js":22,"./validate.js":25}],25:[function(require,module,exports){
+},{"../three.js":22,"./constants.js":23,"./validate.js":27}],27:[function(require,module,exports){
 // Type validator
 
 function Validate(){
