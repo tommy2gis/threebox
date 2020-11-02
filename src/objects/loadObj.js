@@ -11,13 +11,14 @@ const gltfLoader = new GLTFLoader();
 const fbxLoader = new FBXLoader();
 const daeLoader = new ColladaLoader();
 
-function loadObj(options, cb) {
+function loadObj(options, cb, promise) {
 
 	if (options === undefined) return console.error("Invalid options provided to loadObj()");
 
 	options = utils._validate(options, Objects.prototype._defaults.loadObj);
 
 	this.loaded = false;
+
 	//console.time('loadObj Start ');
 	const modelComplete = (m) => {
 		console.log("Model complete!", m);
@@ -58,7 +59,7 @@ function loadObj(options, cb) {
 		loader.load(options.obj, obj => {
 
 			//[jscastro] MTL/GLTF/FBX models have a different structure
-			let animations;
+			let animations = [];
 			switch (options.type) {
 				case "mtl":
 					obj = obj.children[0];
@@ -72,7 +73,7 @@ function loadObj(options, cb) {
 					animations = obj.animations;
 					break;
 			}
-
+			obj.animations = animations;
 			// [jscastro] options.rotation was wrongly used
 			var r = utils.types.rotation(options.rotation, [0, 0, 0]);
 			var s = utils.types.scale(options.scale, [1, 1, 1]);
@@ -80,11 +81,12 @@ function loadObj(options, cb) {
 			obj.scale.set(s[0], s[1], s[2]);
 			// [jscastro] normalize specular/metalness/shininess from meshes in FBX and GLB model as it would need 5 lights to illuminate them properly
 			if (options.normalize) { normalizeSpecular(obj); }
-
+			obj.name = "model";
 			var projScaleGroup = new THREE.Group();
+			projScaleGroup.name = "group";
 			projScaleGroup.add(obj)
 			var userScaleGroup = Objects.prototype._makeGroup(projScaleGroup, options);
-			userScaleGroup.model = obj;
+			userScaleGroup.name = "object";
 			//[jscastro] assign the animations to the userScaleGroup before enrolling it in AnimationsManager through _addMethods
 			userScaleGroup.animations = animations;
 
@@ -94,6 +96,8 @@ function loadObj(options, cb) {
 			//[jscastro] override the center calculated if the object has adjustments
 			userScaleGroup.setCenter(options.adjustment);
 
+			let anim = userScaleGroup.animations;
+
 			// [jscastro] after adding methods create the bounding box at userScaleGroup but add it to its children for positioning
 			let boxGrid = userScaleGroup.drawBoundingBox();
 			projScaleGroup.add(boxGrid);
@@ -102,12 +106,14 @@ function loadObj(options, cb) {
 			userScaleGroup.addTooltip(userScaleGroup.uuid, true, userScaleGroup.anchor);
 
 			cb(userScaleGroup);
+			promise(userScaleGroup);
 
 			// [jscastro] initialize the default animation to avoid issues with position
 			userScaleGroup.idle();
 
 		}, () => (null), error => {
-			console.error("Could not load model file: " + options.obj + " \n " + error.stack);
+				console.error("Could not load model file: " + options.obj + " \n " + error.stack);
+				promise("Error loading the model");
 		});
 
 	};
@@ -138,32 +144,6 @@ function loadObj(options, cb) {
 
 		});
 	}
-
-	//[jscastro] new added cache for 3D Objects
-	function cache(obj) {
-		let found = false;
-		objectsCache.forEach(function (c) {
-			if (c.userData.obj == obj.userData.obj) {
-				found = true;
-				return;
-			}
-		});
-		if (!found) {
-			objectsCache.push(obj);
-		}
-		return found;
-	};
-
-	//[jscastro] new added cache for 3D Objects
-	function getFromCache(objUrl) {
-		let dup = null;
-		objectsCache.forEach(function (c) {
-			if (c.userData.obj == objUrl) {
-				dup = c.duplicate();
-			}
-		});
-		return dup;
-	};
 
 }
 
