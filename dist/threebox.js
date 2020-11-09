@@ -1995,7 +1995,7 @@ function line(obj){
 	matLine = new THREE.LineMaterial( {
 		color: obj.color,
 		linewidth: obj.width, // in pixels
-		dashed: false,
+		dashed: true,
 		opacity: obj.opacity
 	} );
 	
@@ -3033,11 +3033,15 @@ function loadObj(options, cb, promise) {
 			switch (options.type) {
 				case "mtl":
 					obj = obj.children[0];
+					if(options.material){obj.material=options.material}
 					break;
 				case "gltf":
 				case "dae":
 					animations = obj.animations;
 					obj = obj.scene;
+					if(options.material){
+						obj.children.forEach(item=>item.material=options.material)
+					}
 					break;
 				case "fbx":
 					animations = obj.animations;
@@ -3049,6 +3053,7 @@ function loadObj(options, cb, promise) {
 			var s = utils.types.scale(options.scale, [1, 1, 1]);
 			obj.rotation.set(r[0], r[1], r[2]);
 			obj.scale.set(s[0], s[1], s[2]);
+			if(options.material){obj.material=options.material;}
 			// [jscastro] normalize specular/metalness/shininess from meshes in FBX and GLB model as it would need 5 lights to illuminate them properly
 			if (options.normalize) { normalizeSpecular(obj); }
 			obj.name = "model";

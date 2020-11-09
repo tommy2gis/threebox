@@ -62,7 +62,7 @@ function loadObj(options, cb, promise) {
 			let animations = [];
 			switch (options.type) {
 				case "mtl":
-					obj = obj.children[0];
+					objs = obj.children;
 					break;
 				case "gltf":
 				case "dae":
@@ -73,7 +73,12 @@ function loadObj(options, cb, promise) {
 					animations = obj.animations;
 					break;
 			}
-			obj.animations = animations;
+			var projScaleGroup = new THREE.Group();
+			projScaleGroup.name = "group";
+			
+
+			objs.forEach(obj => {
+				obj.animations = animations;
 			// [jscastro] options.rotation was wrongly used
 			var r = utils.types.rotation(options.rotation, [0, 0, 0]);
 			var s = utils.types.scale(options.scale, [1, 1, 1]);
@@ -82,9 +87,10 @@ function loadObj(options, cb, promise) {
 			// [jscastro] normalize specular/metalness/shininess from meshes in FBX and GLB model as it would need 5 lights to illuminate them properly
 			if (options.normalize) { normalizeSpecular(obj); }
 			obj.name = "model";
-			var projScaleGroup = new THREE.Group();
-			projScaleGroup.name = "group";
 			projScaleGroup.add(obj)
+			});
+			
+			
 			var userScaleGroup = Objects.prototype._makeGroup(projScaleGroup, options);
 			userScaleGroup.name = "object";
 			//[jscastro] assign the animations to the userScaleGroup before enrolling it in AnimationsManager through _addMethods

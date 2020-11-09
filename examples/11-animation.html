@@ -251,7 +251,7 @@
               );
             }
             const meshLine = new MeshLine();
-            meshLine.setGeometry(lineGeometry);
+            meshLine.setGeometry(geometry);
             const lineMesh = new THREE.Mesh(meshLine.geometry, material);
 			tb.add(lineMesh);
 				// set destination as the new origin, for the next trip

@@ -20,7 +20,7 @@ function line(obj){
 	matLine = new THREE.LineMaterial( {
 		color: obj.color,
 		linewidth: obj.width, // in pixels
-		dashed: false,
+		dashed: true,
 		opacity: obj.opacity
 	} );
 	

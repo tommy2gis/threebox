@@ -59,9 +59,15 @@ map.on('style.load', function() {
 			// IMPORTANT: .glb is not a standard MIME TYPE, you'll have to add it to your web server config,
 			// otherwise you'll receive a 404 error
 			var options = {
-				obj: './models/soldier.glb',
-				type: 'gltf',
-				scale: 1000,
+				obj: './models/f5.DAE',
+				type: 'dae',
+                scale: 10,
+                 material: new THREE.MeshBasicMaterial({
+            map: new THREE.TextureLoader().load("building.png"),
+            side: THREE.DoubleSide,
+            transparent: false,
+            wireframe : false,
+          }),
 				units: 'meters',
 				rotation: { x: 90, y: 0, z: 0 }, //default rotation
 				anchor: 'center'
