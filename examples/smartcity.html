@@ -22,6 +22,7 @@
 
     <script src="../dist/mapbox-gl-dev.js"></script>
     <link href="../dist/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://cdn.bootcdn.net/ajax/libs/Turf.js/5.1.6/turf.min.js"></script>
     <script src="../dist/MAP_STYLE.darkblue.js"></script>
     <script src="../dist/threebox.js"></script>
     <script src="material.js"></script>
@@ -33,7 +34,8 @@
         style: style,
         hash: true,
       }));
-
+      const el = document.getElementById("map");
+      let resolution = new THREE.Vector2(el.offsetWidth, el.offsetHeight);
       var origin = [120.57022, 32.3858585, 0];
 
       map.on("style.load", function () {
@@ -136,8 +138,7 @@
           tb.add(
             tb
               .Object3D({ obj: ringmesh, adjustment: { x: 0, y: 0, z: 0.5 } })
-              .setCoords([ 120.55881500244139,
-          32.389655856727444])
+              .setCoords([120.55881500244139, 32.389655856727444])
           );
 
           return ringmesh;
@@ -169,129 +170,295 @@
           tb.add(
             tb
               .Object3D({ obj: cube, adjustment: { x: 0, y: 0, z: 0.5 } })
-              .setCoords([ 120.55881500244139,
-          32.389655856727444])
+              .setCoords([120.55881500244139, 32.389655856727444])
           );
         }
 
         function addSphere() {
-          let spheregeo = new THREE.SphereGeometry( 10, 40, 40,0,Math.PI*2,0,Math.PI/2);
+          let spheregeo = new THREE.SphereGeometry(
+            10,
+            40,
+            40,
+            0,
+            Math.PI * 2,
+            0,
+            Math.PI / 2
+          );
           const mesh = new THREE.Mesh(spheregeo, getSphereMaterial());
-              mesh.rotation.x = Math.PI / 2;
-              tb.add( tb
-                .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 0.001 } })
-                .setCoords([ 120.55812835693358,
-          32.39520021904035]));
+          mesh.rotation.x = Math.PI / 2;
+          tb.add(
+            tb
+              .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 0.001 } })
+              .setCoords([120.55812835693358, 32.39520021904035])
+          );
         }
 
-        function getWallGeometry(points,height) {
-                let positions = []
-                let uvs = []
-                for (let i = 0, j = positions.length, t = uvs.length; i < points.length - 1; i++) {
-                let vUvyMax = 1
-                let left = points[i]
-                let right = points[i + 1]
-                positions[j++] = left.x
-                positions[j++] = left.y
-                positions[j++] = 0
-                uvs[t++] = 0
-                uvs[t++] = 0
+        function getWallGeometry(points, height) {
+          let positions = [];
+          let uvs = [];
+          for (
+            let i = 0, j = positions.length, t = uvs.length;
+            i < points.length - 1;
+            i++
+          ) {
+            let vUvyMax = 1;
+            let left = points[i];
+            let right = points[i + 1];
+            positions[j++] = left.x;
+            positions[j++] = left.y;
+            positions[j++] = 0;
+            uvs[t++] = 0;
+            uvs[t++] = 0;
 
-                positions[j++] = right.x
-                positions[j++] = right.y
-                positions[j++] = 0
-                uvs[t++] = 1
-                uvs[t++] = 0
+            positions[j++] = right.x;
+            positions[j++] = right.y;
+            positions[j++] = 0;
+            uvs[t++] = 1;
+            uvs[t++] = 0;
 
-                positions[j++] = left.x
-                positions[j++] = left.y
-                positions[j++] = height
-                uvs[t++] = 0
-                uvs[t++] = vUvyMax
+            positions[j++] = left.x;
+            positions[j++] = left.y;
+            positions[j++] = height;
+            uvs[t++] = 0;
+            uvs[t++] = vUvyMax;
 
-                positions[j++] = left.x
-                positions[j++] = left.y
-                positions[j++] = height
-                uvs[t++] = 0
-                uvs[t++] = vUvyMax
+            positions[j++] = left.x;
+            positions[j++] = left.y;
+            positions[j++] = height;
+            uvs[t++] = 0;
+            uvs[t++] = vUvyMax;
 
-                positions[j++] = right.x
-                positions[j++] = right.y
-                positions[j++] = 0
-                uvs[t++] = 1
-                uvs[t++] = 0
+            positions[j++] = right.x;
+            positions[j++] = right.y;
+            positions[j++] = 0;
+            uvs[t++] = 1;
+            uvs[t++] = 0;
 
-                positions[j++] = right.x
-                positions[j++] = right.y
-                positions[j++] = height
-                uvs[t++] = 1
-                uvs[t++] = vUvyMax
-                }
-                let geometry = new THREE.BufferGeometry()
-                geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3))
-                geometry.addAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2))
-                return geometry;
-            }
+            positions[j++] = right.x;
+            positions[j++] = right.y;
+            positions[j++] = height;
+            uvs[t++] = 1;
+            uvs[t++] = vUvyMax;
+          }
+          let geometry = new THREE.BufferGeometry();
+          geometry.addAttribute(
+            "position",
+            new THREE.BufferAttribute(new Float32Array(positions), 3)
+          );
+          geometry.addAttribute(
+            "uv",
+            new THREE.BufferAttribute(new Float32Array(uvs), 2)
+          );
+          return geometry;
+        }
         function addWall(params) {
-          
-          const geometry = getWallGeometry([
-                {x:-1.0,y: -1.0},
-                {x:1.0, y:-1.0},
-                {x:1.0, y: 1.0},
-                { x:1.0, y: 1.0},
-                { x:-1.0, y: 1.0},
-                {x:-1.0, y:-1.0}
-            ],0.5);
-            const mesh = new THREE.Mesh( geometry, getWallMaterial() );
-
-                tb.add(tb.Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 0.01 }})
-                .setCoords([  120.56224822998045,
-          32.39326154281592]))
+          const geometry = getWallGeometry(
+            [
+              { x: -1.0, y: -1.0 },
+              { x: 1.0, y: -1.0 },
+              { x: 1.0, y: 1.0 },
+              { x: 1.0, y: 1.0 },
+              { x: -1.0, y: 1.0 },
+              { x: -1.0, y: -1.0 },
+            ],
+            0.5
+          );
+          geometry.scale(5, 5, 5);
+          const mesh = new THREE.Mesh(geometry, getWallMaterial());
+         
+          tb.add(
+            tb
+              .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 0.01 } })
+              .setCoords([120.56224822998045, 32.39326154281592])
+          );
           return mesh;
-
         }
 
         function addCone(params) {
           let geometry = new THREE.CylinderBufferGeometry(
-                  0,
-                  6.4,
-                  11,
-                  4,
-                  1,
-                  false,
-                  0,
-                  6.3
-                );
-                geometry.scale(0.05,0.05,0.05);
-               // geometry.computeBoundingSphere();
-                const mesh = new THREE.Mesh(geometry, getConeMaterial());
-              mesh.rotation.x = -Math.PI / 2;
-              tb.add(tb
-                .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 5 } })
-                .setCoords([120.56310653686523,32.392772337566306]));
+            0,
+            6.4,
+            11,
+            4,
+            1,
+            false,
+            0,
+            6.3
+          );
+          geometry.scale(0.05, 0.05, 0.05);
+          // geometry.computeBoundingSphere();
+          const mesh = new THREE.Mesh(geometry, getConeMaterial());
+          mesh.rotation.x = -Math.PI / 2;
+          tb.add(
+            tb
+              .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 5 } })
+              .setCoords([120.56310653686523, 32.392772337566306])
+          );
 
-                return mesh
+          return mesh;
         }
 
+        let texture = new THREE.TextureLoader().load("images/red_line.png");
+        let texture2 = new THREE.TextureLoader().load("images/green_line.png");
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture2.wrapS = THREE.RepeatWrapping;
+        texture2.wrapT = THREE.RepeatWrapping;
+
+        function addLine() {
+          var arcSegments = 25;
+          var linemeshs = [];
+          var origns = [
+            [120.51298141479494, 32.39489220784177],
+            [120.57529449462889, 32.41692141725631],
+            [120.57580947875977, 32.383295727889326],
+          ];
+
+          var destination = [120.55812835693358, 32.39520021904035];
+
+          var maxElevation =
+            Math.pow(Math.abs(destination[0] * destination[1]), 0.5) * 20;
+
+          var increments = origns.map((orign) =>
+            turf.greatCircle(orign, destination, { npoints: 25 })
+          );
+
+          increments.forEach((ment, index) => {
+            var line = new Array();
+            for (var l = 0; l < arcSegments; l++) {
+              var waypoint = ment.geometry.coordinates[l];
+
+              var waypointElevation =
+                Math.sin((Math.PI * l) / arcSegments) * maxElevation;
+
+              waypoint.push(waypointElevation);
+              line.push(waypoint);
+            }
+            var straightProject = tb.utils.lnglatsToWorld(line);
+            var normalized = tb.utils.normalizeVertices(straightProject);
+            var flattenedArray = tb.utils.flattenVectors(normalized.vertices);
+
+            const meshLine = new MeshLine();
+            meshLine.setGeometry(normalized);
+
+            let material = new MeshLineMaterial({
+              map: index % 2 == 0 ? texture : texture2,
+              useMap: true,
+              lineWidth: 20,
+              resolution: resolution,
+              dashArray: 0.9, // 破折号之间的长度和间距。(0 -无破折号)
+              dashRatio: 0.3, // 定义可见和不可见之间的比率(0 -更可见，1 -更不可见)。
+              dashOffset: 0,
+              transparent: true,
+              sizeAttenuation: 0.5, //使线宽不变，不管距离(1个单位是屏幕上的1px)(0 -衰减，1 -不衰减)
+              side: THREE.DoubleSide,
+              depthTest: false,
+              blending: THREE.AdditiveBlending,
+              near: tb.camera.near,
+              far: tb.camera.far,
+            });
+
+            var tmp = new THREE.Mesh(meshLine.geometry, material);
+            tb.add(
+              tb
+                .Object3D({ obj: tmp, adjustment: { x: 0, y: 0, z: 0.5 } })
+                .setCoords([line[12][0], line[12][1]])
+            );
+
+            linemeshs.push(tmp);
+          });
+
+          return linemeshs;
+        }
+
+        function addRoads() {
+          var arcSegments = 25;
+          var linemeshs = [];
+          var roads = [
+            [
+              [120.56357860565184, 32.38804321686504],
+              [120.56211948394774, 32.393225305480904],
+              [120.56066036224365, 32.39895062405777],
+            ],
+            [
+            [
+            120.56817054748534,
+            32.39496468115948
+          ],
+          [
+            120.56211948394774,
+            32.39329778013638
+          ],
+          [
+            120.5553388595581,
+            32.39137718211403
+          ]
+            ],
+          ];
+
+          roads.forEach((line, index) => {
+            var straightProject = tb.utils.lnglatsToWorld(line);
+            var normalized = tb.utils.normalizeVertices(straightProject);
+            var flattenedArray = tb.utils.flattenVectors(normalized.vertices);
+
+            const meshLine = new MeshLine();
+            meshLine.setGeometry(normalized);
+
+            let material = new MeshLineMaterial({
+              map: index % 2 == 0 ? texture : texture2,
+              useMap: true,
+              lineWidth: 20,
+              resolution: resolution,
+              dashArray: 0.9, // 破折号之间的长度和间距。(0 -无破折号)
+              dashRatio: 0.3, // 定义可见和不可见之间的比率(0 -更可见，1 -更不可见)。
+              dashOffset: 0,
+              transparent: true,
+              sizeAttenuation: 0.5, //使线宽不变，不管距离(1个单位是屏幕上的1px)(0 -衰减，1 -不衰减)
+              side: THREE.DoubleSide,
+              depthTest: false,
+              blending: THREE.AdditiveBlending,
+              near: tb.camera.near,
+              far: tb.camera.far,
+            });
+
+            var tmp = new THREE.Mesh(meshLine.geometry, material);
+            tb.add(
+              tb
+                .Object3D({ obj: tmp, adjustment: { x: 0, y: 0, z: 0.5 } })
+                .setCoords([line[1][0], line[1][1]])
+            );
+
+            linemeshs.push(tmp);
+          });
+
+          return linemeshs;
+        }
+        var roadmeshs = addRoads();
+        var linemeshs = addLine();
         var ringmesh = addRing();
         var wallmesh = addWall();
-        var conemesh=addCone();
-        var shaderBarmaterial=getShaderBarMaterial()
+        var conemesh = addCone();
+        var shaderBarmaterial = getShaderBarMaterial();
         addBar(shaderBarmaterial);
-        var ShaderBar=shaderBarmaterial.ShaderBar;
+        var ShaderBar = shaderBarmaterial.ShaderBar;
         addSphere();
-       
-
 
         var animate = function () {
           ringmesh.material.uniforms.time.value += 0.002;
-          wallmesh.material.uniforms.time.value += 0.002;
+          wallmesh.material.uniforms.time.value += 0.008;
           conemesh.material.uniforms.time.value += 0.05;
-          conemesh.rotation.y+=0.02;
-          ShaderBar.uniforms.boxH.value =  ShaderBar.uniforms.boxH.value + 0.5
-                if( ShaderBar.uniforms.boxH.value > 40){
-                    ShaderBar.uniforms.boxH.value =  -10.0
-                }
+          linemeshs.forEach((linemesh) => {
+            linemesh.material.uniforms.dashOffset.value -= 0.01;
+          });
+
+          roadmeshs.forEach((linemesh) => {
+            linemesh.material.uniforms.dashOffset.value -= 0.01;
+          });
+          conemesh.rotation.y += 0.02;
+          ShaderBar.uniforms.boxH.value = ShaderBar.uniforms.boxH.value + 0.5;
+          if (ShaderBar.uniforms.boxH.value > 40) {
+            ShaderBar.uniforms.boxH.value = -10.0;
+          }
 
           requestAnimationFrame(animate);
           map.triggerRepaint();

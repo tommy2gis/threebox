@@ -19170,7 +19170,7 @@ MeshLine.prototype.setGeometry = function( g, c ) {
 
 	// set the normals
 	// g.computeVertexNormals();
-	if( g instanceof THREE.Geometry ) {
+	if( true ) {
 		for( var j = 0; j < g.vertices.length; j++ ) {
 			var v = g.vertices[ j ];
 			var c = j/g.vertices.length;

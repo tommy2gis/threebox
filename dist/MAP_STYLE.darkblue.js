@@ -68,7 +68,7 @@ var style = {
       "crs": "EPSG:3857"
     }
   },
-  "sprite": "http://localhost:5501/sprites_new/sprite",
+  "sprite": "http://localhost:5502/dist/sprites_new/sprite",
   "glyphs": "http://192.168.101.200:8080/mapeditor/mapbox/glyphs/{fontstack}/{range}.pbf",
   "layers": [
     {
