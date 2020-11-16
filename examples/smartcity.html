@@ -19,10 +19,12 @@
 
   <body>
     <div id="map"></div>
-
+    <div style="display: none" class="boxContainer">
     <script src="../dist/mapbox-gl-dev.js"></script>
     <link href="../dist/mapbox-gl.css" rel="stylesheet" />
     <script src="https://cdn.bootcdn.net/ajax/libs/Turf.js/5.1.6/turf.min.js"></script>
+    <script src="http://learningthreejs.com/data/tweenjs_for_smooth_animation/vendor/three.js/examples/js/Tween.js"></script>
+    
     <script src="../dist/MAP_STYLE.darkblue.js"></script>
     <script src="../dist/threebox.js"></script>
     <script src="material.js"></script>
@@ -49,6 +51,7 @@
 
             render: function (gl, matrix) {
               tb.update();
+              TWEEN.update();
             },
           },
           "兴趣点-level-towm"
@@ -59,50 +62,102 @@
         window.tb = new Threebox(map, mbxContext, {
           defaultLights: true,
           enableSelectingObjects: true,
+          enableTooltips: false,
+          
         }); //初始化
 
         var options = {
           type: "dae",
           obj: "models/building.DAE",
-          material: new THREE.MeshBasicMaterial({
-            map: new THREE.TextureLoader().load("images/building_top.png"),
+          material:[ new THREE.MeshBasicMaterial({
+            map: new THREE.TextureLoader().load("images/building2.png"),
             side: THREE.DoubleSide,
             transparent: true,
-            opacity: 1,
             wireframe: false,
-          }),
+            opacity: 1,
+          })],
           scale: 1,
           anchor: "center",
           units: "meters",
           rotation: { x: 90, y: 180, z: 0 },
         };
 
-        var options2 = {
-          type: "dae",
-          obj: "models/f5.DAE",
-          material: new THREE.MeshPhongMaterial({
-            color: 0x63a3,
-            map: new THREE.TextureLoader().load("images/building2.png"),
-            specular: 0x20202,
-            shininess: 20,
-          }),
-          scale: 1,
-          units: "meters",
-          anchor: "center",
-          rotation: { x: 90, y: 180, z: 0 },
-        };
+        function getFloorOption(floor) {
+          return {
+            type: "dae",
+            obj: "models/" + floor + ".DAE",
+            material: new THREE.MeshPhongMaterial({
+              color: 0x63a3,
+              map: new THREE.TextureLoader().load("images/building2.png"),
+              specular: 0x20202,
+              //wireframe:true,
+              shininess: 20,
+            }),
+            scale: 1,
+            units: "meters",
+            anchor: "center",
+            rotation: { x: 90, y: 207.1, z: 0 },
+          };
+        }
 
-        var floor;
+        // var floors = [];
+        // ["floor1", "floor2", "floor3", "floor4", "floor5"].forEach(
+        //   (fl, index) => {
+        //     tb.loadObj(getFloorOption(fl), function (model) {
+        //       let floor = model.setCoords([120.5664, 32.3854, index * 5]);
+        //       floor.addEventListener(
+        //         "SelectedChange",
+        //         onFloorSelectedChange,
+        //         false
+        //       );
+        //       floors.push(floor);
+        //       tb.add(floor);
+        //     });
+        //   }
+        // );
 
-        tb.loadObj(options2, function (model) {
-          floor = model.setCoords([120.5664, 32.3854]);
-        });
+        // tb.loadObj(options, function (model) {
+        //   const truck = model.setCoords([120.56642, 32.38535]);
+        //  // truck.addEventListener("SelectedChange", onSelectedChange, false);
+        //   tb.add(truck);
+        // });
+        function onFloorSelectedChange(e) {
 
-        tb.loadObj(options, function (model) {
-          const truck = model.setCoords([120.56642, 32.38535]);
-          truck.addEventListener("SelectedChange", onSelectedChange, false);
-          tb.add(truck);
-        });
+         
+
+          let selected = e.detail.selected;
+          if (selected) {
+            floors.forEach((fl, index) => {
+              var c = tb.utils.projectToWorld([120.5664, 32.3854, index * 10]);
+              new TWEEN.Tween(fl.position)
+            .to(
+              {
+                z: c.z,
+              },
+              500
+            )
+            .onComplete(function () {
+             
+            })
+            .start();
+            });
+          } else {
+            floors.forEach((fl, index) => {
+              var c = tb.utils.projectToWorld([120.5664, 32.3854, index * 5]);
+              new TWEEN.Tween(fl.position)
+            .to(
+              {
+                z: c.z,
+              },
+              500
+            )
+            .onComplete(function () {
+             
+            })
+            .start();
+            });
+          }
+        }
 
         function onSelectedChange(e) {
           let selected = e.detail.selected;
@@ -193,7 +248,18 @@
           );
         }
 
-        function getWallGeometry(points, height) {
+        function getWallGeometry(line, height) {
+
+          let bs = line[0];
+          let points = line.map(item => {
+            let x = (item[0] - bs[0])*3100 ;
+            let y = (item[1] - bs[1])*3100 ;
+            return new THREE.Vector2(x, y);
+          });
+
+          // var straightProject = tb.utils.lnglatsToWorld(line);
+          // var points = tb.utils.normalizeVertices(straightProject);
+          // var flattenedArray = tb.utils.flattenVectors(normalized.vertices);
           let positions = [];
           let uvs = [];
           for (
@@ -254,27 +320,78 @@
         function addWall(params) {
           const geometry = getWallGeometry(
             [
-              { x: -1.0, y: -1.0 },
-              { x: 1.0, y: -1.0 },
-              { x: 1.0, y: 1.0 },
-              { x: 1.0, y: 1.0 },
-              { x: -1.0, y: 1.0 },
-              { x: -1.0, y: -1.0 },
+           
+            [
+              120.56302607059479,
+              32.390421397594814
             ],
-            0.5
+            [
+              120.56363761425018,
+              32.38780766031788
+            ],
+            [
+              120.56435108184814,
+              32.38795261826575
+            ],
+            [
+              120.56506454944609,
+              32.38821535395333
+            ],
+            [
+              120.56580483913422,
+              32.38878159206095
+            ],
+            [
+              120.56656122207643,
+              32.38931611757739
+            ],
+            [
+              120.56727468967436,
+              32.390086191149685
+            ],
+            [
+              120.56695282459258,
+              32.39065241752877
+            ],
+            [
+              120.56655585765837,
+              32.390521053325074
+            ],
+            [
+              120.56613206863403,
+              32.39038515912019
+            ],
+            [
+              120.56581020355225,
+              32.390992151652284
+            ],
+            [
+              120.5651342868805,
+              32.39077019216963
+            ],
+            [
+              120.56458711624147,
+              32.39072036445571
+            ],
+            [
+              120.56302607059479,
+              32.390421397594814
+            ]
+            ],
+            2
           );
-          geometry.scale(5, 5, 5);
           const mesh = new THREE.Mesh(geometry, getWallMaterial());
-         
+          mesh.rotation.z = Math.PI;
           tb.add(
             tb
               .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 0.01 } })
-              .setCoords([120.56224822998045, 32.39326154281592])
+              .setCoords([120.56302607059479,
+              32.390421397594814])
           );
           return mesh;
         }
 
-        function addCone(params) {
+        function addCone(point,color) {
           let geometry = new THREE.CylinderBufferGeometry(
             0,
             6.4,
@@ -285,14 +402,14 @@
             0,
             6.3
           );
-          geometry.scale(0.05, 0.05, 0.05);
+          geometry.scale(0.1, 0.1, 0.1);
           // geometry.computeBoundingSphere();
-          const mesh = new THREE.Mesh(geometry, getConeMaterial());
+          const mesh = new THREE.Mesh(geometry, getConeMaterial(color));
           mesh.rotation.x = -Math.PI / 2;
           tb.add(
             tb
-              .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 5 } })
-              .setCoords([120.56310653686523, 32.392772337566306])
+              .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 2 } })
+              .setCoords(point)
           );
 
           return mesh;
@@ -371,27 +488,82 @@
           return linemeshs;
         }
 
+        function addCircle(point) {
+        var texture = new THREE.TextureLoader().load("images/circular.png");
+        var material = new THREE.MeshLambertMaterial({
+          map: texture,
+          side: THREE.FrontSide,
+          transparent: true,
+        });
+        function getRingeGeometry(width = 7, height = 7) {
+        return new THREE.PlaneGeometry(width, height);
+      }
+
+        var ringeGeom = getRingeGeometry();
+
+        cube = new THREE.Mesh(ringeGeom, material);
+        cube3d = tb
+          .Object3D({ obj: cube, adjustment: { x: 0, y: 0, z: 0.1 } })
+          .setCoords(point);
+
+        tb.add(cube3d);
+        return cube;
+      }
+
         function addRoads() {
           var arcSegments = 25;
           var linemeshs = [];
           var roads = [
             [
-              [120.56357860565184, 32.38804321686504],
-              [120.56211948394774, 32.393225305480904],
-              [120.56066036224365, 32.39895062405777],
+            [
+            120.5615186691284,
+            32.38396618993527
+          ],
+          [
+            120.56115388870238,
+            32.385198377476435
+          ],
+          [
+            120.56441545486449,
+            32.386629868367656
+          ],
+          [
+            120.56355714797974,
+            32.38797073799289
+          ],
+          [
+            120.56312799453734,
+            32.389655856727444
+          ],
+          [
+            120.56392192840576,
+            32.389764572985584
+          ]
             ],
             [
             [
-            120.56817054748534,
-            32.39496468115948
+            120.55293560028075,
+            32.38845996925133
           ],
           [
-            120.56211948394774,
-            32.39329778013638
+            120.55224895477294,
+            32.39039874854987
           ],
           [
-            120.5553388595581,
-            32.39137718211403
+            120.56177616119385,
+            32.39313471207973
+          ],
+          [
+            120.56229114532472,
+            32.39291728754617
+          ],
+          [
+            120.56313872337343,
+            32.38959243884977
+          ],
+          [
+            120.56387901306152,
+            32.38973739393332
           ]
             ],
           ];
@@ -405,9 +577,9 @@
             meshLine.setGeometry(normalized);
 
             let material = new MeshLineMaterial({
-              map: index % 2 == 0 ? texture : texture2,
+              map: texture,
               useMap: true,
-              lineWidth: 20,
+              lineWidth: 40,
               resolution: resolution,
               dashArray: 0.9, // 破折号之间的长度和间距。(0 -无破折号)
               dashRatio: 0.3, // 定义可见和不可见之间的比率(0 -更可见，1 -更不可见)。
@@ -422,10 +594,14 @@
             });
 
             var tmp = new THREE.Mesh(meshLine.geometry, material);
+            var features = turf.featureCollection(line.map(e=>{return turf.point(e)}));
+
+            var center=turf.center(features);
+            console.log(center)
             tb.add(
               tb
                 .Object3D({ obj: tmp, adjustment: { x: 0, y: 0, z: 0.5 } })
-                .setCoords([line[1][0], line[1][1]])
+                .setCoords(center.geometry.coordinates)
             );
 
             linemeshs.push(tmp);
@@ -433,36 +609,46 @@
 
           return linemeshs;
         }
-        var roadmeshs = addRoads();
-        var linemeshs = addLine();
-        var ringmesh = addRing();
-        var wallmesh = addWall();
-        var conemesh = addCone();
-        var shaderBarmaterial = getShaderBarMaterial();
-        addBar(shaderBarmaterial);
-        var ShaderBar = shaderBarmaterial.ShaderBar;
-        addSphere();
+         var roadmeshs = addRoads();
+         //add3DLabels();
+        // var linemeshs = addLine();
+        // var ringmesh = addRing();
+         var wallmesh = addWall();
+         var circlemesh=addCircle([ 120.55259227752686,32.388151935064236]);
+        var conemesh = addCone([ 120.56514501571654,32.3897192745606],"#eee");
+        var conemesh2 = addCone([  120.56062817573546,32.3841564552852]);
+        var conemesh3 = addCone([  120.55259227752686,32.388151935064236]);
+        
+        // var shaderBarmaterial = getShaderBarMaterial();
+        // addBar(shaderBarmaterial);
+        // var ShaderBar = shaderBarmaterial.ShaderBar;
+        // addSphere();
 
         var animate = function () {
-          ringmesh.material.uniforms.time.value += 0.002;
-          wallmesh.material.uniforms.time.value += 0.008;
-          conemesh.material.uniforms.time.value += 0.05;
-          linemeshs.forEach((linemesh) => {
-            linemesh.material.uniforms.dashOffset.value -= 0.01;
-          });
+          // ringmesh.material.uniforms.time.value += 0.002;
+           wallmesh.material.uniforms.time.value += 0.008;
+           conemesh.material.uniforms.time.value += 0.05;
+           conemesh.rotation.y += 0.02;
+           conemesh3.material.uniforms.time.value += 0.05;
+           conemesh3.rotation.y += 0.02;
+           conemesh2.material.uniforms.time.value += 0.05;
+           conemesh2.rotation.y += 0.02;
+           circlemesh.rotation.z += 0.02;
+          // linemeshs.forEach((linemesh) => {
+          //   linemesh.material.uniforms.dashOffset.value -= 0.01;
+          // });
 
           roadmeshs.forEach((linemesh) => {
             linemesh.material.uniforms.dashOffset.value -= 0.01;
           });
-          conemesh.rotation.y += 0.02;
-          ShaderBar.uniforms.boxH.value = ShaderBar.uniforms.boxH.value + 0.5;
-          if (ShaderBar.uniforms.boxH.value > 40) {
-            ShaderBar.uniforms.boxH.value = -10.0;
-          }
+          // 
+          // ShaderBar.uniforms.boxH.value = ShaderBar.uniforms.boxH.value + 0.5;
+          // if (ShaderBar.uniforms.boxH.value > 40) {
+          //   ShaderBar.uniforms.boxH.value = -10.0;
+          // }
 
           requestAnimationFrame(animate);
           map.triggerRepaint();
-          //threebox.update();
         };
 
         animate();

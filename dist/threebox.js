@@ -1794,7 +1794,7 @@ function Object3D(options) {
 	projScaleGroup.add(boxGrid);
 
 	// [jscastro] we add by default a tooltip that can be override later or hide it with threebox `enableTooltips`
-	userScaleGroup.addTooltip(userScaleGroup.uuid, true, userScaleGroup.anchor);
+	//userScaleGroup.addTooltip(userScaleGroup.uuid, true, userScaleGroup.anchor);
 
 	userScaleGroup.visibility = true;
 
@@ -3045,6 +3045,9 @@ function loadObj(options, cb, promise) {
 					break;
 				case "fbx":
 					animations = obj.animations;
+					if(options.material){
+						obj.children.forEach(item=>item.material=options.material)
+					}
 					break;
 			}
 			obj.animations = animations;
@@ -3078,7 +3081,7 @@ function loadObj(options, cb, promise) {
 			projScaleGroup.add(boxGrid);
 
 			//[jscastro] we add by default a tooltip that can be override later or hide it with threebox `enableTooltips`
-			userScaleGroup.addTooltip(userScaleGroup.uuid, true, userScaleGroup.anchor);
+			//userScaleGroup.addTooltip(userScaleGroup.uuid, true, userScaleGroup.anchor);
 
 			cb(userScaleGroup);
 			promise(userScaleGroup);

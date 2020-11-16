@@ -308,6 +308,7 @@ var style = {
       "source": "roads",
       "source-layer": "DL_DaoLu_L",
       "minzoom": 13,
+      "maxzoom": 17,
       "filter": ["all", ["==", "CSDLDJ", "次干道"]],
       "layout": {
         "line-join": "round",
@@ -326,7 +327,7 @@ var style = {
       "source": "roads",
       "source-layer": "DL_DaoLu_L",
       "minzoom": 11.5,
-      "maxzoom": 24,
+      "maxzoom": 17,
       "filter": ["all", ["==", "CSDLDJ", "主干道"]],
       "layout": {"line-join": "round", "visibility": "visible"},
       "paint": {
@@ -456,6 +457,7 @@ var style = {
       "source": "roads",
       "source-layer": "DL_DaoLu_L",
       "minzoom": 13,
+      "maxzoom": 17,
       "filter": ["all", ["==", "CSDLDJ", "次干道"]],
       "layout": {
         "line-join": "round",
@@ -474,7 +476,7 @@ var style = {
       "source": "roads",
       "source-layer": "DL_DaoLu_L",
       "minzoom": 11.5,
-      "maxzoom": 24,
+      "maxzoom": 17,
       "filter": ["all", ["==", "CSDLDJ", "主干道"]],
       "layout": {"line-join": "round", "visibility": "visible"},
       "paint": {
@@ -593,7 +595,7 @@ var style = {
       ],
       "layout": {"visibility": "visible"},
       "paint": {
-        "fill-extrusion-color": "#161B36",
+        "fill-extrusion-color": "rgba(85,253,171, 0.8)",
         "fill-extrusion-height": [
           "interpolate",
           ["linear"],
@@ -601,7 +603,47 @@ var style = {
           15,
           0,
           15.05,
-          ["*", 8, ["get", "Floor"]]
+           ["*", 6, ["get", "Floor"]]
+        ],
+        "fill-extrusion-base": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+          ["get", "BasementFl"]
+        ],
+        "fill-extrusion-opacity": 0.8,
+        "fill-extrusion-intensity":5,
+        "fill-extrusion-bottom-color":"#081d58",
+        "fill-extrusion-vertical-gradient": false,
+        // "fill-extrusion-pattern": {
+        //   "stops": [[16, "午夜蓝8"], [19, "午夜蓝16"], [20, "午夜蓝8"]]
+        // }
+      }
+    },
+    {
+      "id": "建筑物2",
+      "type": "fill-extrusion",
+      "source": "citybuilding",
+      "source-layer": "FW_FangWu_A",
+      "minzoom": 13,
+      "filter": [
+        "all",
+        ["!=", "NAME", "如城国土资源所"]
+      ],
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "fill-extrusion-color": "rgba(85,253,171, 0.5)",
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+           ["*", 6, ["get", "Floor"]]
         ],
         "fill-extrusion-base": [
           "interpolate",
@@ -613,6 +655,8 @@ var style = {
           ["get", "BasementFl"]
         ],
         "fill-extrusion-opacity": 0.5,
+        // "fill-extrusion-intensity":5,
+        // "fill-extrusion-bottom-color":"#081d58",
         "fill-extrusion-vertical-gradient": false,
         "fill-extrusion-pattern": {
           "stops": [[16, "午夜蓝8"], [19, "午夜蓝16"], [20, "午夜蓝8"]]
@@ -631,7 +675,7 @@ var style = {
       ],
       "layout": {"visibility": "visible"},
       "paint": {
-        "fill-extrusion-color": "#161B36",
+        "fill-extrusion-color": "#2f4e77",
         "fill-extrusion-height": [
           "interpolate",
           ["linear"],
@@ -639,7 +683,7 @@ var style = {
           15,
           0,
           15.05,
-          ["*", 8, ["get", "Floor"]]
+           ["*", 6, ["get", "Floor"]]
         ],
         "fill-extrusion-base": [
           "interpolate",
@@ -648,10 +692,93 @@ var style = {
           15,
           0,
           15.05,
-          ["*", 8, ["get", "Floor"]]
+           ["*", 6, ["get", "Floor"]]
         ],
         "fill-extrusion-opacity": 1,
         "fill-extrusion-vertical-gradient": false
+      }
+    },
+    {
+      "id": "建筑物-商业体",
+      "type": "fill-extrusion",
+      "source": "citybuilding",
+      "source-layer": "FW_FangWu_A",
+      "minzoom": 13,
+      "filter": [
+        "all",
+        [ "in",
+        "NAME",
+        "文峰大世界",
+        "百岁步行街",
+        "华都百货购物中心",
+        "安定百盛广场"]
+      ],
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "fill-extrusion-color": "rgba(102, 215, 57, 0.8)",
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+           ["*", 6, ["get", "Floor"]]
+        ],
+        "fill-extrusion-base": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+          ["get", "BasementFl"]
+        ],
+        "fill-extrusion-opacity": 0.8,
+        "fill-extrusion-intensity":5,
+        "fill-extrusion-bottom-color":"#081d58",
+        "fill-extrusion-vertical-gradient": false,
+      }
+    },
+    {
+      "id": "建筑物-医院",
+      "type": "fill-extrusion",
+      "source": "citybuilding",
+      "source-layer": "FW_FangWu_A",
+      "minzoom": 13,
+      "filter": [
+        "all",
+        [ "in",
+        "NAME",
+        "市人民医院",
+      "市中医医院",
+      "市第四人民医院"]
+      ],
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "fill-extrusion-color": "rgba(178, 0, 79, 0.8)",
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+           ["*", 6, ["get", "Floor"]]
+        ],
+        "fill-extrusion-base": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+          ["get", "BasementFl"]
+        ],
+        "fill-extrusion-opacity": 0.8,
+        "fill-extrusion-intensity":5,
+        "fill-extrusion-bottom-color":"#081d58",
+        "fill-extrusion-vertical-gradient": false,
       }
     },
     {

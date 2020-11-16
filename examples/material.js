@@ -229,7 +229,7 @@ function getWallMaterial() {
 }
 
 
-function getConeMaterial() {
+function getConeMaterial(color) {
     var uniforms ={
         dtPyramidTexture: {
             value: new THREE.TextureLoader().load("images/wall1.png"),
@@ -238,7 +238,7 @@ function getConeMaterial() {
             value: 0.0,
           },
           uColor: {
-            value: new THREE.Color("#5588aa"),
+            value: new THREE.Color(color||"#5588aa"),
           },
   };
   
