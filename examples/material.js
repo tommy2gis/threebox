@@ -177,17 +177,18 @@ function getSphereMaterial() {
   return material;
 }
 
-
 function getWallMaterial() {
-  var uniforms ={
-    time: { value: 1.5},
-  colorTexture: {value: new THREE.TextureLoader().load("images/wall.png")},
-  colorTexture1: {value: new THREE.TextureLoader().load("images/wall1.png")}
-};
+  var uniforms = {
+    time: { value: 1.5 },
+    colorTexture: { value: new THREE.TextureLoader().load("images/wall.png") },
+    colorTexture1: {
+      value: new THREE.TextureLoader().load("images/wall1.png"),
+    },
+  };
 
-  let shader = {vs:'', fs: ''};
+  let shader = { vs: "", fs: "" };
 
-  shader.vs= `varying vec2 vUv;
+  shader.vs = `varying vec2 vUv;
       varying vec3 fNormal;
       varying vec3 vPosition;
       void main()
@@ -198,8 +199,8 @@ function getWallMaterial() {
           vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
           gl_Position = projectionMatrix * mvPosition;
       }`;
-          
-  shader.fs= `uniform float time;
+
+  shader.fs = `uniform float time;
       varying vec2 vUv;
       uniform sampler2D colorTexture;
       uniform sampler2D colorTexture1;
@@ -228,20 +229,19 @@ function getWallMaterial() {
   return material;
 }
 
-
 function getConeMaterial(color) {
-    var uniforms ={
-        dtPyramidTexture: {
-            value: new THREE.TextureLoader().load("images/wall1.png"),
-          },
-          time: {
-            value: 0.0,
-          },
-          uColor: {
-            value: new THREE.Color(color||"#5588aa"),
-          },
+  var uniforms = {
+    dtPyramidTexture: {
+      value: new THREE.TextureLoader().load("images/wall1.png"),
+    },
+    time: {
+      value: 0.0,
+    },
+    uColor: {
+      value: new THREE.Color(color || "#5588aa"),
+    },
   };
-  
+
   let shader = { vs: "", fs: "" };
 
   shader.vs =
@@ -263,13 +263,48 @@ function getConeMaterial(color) {
     "vec3 diffuse =(1.0-colorImage.a)*vec3(0.8,1.0,0.0)+colorImage.rgb*vec3(0.8,1.0,0);\n" +
     "gl_FragColor = vec4(diffuse,0.7);\n" +
     "}\n";
-    let material = new THREE.ShaderMaterial({
-      uniforms: uniforms,
-      vertexShader: shader.vs,
-      fragmentShader: shader.fs,
-      side: THREE.DoubleSide,
-      transparent: true,
-      depthWrite: false,
-    });
-    return material;
-  }
+  let material = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: shader.vs,
+    fragmentShader: shader.fs,
+    side: THREE.DoubleSide,
+    transparent: true,
+    depthWrite: false,
+  });
+  return material;
+}
+
+function getFireMaterial() {
+  var uniforms = {
+    uMap: {
+      value: new THREE.TextureLoader().load("images/flame.png"),
+    },
+    uColor1: {
+      value: new THREE.Color(0x961800),
+    },
+    uColor2: {
+      value: new THREE.Color(0x4b5828),
+    },
+    uTime: {
+      value: 0,
+    },
+  };
+
+  let shader = { vs: "", fs: "" };
+
+  shader.vs =
+    "attribute vec4 orientation;  attribute vec3 offset;  attribute vec2 scale;  attribute float life;  attribute float random;  varying vec2 vUv;  varying float vRandom;  varying float vAlpha;  float range(float oldValue, float oldMin, float oldMax, float newMin, float newMax) {      float oldRange = oldMax - oldMin;      float newRange = newMax - newMin;      return (((oldValue - oldMin) * newRange) / oldRange) + newMin;  }float pcurve(float x, float a, float b) {      float k = pow(a + b, a + b) / (pow(a, a) * pow(b, b));      return k * pow(x, a) * pow(1.0 - x, b);  }  void main() {      vUv = uv;      vRandom = random;      vAlpha = pcurve(life, 1.0, 2.0);      vec3 pos = position;      pos.xy *= scale * vec2(range(pow(life, 1.5), 0.0, 1.0, 1.0, 0.6), range(pow(life, 1.5), 0.0, 1.0, 0.6, 1.2));      vec4 or = orientation;      vec3 vcV = cross(or.xyz, pos);      pos = vcV * (2.0 * or.w) + (cross(or.xyz, vcV) * 2.0 + pos);      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);  }";
+
+  shader.fs =
+    " uniform sampler2D uMap;  uniform vec3 uColor1;  uniform vec3 uColor2;  uniform float uTime;  varying vec2 vUv;  varying float vAlpha;  varying float vRandom;  void main() {      vec2 uv = vUv;      float spriteLength = 10.0;      uv.x /= spriteLength;      float spriteIndex = mod(uTime * 0.1 + vRandom * 2.0, 1.0);      uv.x += floor(spriteIndex * spriteLength) / spriteLength;      vec4 map = texture2D(uMap, uv);      gl_FragColor.rgb = mix(uColor2, uColor1, map.r);      gl_FragColor.a = vAlpha * map.a;  }";
+  let material = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: shader.vs,
+    fragmentShader: shader.fs,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  return material;
+}

@@ -2,7 +2,7 @@
  * @Author: 史涛
  * @Date: 2020-02-14 16:57:11
  * @Last Modified by: 史涛
- * @Last Modified time: 2020-11-17 11:30:18
+ * @Last Modified time: 2020-11-17 13:40:45
  */
 import ReactMapboxGl, {
   Layer,
@@ -43,7 +43,6 @@ import turfarea from "@turf/area";
 import turflength from "@turf/length";
 import turfbuffer from "@turf/buffer";
 import { setSelectFaRenItem } from "../../actions/query";
-import {queryIntelService,queryTimeLineIntelService,clearSelectItem} from '../../modules/IntelliSense/actions';
 import wkt from "terraformer-wkt-parser";
 import { routes } from "./route";
 import Building from "./ThreeBuilding";
@@ -509,10 +508,20 @@ class MapBoxMap extends PureComponent {
       };
     });
 
+    let  datas=[]
+    routes.features.forEach((fea, index) => {
+      datas.push({
+        coordinates: fea.geometry.coordinates,
+        timestamps: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120].map(
+          (e) => e + index * 10
+        ),
+      });
+    });
+
     const tripLayer = new MapboxLayer({
       type: TripsLayer,
       id: "trips-layer",
-      data,
+      data:datas,
       getPath: (d) => d.coordinates,
       // deduct start timestamp from each data point to avoid overflow
       getTimestamps: (d) => d.timestamps,
@@ -2427,9 +2436,6 @@ export default connect(
     endDrawing,
     drawEnable,
     updateLayer,
-    setSelectFaRenItem,
-    queryIntelService,
-    queryTimeLineIntelService,
-    clearSelectItem
+    setSelectFaRenItem
   }
 )(MapBoxMap);

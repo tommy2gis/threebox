@@ -740,6 +740,46 @@ var style = {
         "fill-extrusion-vertical-gradient": false,
       }
     },
+    
+    {
+      "id": "建筑物-消防",
+      "type": "fill-extrusion",
+      "source": "citybuilding",
+      "source-layer": "FW_FangWu_A",
+      "minzoom": 13,
+      "filter": [
+        "all",
+        [ "in",
+        "NAME",
+        "市应急救援大队","市公安消防大队"]
+      ],
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "fill-extrusion-color": "rgba(178, 0, 79, 0.8)",
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+           ["*", 6, ["get", "Floor"]]
+        ],
+        "fill-extrusion-base": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+          ["get", "BasementFl"]
+        ],
+        "fill-extrusion-opacity": 0.8,
+        "fill-extrusion-intensity":5,
+        "fill-extrusion-bottom-color":"#081d58",
+        "fill-extrusion-vertical-gradient": false,
+      }
+    },
     {
       "id": "建筑物-医院",
       "type": "fill-extrusion",
