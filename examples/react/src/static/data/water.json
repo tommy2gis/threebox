@@ -1,0 +1,11 @@
+{
+    "type": "FeatureCollection",
+    "name": "water",
+    "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::4490" } },
+    "features": [
+    { "type": "Feature", "properties": { "OBJECTID": 51, "ZDMC": "南通碾砣港闸(省厅回流)" }, "geometry": { "type": "Point", "coordinates": [ 120.632188, 32.074582 ] } },
+    { "type": "Feature", "properties": { "OBJECTID": 265, "ZDMC": "如皋鹏鹞水厂" }, "geometry": { "type": "Point", "coordinates": [ 120.56727, 32.040343 ] } },
+    { "type": "Feature", "properties": { "OBJECTID": 266, "ZDMC": "鹏鹞备用水源地站" }, "geometry": { "type": "Point", "coordinates": [ 120.611509, 32.076739 ] } }
+    ]
+    }
+    

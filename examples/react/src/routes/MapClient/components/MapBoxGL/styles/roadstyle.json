@@ -1,0 +1,30 @@
+{
+    "version": 8,
+    "sources": {
+        "tiandituvecw": {
+            "type": "raster",
+            "tiles": [
+                "http://t0.tianditu.gov.cn/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b"
+            ],
+            "tileSize": 256
+        },
+        "tianditucvaw": {
+            "type": "raster",
+            "tiles": [
+                "http://t0.tianditu.gov.cn/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b"
+            ],
+            "tileSize": 256
+        }
+    },
+    "layers": [
+        {
+            "id": "tiandituvecw",
+            "type": "raster",
+            "source": "tiandituvecw"
+        },{
+            "id": "tianditucvaw",
+            "type": "raster",
+            "source": "tianditucvaw"
+        }
+    ]
+}

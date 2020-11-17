@@ -24,10 +24,11 @@
     <link href="../dist/mapbox-gl.css" rel="stylesheet" />
     <script src="https://cdn.bootcdn.net/ajax/libs/Turf.js/5.1.6/turf.min.js"></script>
     <script src="http://learningthreejs.com/data/tweenjs_for_smooth_animation/vendor/three.js/examples/js/Tween.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/deck.gl@8.3.7/dist/dist.dev.js"></script>
     <script src="../dist/MAP_STYLE.darkblue.js"></script>
     <script src="../dist/threebox.js"></script>
     <script src="material.js"></script>
+    <script src="./geojson/tripdata.js"></script>
     <script>
       var map = (window.map = new mapboxgl.Map({
         container: "map",
@@ -39,7 +40,7 @@
       const el = document.getElementById("map");
       let resolution = new THREE.Vector2(el.offsetWidth, el.offsetHeight);
       var origin = [120.57022, 32.3858585, 0];
-
+      const { MapboxLayer, TripsLayer } = deck;
       map.on("style.load", function () {
         map.addLayer(
           {
@@ -54,7 +55,7 @@
               TWEEN.update();
             },
           },
-          "兴趣点-level-towm"
+          "建筑物"
         ); //添加到建筑物图层之后
       });
 
@@ -176,6 +177,37 @@
               ele.children[0].material.opacity = 1;
             });
           }
+        }
+
+        function addTripLayer(routes) {
+          const datas=[]
+          routes.features.forEach((fea, index)  => {
+            if(fea.type==='LineString'){
+              datas.push({
+            coordinates: fea.geometry.coordinates,
+            timestamps: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120].map(
+              (e) => e + index * 10
+            ),
+          })
+            }
+          });
+   
+
+        const tripLayer = new MapboxLayer({
+          type: TripsLayer,
+          id: "trips-layer1",
+          datas,
+          getPath: (d) => d.coordinates,
+          getTimestamps: (d) => d.timestamps,
+          getColor: [253, 128, 93],
+          opacity: 0.8,
+          widthMinPixels: 2,
+          rounded: true,
+          trailLength: 200,
+        });
+
+        map.addLayer(tripLayer);
+        return tripLayer;
         }
 
         function addRing() {
@@ -609,38 +641,52 @@
 
           return linemeshs;
         }
-         var roadmeshs = addRoads();
+         //var roadmeshs = addRoads();
+       
          //add3DLabels();
         // var linemeshs = addLine();
         // var ringmesh = addRing();
-         var wallmesh = addWall();
-         var circlemesh=addCircle([ 120.55259227752686,32.388151935064236]);
-        var conemesh = addCone([ 120.56514501571654,32.3897192745606],"#eee");
-        var conemesh2 = addCone([  120.56062817573546,32.3841564552852]);
-        var conemesh3 = addCone([  120.55259227752686,32.388151935064236]);
-        
+        //  var wallmesh = addWall();
+        //  var circlemesh=addCircle([ 120.55259227752686,32.388151935064236]);
+        // var conemesh = addCone([ 120.56514501571654,32.3897192745606],"#eee");
+        // var conemesh2 = addCone([  120.56062817573546,32.3841564552852]);
+        // var conemesh3 = addCone([  120.55259227752686,32.388151935064236]);
+        var tripLayer=addTripLayer(routes);
         // var shaderBarmaterial = getShaderBarMaterial();
         // addBar(shaderBarmaterial);
         // var ShaderBar = shaderBarmaterial.ShaderBar;
         // addSphere();
 
         var animate = function () {
+
+          var loopLength = 300; // unit corresponds to the timestamp in source data
+          var animationSpeed = 30; // unit time per second
+          var timestamp = Date.now() / 1000;
+          var loopTime = loopLength / animationSpeed;
+          let curtime = ((timestamp % loopTime) / loopTime) * loopLength;
+          if (tripLayer.setProps) {
+            try {
+              tripLayer.setProps({ currentTime: curtime });
+            } catch (error) {}
+          }
+
+
           // ringmesh.material.uniforms.time.value += 0.002;
-           wallmesh.material.uniforms.time.value += 0.008;
-           conemesh.material.uniforms.time.value += 0.05;
-           conemesh.rotation.y += 0.02;
-           conemesh3.material.uniforms.time.value += 0.05;
-           conemesh3.rotation.y += 0.02;
-           conemesh2.material.uniforms.time.value += 0.05;
-           conemesh2.rotation.y += 0.02;
-           circlemesh.rotation.z += 0.02;
+          //  wallmesh.material.uniforms.time.value += 0.008;
+          //  conemesh.material.uniforms.time.value += 0.05;
+          //  conemesh.rotation.y += 0.02;
+          //  conemesh3.material.uniforms.time.value += 0.05;
+          //  conemesh3.rotation.y += 0.02;
+          //  conemesh2.material.uniforms.time.value += 0.05;
+          //  conemesh2.rotation.y += 0.02;
+          //  circlemesh.rotation.z += 0.02;
           // linemeshs.forEach((linemesh) => {
           //   linemesh.material.uniforms.dashOffset.value -= 0.01;
           // });
 
-          roadmeshs.forEach((linemesh) => {
-            linemesh.material.uniforms.dashOffset.value -= 0.01;
-          });
+          // roadmeshs.forEach((linemesh) => {
+          //   linemesh.material.uniforms.dashOffset.value -= 0.01;
+          // });
           // 
           // ShaderBar.uniforms.boxH.value = ShaderBar.uniforms.boxH.value + 0.5;
           // if (ShaderBar.uniforms.boxH.value > 40) {

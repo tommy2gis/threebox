@@ -1,0 +1,16 @@
+{
+    "type": "FeatureCollection",
+    "name": "duanmian",
+    "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::4490" } },
+    "features": [
+    { "type": "Feature", "properties": { "OBJECTID": 191, "DMMC": "新204公路桥" }, "geometry": { "type": "Point", "coordinates": [ 120.486835, 32.375725 ] } },
+    { "type": "Feature", "properties": { "OBJECTID": 192, "DMMC": "新334省道桥" }, "geometry": { "type": "Point", "coordinates": [ 120.683063, 32.398665 ] } },
+    { "type": "Feature", "properties": { "OBJECTID": 293, "DMMC": "新334焦港大桥*" }, "geometry": { "type": "Point", "coordinates": [ 120.376933, 32.352175 ] } },
+    { "type": "Feature", "properties": { "OBJECTID": 294, "DMMC": "长庄大桥" }, "geometry": { "type": "Point", "coordinates": [ 120.57875700000011, 32.230994 ] } },
+    { "type": "Feature", "properties": { "OBJECTID": 295, "DMMC": "环西大桥" }, "geometry": { "type": "Point", "coordinates": [ 120.534312000000114, 32.391428 ] } },
+    { "type": "Feature", "properties": { "OBJECTID": 296, "DMMC": "东陈大桥（环东）" }, "geometry": { "type": "Point", "coordinates": [ 120.578353000000106, 32.396651 ] } },
+    { "type": "Feature", "properties": { "OBJECTID": 297, "DMMC": "林梓大桥" }, "geometry": { "type": "Point", "coordinates": [ 120.729783000000111, 32.291307 ] } },
+    { "type": "Feature", "properties": { "OBJECTID": 298, "DMMC": "碾砣港闸" }, "geometry": { "type": "Point", "coordinates": [ 120.633499, 32.077652 ] } },
+    { "type": "Feature", "properties": { "OBJECTID": 300, "DMMC": "夏堡北大桥" }, "geometry": { "type": "Point", "coordinates": [ 120.376933, 32.352175 ] } }
+    ]
+    }

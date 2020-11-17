@@ -1,0 +1,72 @@
+{
+  "id": "1966010",
+  "name": "城市运营中心",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "2344372",
+      "name": "历史",
+      "font_class": "history",
+      "unicode": "e63a",
+      "unicode_decimal": 58938
+    },
+    {
+      "icon_id": "5981318",
+      "name": "部门",
+      "font_class": "bumen",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "11339200",
+      "name": "种类",
+      "font_class": "zhonglei",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "12167451",
+      "name": "影像 拷贝",
+      "font_class": "images",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "14670998",
+      "name": "数据",
+      "font_class": "shuju",
+      "unicode": "e751",
+      "unicode_decimal": 59217
+    },
+    {
+      "icon_id": "7729377",
+      "name": "法人资格",
+      "font_class": "faren",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "1344244",
+      "name": "代理人级别1",
+      "font_class": "step1",
+      "unicode": "e6e0",
+      "unicode_decimal": 59104
+    },
+    {
+      "icon_id": "1344251",
+      "name": "代理人级别10",
+      "font_class": "step10",
+      "unicode": "e6e2",
+      "unicode_decimal": 59106
+    },
+    {
+      "icon_id": "12568858",
+      "name": "city",
+      "font_class": "city",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    }
+  ]
+}

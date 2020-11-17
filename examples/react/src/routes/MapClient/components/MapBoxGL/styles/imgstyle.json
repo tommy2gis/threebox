@@ -1,0 +1,30 @@
+{
+    "version": 8,
+    "sources": {
+        "tiandituimgw": {
+            "type": "raster",
+            "tiles": [
+                "http://t0.tianditu.gov.cn/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b"
+            ],
+            "tileSize": 256
+        },
+        "tiandituciaw": {
+            "type": "raster",
+            "tiles": [
+                "http://t0.tianditu.gov.cn/DataServer?T=cia_w&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b"
+            ],
+            "tileSize": 256
+        }
+    },
+    "layers": [
+        {
+            "id": "tiandituimgw",
+            "type": "raster",
+            "source": "tiandituimgw"
+        },{
+            "id": "tiandituciaw",
+            "type": "raster",
+            "source": "tiandituciaw"
+        }
+    ]
+}

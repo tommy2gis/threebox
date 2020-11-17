@@ -1,0 +1,20 @@
+{
+"type": "FeatureCollection",
+"NAME": "zxqpoint",
+"features": [
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "如城街道" }, "geometry": { "type": "Point", "coordinates": [ 120.577015306505274, 32.371070187780298 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "城北街道" }, "geometry": { "type": "Point", "coordinates": [ 120.500536200771194, 32.419690594722326 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "城南街道" }, "geometry": { "type": "Point", "coordinates": [ 120.622231057639766, 32.318725088722672 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "东陈镇" }, "geometry": { "type": "Point", "coordinates": [ 120.660373646967798, 32.430229070420573 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "丁堰镇" }, "geometry": { "type": "Point", "coordinates": [ 120.720536414797323, 32.34552409099917 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "白蒲镇" }, "geometry": { "type": "Point", "coordinates": [ 120.749461920667684, 32.262193303517151 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "下原镇" }, "geometry": { "type": "Point", "coordinates": [ 120.652812633700833, 32.239847440513401 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "九华镇" }, "geometry": { "type": "Point", "coordinates": [ 120.674899995605045, 32.152013622978856 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "石庄镇" }, "geometry": { "type": "Point", "coordinates": [ 120.496435027383399, 32.162392736629471 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "长江镇" }, "geometry": { "type": "Point", "coordinates": [ 120.588805235665475, 32.103454983594411 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "吴窑镇" }, "geometry": { "type": "Point", "coordinates": [ 120.560148269406739, 32.210357995492799 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "江安镇" }, "geometry": { "type": "Point", "coordinates": [ 120.407614619586838, 32.173306110677032 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "搬经镇" }, "geometry": { "type": "Point", "coordinates": [ 120.41444334148224, 32.297656285764234 ] } },
+{ "type": "Feature", "properties": { "Id": 0.0, "NAME": "磨头镇" }, "geometry": { "type": "Point", "coordinates": [ 120.523795818887237, 32.278523581644798 ] } }
+]
+}
