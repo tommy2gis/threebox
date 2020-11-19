@@ -954,8 +954,6 @@
           return linemeshs;
         }
          var roadmeshs = addRoads();
-       
-         //add3DLabels();
        var linemeshs = addLine();
         //var ringmesh = addRing();
         addTree();
@@ -999,7 +997,6 @@
           }
 
           fire.mesh.material.uniforms.uTime.value = e * 0.001;
-
           var life = fire.geometry.attributes.life;
           var orientation = fire.geometry.attributes.orientation;
           var scale = fire.geometry.attributes.scale;

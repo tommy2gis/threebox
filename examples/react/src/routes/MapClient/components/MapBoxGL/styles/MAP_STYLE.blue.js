@@ -221,7 +221,7 @@ const mapBlueStyle =  {
       "minzoom": 12,
       "filter": ["all"],
       "layout": {"visibility": "visible"},
-      "paint": {"fill-color": "#0A325D"}
+      "paint": {"fill-color": "#0A325D","fill-water":"water"}
     },
     {
       "id": "水域-河流-小",
@@ -243,7 +243,7 @@ const mapBlueStyle =  {
       "minzoom": 12,
       "filter": ["all", [">", "SHAPE_Area", 5000]],
       "layout": {"visibility": "visible"},
-      "paint": {"fill-color": "#0A325D"}
+      "paint": {"fill-color": "#0A325D","fill-water":"water"}
     },
     {
       "id": "水域-河流-主",
@@ -257,7 +257,7 @@ const mapBlueStyle =  {
         ["in", "NAME", "焦港河", "如泰运河", "如海运行", "丁堡河", "通扬运河", "长江"]
       ],
       "layout": {"visibility": "visible"},
-      "paint": {"fill-color": "#0A325D"}
+      "paint": {"fill-color": "#0A325D","fill-water":"water"}
     },
     {
       "id": "道路线-支路-边线",
@@ -600,18 +600,18 @@ const mapBlueStyle =  {
           "interpolate",
           ["linear"],
           ["zoom"],
-          15,
+          10,
           0,
-          15.05,
+          18,
            ["*", 6, ["get", "Floor"]]
         ],
         "fill-extrusion-base": [
           "interpolate",
           ["linear"],
           ["zoom"],
-          15,
+          10,
           0,
-          15.05,
+          18,
           ["get", "BasementFl"]
         ],
         "fill-extrusion-opacity": 0.8,
@@ -640,18 +640,18 @@ const mapBlueStyle =  {
           "interpolate",
           ["linear"],
           ["zoom"],
-          15,
+          10,
           0,
-          15.05,
+          18,
            ["*", 6, ["get", "Floor"]]
         ],
         "fill-extrusion-base": [
           "interpolate",
           ["linear"],
           ["zoom"],
-          15,
+          10,
           0,
-          15.05,
+          18,
           ["get", "BasementFl"]
         ],
         "fill-extrusion-opacity": 0.5,
@@ -680,18 +680,18 @@ const mapBlueStyle =  {
           "interpolate",
           ["linear"],
           ["zoom"],
-          15,
+          10,
           0,
-          15.05,
+          18,
            ["*", 6, ["get", "Floor"]]
         ],
         "fill-extrusion-base": [
           "interpolate",
           ["linear"],
           ["zoom"],
-          15,
+          10,
           0,
-          15.05,
+          18,
            ["*", 6, ["get", "Floor"]]
         ],
         "fill-extrusion-opacity": 1,
@@ -720,18 +720,58 @@ const mapBlueStyle =  {
           "interpolate",
           ["linear"],
           ["zoom"],
-          15,
+          10,
           0,
-          15.05,
+          18,
            ["*", 6, ["get", "Floor"]]
         ],
         "fill-extrusion-base": [
           "interpolate",
           ["linear"],
           ["zoom"],
-          15,
+          10,
           0,
-          15.05,
+          18,
+          ["get", "BasementFl"]
+        ],
+        "fill-extrusion-opacity": 0.8,
+        "fill-extrusion-intensity":5,
+        "fill-extrusion-bottom-color":"#081d58",
+        "fill-extrusion-vertical-gradient": false,
+      }
+    },
+    
+    {
+      "id": "建筑物-消防",
+      "type": "fill-extrusion",
+      "source": "citybuilding",
+      "source-layer": "FW_FangWu_A",
+      "minzoom": 13,
+      "filter": [
+        "all",
+        [ "in",
+        "NAME",
+        "市应急救援大队","市公安消防大队"]
+      ],
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "fill-extrusion-color": "rgba(178, 0, 79, 0.8)",
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0,
+          18,
+           ["*", 6, ["get", "Floor"]]
+        ],
+        "fill-extrusion-base": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0,
+          18,
           ["get", "BasementFl"]
         ],
         "fill-extrusion-opacity": 0.8,
@@ -761,18 +801,18 @@ const mapBlueStyle =  {
           "interpolate",
           ["linear"],
           ["zoom"],
-          15,
+          10,
           0,
-          15.05,
+          18,
            ["*", 6, ["get", "Floor"]]
         ],
         "fill-extrusion-base": [
           "interpolate",
           ["linear"],
           ["zoom"],
-          15,
+          10,
           0,
-          15.05,
+          18,
           ["get", "BasementFl"]
         ],
         "fill-extrusion-opacity": 0.8,
@@ -983,7 +1023,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-size": 0.8
@@ -1013,7 +1053,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-size": 0.8
@@ -1072,7 +1112,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-image": "行政组织",
@@ -1103,7 +1143,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-size": 0.8
@@ -1132,7 +1172,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-image": "{CLASSIFY}",
@@ -1165,7 +1205,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-image": "{CLASSIFY}",
@@ -1196,7 +1236,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-size": 0.8
@@ -1240,7 +1280,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "text-pitch-alignment": "auto",
@@ -1281,7 +1321,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-size": 0.8
@@ -1310,7 +1350,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-image": "{CLASSIFY}",
@@ -1341,7 +1381,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "visible",
+        "visibility": "none",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-allow-overlap": true,

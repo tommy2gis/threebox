@@ -6,9 +6,9 @@ const mapConfigJson={
   "arcgisurl":"http://192.168.101.201:6080/arcgis/rest/services/rugao/",
   "map3d": {
     "viewport": {
-      "latitude": 32.392477470956,
-      "longitude": 120.5635,
-      "zoom": 11,
+      "latitude": 32.38186566,
+      "longitude": 120.5750516,
+      "zoom": 14,
       "maxZoom": 19,
       "minZoom": 10,
       "bearing": 25,
@@ -20,11 +20,11 @@ const mapConfigJson={
     "projection": "EPSG:4326",  
     "units": "m",
     "center": {
-      "x": 120.5635,
-      "y": 32.392477470956,
+      "x": 120.575,
+      "y": 32.38186566,
       "crs": "EPSG:4326"
     },
-    "zoom": 11,
+    "zoom": 14,
     "maxZoom": 19,
     "layers": []
   }

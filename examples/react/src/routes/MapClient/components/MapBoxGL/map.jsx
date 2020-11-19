@@ -2,7 +2,7 @@
  * @Author: 史涛
  * @Date: 2020-02-14 16:57:11
  * @Last Modified by: 史涛
- * @Last Modified time: 2020-11-17 13:40:45
+ * @Last Modified time: 2020-11-19 14:48:24
  */
 import ReactMapboxGl, {
   Layer,
@@ -14,14 +14,25 @@ import ReactMapboxGl, {
   ZoomControl,
   RotationControl,
 } from "@shitao1988/swsk-react-mapbox-gl";
-import { MapboxLayer } from "@deck.gl/mapbox";
-import { TripsLayer } from "@deck.gl/geo-layers";
-import { PolygonLayer } from "@deck.gl/layers";
+
+import {
+  addTripLayer,
+  addlinagc3,
+  addlinagc2,
+  addlinagc,
+  addTree,
+  addFire,
+  addWall,
+  addLine,
+  addRoads,
+  addCircle,
+  addCone,
+} from "./layers";
 import DrawRectangle from "mapbox-gl-draw-rectangle-mode";
 import DrawControl from "@shitao1988/swsk-react-mapbox-gl-draw";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
-import moment, { Moment } from 'moment'
+import moment, { Moment } from "moment";
 import {
   Menu,
   Table,
@@ -388,108 +399,95 @@ class MapBoxMap extends PureComponent {
   };
 
   addThreeModels = (map) => {
-    var origin = [120.57022, 32.3858585, 0];
     map.addLayer(
       {
         id: "custom_layer",
         type: "custom",
         onAdd: function (map, mbxContext) {
-          this.threebox = new Threebox(map, mbxContext); //初始化
-          // this.threebox.setupDefaultLights();//设置系统光
+          window.tb = new Threebox(map, mbxContext); //初始化
+          const el = document.getElementById("app");
+          let resolution = new THREE.Vector2(el.offsetWidth, el.offsetHeight);
+          addTree();
+          addlinagc();
+          addlinagc2();
+          addlinagc3();
+          var roadmeshs = addRoads(resolution);
+          var linemeshs = addLine(resolution);
 
-          var radius = 4;
-          var sphereGeom = new THREE.SphereGeometry(
-            radius,
-            40,
-            40,
-            0,
-            Math.PI,
-            0,
-            Math.PI
-          );
-          var redMaterial = new THREE.MeshLambertMaterial({
-            color: 0xff0000,
-            transparent: true,
-            opacity: 0.5,
-            side: THREE.DoubleSide,
+          var fire = addFire([120.56687504053114, 32.3869741476031]);
+          var circlemesh=addCircle([ 120.55259227752686,32.388151935064236]);
+          var wallmesh = addWall();
+          var conepoints=[[ 120.56514501571654,32.3897192745606],[  120.56062817573546,32.3841564552852],[  120.55259227752686,32.388151935064236],[120.54374098777771,32.3888042415114],[120.55318236351012,32.36818183094668]]
+          var conemeshs=conepoints.map(point => {
+           return addCone(point);
           });
-          var GradualGeometry = new THREE.SphereGeometry(
-            radius,
-            100,
-            100,
-            0,
-            Math.PI,
-            0,
-            Math.PI
-          );
-          var GradualMaterial = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            vertexColors: THREE.VertexColors,
-            transparent: true,
-            opacity: 0.5,
-            side: THREE.DoubleSide,
-          });
-          let cube = new THREE.Mesh(GradualGeometry, GradualMaterial);
-          cube.position.set(0, 0, 4);
-          cube.scale.multiplyScalar(1.07);
-          let cube1 = new THREE.Mesh(sphereGeom, redMaterial);
-          cube1.position.set(0, 0, 4);
 
-          let cube3d = this.threebox
-            .Object3D({
-              obj: cube.clone(),
-              adjustment: { x: -0.5, y: -0.5, z: 0.5 },
-            })
-            .setCoords(origin);
-
-          this.threebox.add(cube3d);
-
-          let cube3d1 = this.threebox
-            .Object3D({
-              obj: cube1.clone(),
-              adjustment: { x: -0.5, y: -0.5, z: 0.5 },
-            })
-            .setCoords(origin);
-
-          this.threebox.add(cube3d1);
-
-          var startTime = Date.now();
-
-          function animate() {
-            var currentTime = Date.now();
-            var time = (currentTime - startTime) / 1000;
-            var faceIndices = ["a", "b", "c", "d"]; //创建数组
-            for (
-              var i = 0;
-              i < cube.geometry.faces.length;
-              i++ //遍历面的数量
-            ) {
-              let face = cube.geometry.faces[i]; //获取几何体的面
-              //确定是三重面还是四重面
-              let numberOfSides = face instanceof THREE.Face3 ? 3 : 4;
-              // 为每个面指定颜色
-              for (var j = 0; j < numberOfSides; j++) {
-                let vertexIndex = face[faceIndices[j]];
-                // 存储顶点坐标
-                let point = cube.geometry.vertices[vertexIndex];
-                // 初始化颜色变量
-                let color = new THREE.Color(0xff0000);
-                var g = Math.cos(point.z / (radius / Math.PI) + time); //循环函数
-                color.setRGB(1, g, point.z / ((radius * 10) / Math.PI)); //设置颜色
-                face.vertexColors[j] = color; //颜色赋值
+          
+          var _quat = new THREE.Quaternion();
+          var _quat2 = new THREE.Quaternion();
+          var _x = new THREE.Vector3(1, 0, 0);
+          var _y = new THREE.Vector3(0, 1, 0);
+          var _z = new THREE.Vector3(0, 0, 1);
+          function random(min, max, precision) {
+            var p = Math.pow(10, precision);
+            return Math.round((min + Math.random() * (max - min)) * p) / p;
+          }
+  
+          function animate(e) {
+            //火焰动画
+            fire.mesh.material.uniforms.uTime.value = e * 0.001;
+            var life = fire.geometry.attributes.life;
+            var orientation = fire.geometry.attributes.orientation;
+            var scale = fire.geometry.attributes.scale;
+            var randoms = fire.geometry.attributes.random;
+            for (let i = 0; i < 12; i++) {
+              var value = life.array[i];
+              value += 0.04;
+              if (value > 1) {
+                value -= 1;
+                _quat.setFromAxisAngle(_y, random(0, 3.14, 3));
+                _quat2.setFromAxisAngle(_x, random(-1, 1, 2) * 0.1);
+                _quat.multiply(_quat2);
+                _quat2.setFromAxisAngle(_z, random(-1, 1, 2) * 0.3);
+                _quat.multiply(_quat2);
+                orientation.setXYZW(i, _quat.x, _quat.y, _quat.z, _quat.w);
+                scale.setXY(i, random(0.8, 1.2, 3), random(0.8, 1.2, 3));
+                randoms.setX(i, random(0, 1, 3));
               }
+              life.setX(i, value);
             }
-            cube.geometry.elementsNeedUpdate = true;
+            life.needsUpdate = true;
+            orientation.needsUpdate = true;
+            scale.needsUpdate = true;
+            randoms.needsUpdate = true;
+
+            wallmesh.material.uniforms.time.value += 0.008;
+          
+            conemeshs.forEach((conemesh) => {
+             conemesh.material.uniforms.time.value += 0.05;
+             conemesh.rotation.y += 0.02;
+           });
+
+           circlemesh.rotation.z += 0.02;
+           linemeshs.forEach((linemesh) => {
+             linemesh.material.uniforms.dashOffset.value -= 0.01;
+           });
+ 
+           roadmeshs.forEach((linemesh) => {
+             linemesh.material.uniforms.dashOffset.value -= 0.01;
+           });
+           
             requestAnimationFrame(animate);
+            map.triggerRepaint();
           }
           animate();
         },
 
         render: function (gl, matrix) {
-          this.threebox.update();
+          window.tb.update();
         },
       },
-      "建筑物"
+      "兴趣点-level-towm"
     ); //添加到建筑物图层之后
   };
 
@@ -499,105 +497,27 @@ class MapBoxMap extends PureComponent {
       pitch: 60,
       bearing: 30,
     });
-    const data = routes.features.map((fea, index) => {
-      return {
-        coordinates: fea.geometry.coordinates,
-        timestamps: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120].map(
-          (e) => e + index * 10
-        ),
-      };
-    });
-
-    let  datas=[]
-    routes.features.forEach((fea, index) => {
-      datas.push({
-        coordinates: fea.geometry.coordinates,
-        timestamps: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120].map(
-          (e) => e + index * 10
-        ),
-      });
-    });
-
-    const tripLayer = new MapboxLayer({
-      type: TripsLayer,
-      id: "trips-layer",
-      data:datas,
-      getPath: (d) => d.coordinates,
-      // deduct start timestamp from each data point to avoid overflow
-      getTimestamps: (d) => d.timestamps,
-      getColor: [253, 128, 93],
-      opacity: 0.8,
-      widthMinPixels: 2,
-      rounded: true,
-      trailLength: 200,
-    });
-
-    map.addLayer(tripLayer);
+    this.addThreeModels(map);
+    let tripLayer = addTripLayer(map, routes);
 
     function animate() {
+      //车辆轨迹动画
       var loopLength = 300; // unit corresponds to the timestamp in source data
       var animationSpeed = 30; // unit time per second
       var timestamp = Date.now() / 1000;
       var loopTime = loopLength / animationSpeed;
       let curtime = ((timestamp % loopTime) / loopTime) * loopLength;
-      requestAnimationFrame(animate);
       if (tripLayer.setProps) {
         try {
           tripLayer.setProps({ currentTime: curtime });
         } catch (error) {}
       }
+
+      requestAnimationFrame(animate);
+      map.triggerRepaint();
     }
     animate();
 
-    // map.addLayer(
-    //   {
-    //     id: "custom_layer1",
-    //     type: "custom",
-    //     onAdd: (map, mbxContext) => {
-    //       this.threebox = new Threebox(map, mbxContext, {
-    //         defaultLights: true,
-    //       }); //初始化
-    //       const path = {
-    //         type: "LineString",
-    //         coordinates: [
-    //           [120.55478096008301, 32.39112351517078],
-    //           [120.55628299713133, 32.391630848344825],
-    //           [120.55780649185179, 32.391993227438554],
-    //           [120.55887937545776, 32.39235560507824],
-    //           [120.56160449981688, 32.39309847469382],
-    //           [120.56220531463622, 32.39293540627728],
-    //           [120.56248426437377, 32.39230124852499],
-    //           [120.56289196014403, 32.39065241752877],
-    //           [120.5635356903076, 32.390670536714275],
-    //           [120.56647539138793, 32.391594610355455],
-    //           [120.56690454483032, 32.391087276977856],
-    //           [120.56722640991211, 32.39052558312838],
-    //           [120.5675482749939, 32.39007260167296],
-    //         ],
-    //       };
-    //       this.addTravelTruck(this.threebox, path);
-
-    //       this.addCricle(this.threebox, [120.57022, 32.3858585, 0]);
-    //       this.addRingeffect(this.threebox, [120.57022, 32.3858585, 0]);
-    //       this.addRingeffect(
-    //         this.threebox,
-    //         [120.56013546078873, 32.3938585, 10],
-    //         "red"
-    //       );
-    //     },
-
-    //     render: (gl, matrix) => {
-    //       this.threebox.update();
-    //       map.triggerRepaint();
-    //     },
-    //   },
-    //   "建筑物"
-    // ); //添加到建筑物图层之后
-    // this.addThreeModels(map);
-    // var building = new Building(map);
-    // building.add(threebuildigdata);
-    // const ele = document.getElementById("loading");
-    // ele.style.display = "none";
     let bounds = this._map.getBounds();
     this.props.updateBounds(bounds);
     let size = 100;
@@ -724,10 +644,20 @@ class MapBoxMap extends PureComponent {
    * @memberof MapBoxMap
    */
   _renderIntelllPopup() {
-    const { selecteditem,timedatas,showdata} = this.props.intellisense;
-    if(selecteditem&&showdata==='duanmian'){
-      const {DMMC,SZJB,SJLY,HXXYL,ZL,SSLY,AD,XBXM}=selecteditem.features[0].properties;
-      return <Popup
+    const { selecteditem, timedatas, showdata } = this.props.intellisense;
+    if (selecteditem && showdata === "duanmian") {
+      const {
+        DMMC,
+        SZJB,
+        SJLY,
+        HXXYL,
+        ZL,
+        SSLY,
+        AD,
+        XBXM,
+      } = selecteditem.features[0].properties;
+      return (
+        <Popup
           className="custom_popup line_popup"
           coordinates={selecteditem.features[0].geometry.coordinates}
           offset={{
@@ -740,31 +670,16 @@ class MapBoxMap extends PureComponent {
           <div className="content">
             <Row gutter={16}>
               <Col span={6}>
-                <Statistic
-                  title="水质级别"
-                  value={SZJB}
-                />
+                <Statistic title="水质级别" value={SZJB} />
               </Col>
               <Col span={6}>
-                <Statistic
-                  title="数据来源"
-                  value={SJLY}
-                  precision={2}
-                />
+                <Statistic title="数据来源" value={SJLY} precision={2} />
               </Col>
               <Col span={6}>
-                <Statistic
-                  title="所属流域"
-                  value={SSLY}
-                  precision={2}
-                />
+                <Statistic title="所属流域" value={SSLY} precision={2} />
               </Col>
               <Col span={6}>
-                <Statistic
-                  title="氨氮"
-                  value={AD}
-                  precision={2}
-                />
+                <Statistic title="氨氮" value={AD} precision={2} />
               </Col>
             </Row>
             <Row gutter={16}>
@@ -772,25 +687,29 @@ class MapBoxMap extends PureComponent {
                 <Statistic title="需氧量" value={HXXYL} />
               </Col>
               <Col span={6}>
-                <Statistic
-                  title="总磷"
-                  value={ZL}
-                  precision={2}
-                />
+                <Statistic title="总磷" value={ZL} precision={2} />
               </Col>
               <Col span={7}>
-                <Statistic
-                  title="超标项目"
-                  value={XBXM}
-                  precision={2}
-                />
+                <Statistic title="超标项目" value={XBXM} precision={2} />
               </Col>
             </Row>
           </div>
         </Popup>
-    }else if(selecteditem&&showdata==='air'){
-      const {AQI,PM25A24,PM10A24,SO2,NO2,CO,O3,LB,ZDMC}=selecteditem.features[0].properties;
-      return <Popup
+      );
+    } else if (selecteditem && showdata === "air") {
+      const {
+        AQI,
+        PM25A24,
+        PM10A24,
+        SO2,
+        NO2,
+        CO,
+        O3,
+        LB,
+        ZDMC,
+      } = selecteditem.features[0].properties;
+      return (
+        <Popup
           className="custom_popup line_popup"
           coordinates={selecteditem.features[0].geometry.coordinates}
           offset={{
@@ -803,31 +722,16 @@ class MapBoxMap extends PureComponent {
           <div className="content">
             <Row gutter={16}>
               <Col span={6}>
-                <Statistic
-                  title="AQI"
-                  value={AQI}
-                />
+                <Statistic title="AQI" value={AQI} />
               </Col>
               <Col span={6}>
-                <Statistic
-                  title="PM25"
-                  value={PM25A24}
-                  precision={2}
-                />
+                <Statistic title="PM25" value={PM25A24} precision={2} />
               </Col>
               <Col span={6}>
-                <Statistic
-                  title="PM10"
-                  value={PM10A24}
-                  precision={2}
-                />
+                <Statistic title="PM10" value={PM10A24} precision={2} />
               </Col>
               <Col span={6}>
-                <Statistic
-                  title="SO2"
-                  value={SO2}
-                  precision={2}
-                />
+                <Statistic title="SO2" value={SO2} precision={2} />
               </Col>
             </Row>
             <Row gutter={16}>
@@ -835,31 +739,19 @@ class MapBoxMap extends PureComponent {
                 <Statistic title="NO2" value={NO2} />
               </Col>
               <Col span={6}>
-                <Statistic
-                  title="CO"
-                  value={CO}
-                  precision={2}
-                />
+                <Statistic title="CO" value={CO} precision={2} />
               </Col>
               <Col span={6}>
-                <Statistic
-                  title="O3"
-                  value={O3}
-                  precision={2}
-                />
+                <Statistic title="O3" value={O3} precision={2} />
               </Col>
               <Col span={6}>
-                <Statistic
-                  title="污染级别"
-                  value={LB}
-                  precision={2}
-                />
+                <Statistic title="污染级别" value={LB} precision={2} />
               </Col>
-              
             </Row>
           </div>
         </Popup>
-    }else if(timedatas&&showdata==='water'){
+      );
+    } else if (timedatas && showdata === "water") {
       return (
         <Popup
           className="custom_popup line_popup"
@@ -887,7 +779,7 @@ class MapBoxMap extends PureComponent {
         </Popup>
       );
     }
-    return  null;
+    return null;
   }
 
   _renderXiaoFangPopup() {
@@ -1107,8 +999,11 @@ class MapBoxMap extends PureComponent {
               text={index + 1}
               color="#3FB1CE"
               title={item.properties.DMMC}
-              onClick={
-                ()=>this.props.queryIntelService('gdqgk_sk_skdmjcxx',"DMMC = '"+item.properties.DMMC+"'")
+              onClick={() =>
+                this.props.queryIntelService(
+                  "gdqgk_sk_skdmjcxx",
+                  "DMMC = '" + item.properties.DMMC + "'"
+                )
               }
             />
           </Marker>
@@ -1157,8 +1052,11 @@ class MapBoxMap extends PureComponent {
               text={index + 1}
               color="#3FB1CE"
               title={item.properties.ZDMC}
-              onClick={
-                ()=>this.props.queryIntelService('kqjcdxx',"ZDMC = '"+item.properties.ZDMC+"'")
+              onClick={() =>
+                this.props.queryIntelService(
+                  "kqjcdxx",
+                  "ZDMC = '" + item.properties.ZDMC + "'"
+                )
               }
             />
           </Marker>
@@ -1168,9 +1066,7 @@ class MapBoxMap extends PureComponent {
     return null;
   };
 
-  getIntellItem=(item,type)=>{
-   
-  }
+  getIntellItem = (item, type) => {};
 
   /**
    *渲染水质结果
@@ -1180,7 +1076,6 @@ class MapBoxMap extends PureComponent {
   _renderWaterContent = () => {
     const { waterdatas, showdata } = this.props.intellisense;
     if (waterdatas && showdata === "water") {
-     
       return waterdatas.map((item, index) => {
         return (
           <Marker
@@ -1192,8 +1087,11 @@ class MapBoxMap extends PureComponent {
               text={index + 1}
               color="#3FB1CE"
               title={item.properties.ZDMC}
-              onClick={
-                ()=>this.props.queryTimeLineIntelService('gdqsydszssjcz',"JCZMC = '"+item.properties.ZDMC+"'")
+              onClick={() =>
+                this.props.queryTimeLineIntelService(
+                  "gdqsydszssjcz",
+                  "JCZMC = '" + item.properties.ZDMC + "'"
+                )
               }
             />
           </Marker>
@@ -1227,7 +1125,6 @@ class MapBoxMap extends PureComponent {
               text={index + 1}
               color="#3FB1CE"
               title={item.properties.ZDMC}
-              
             />
           </Marker>
         );
@@ -1571,9 +1468,9 @@ class MapBoxMap extends PureComponent {
           "icon-image": "pulsing-dot-blue",
         }}
         data={{
-              type: "FeatureCollection",
-              features: intelldatas,
-            }}
+          type: "FeatureCollection",
+          features: intelldatas,
+        }}
         layerOptions={{ filter: ["==", "$type", "Point"] }}
       ></GeoJSONLayer>
     ) : null;
@@ -2181,7 +2078,8 @@ class MapBoxMap extends PureComponent {
               this._renderDuanmianContent(),
             ]}
 
-            {this.props.showmode === "IntelliSense" && this._renderIntelllPopup()}
+            {this.props.showmode === "IntelliSense" &&
+              this._renderIntelllPopup()}
             {this.props.showmode === "IntelliSense" && this.renderHighLight()}
             {this.props.showmode === "DevOps" && this._renderGridContent()}
             {this.props.map.staticsmodule === "xzq" && this._renderXZQContent()}
@@ -2436,6 +2334,6 @@ export default connect(
     endDrawing,
     drawEnable,
     updateLayer,
-    setSelectFaRenItem
+    setSelectFaRenItem,
   }
 )(MapBoxMap);

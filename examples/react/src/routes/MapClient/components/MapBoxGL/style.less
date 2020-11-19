@@ -140,99 +140,22 @@ body {
 
 .mapheader {
   background: transparent;
+  background-image:url(./assest/header_bk.png);
+  height: 100px;
+  background-size: cover;
   position: absolute;
   width: 100%;
   z-index: 1001;
-  .left_buttongroup {
-    width: calc(50vw - 300px);
-    height: 80px;
-    float: left;
-   
-  }
-
-  .right_buttongroup {
-    width: calc(50vw - 300px);
-    height: 80px;
-    float: right;
-  }
-  .header_button_left {
-    width: 128px;
-    float: left;
-    font-size: 20px;
-    height: 43px;
-    line-height: 38px;
-    text-align: center;
-    background-size: 100%;
-    margin: 20px 0;
-    background-image: url(./assest/button.png);
-    background-repeat: no-repeat;
-    a {
-      color: #09c0f7;
-    }
-  }
-
-  .header_button_left.selected,
-  .header_button_right.selected {
-    background-image: url(./assest/button_select.png);
-  }
-
-  .header_button_right {
-    background-image: url(./assest/button.png);
-    background-repeat: no-repeat;
-    width: 128px;
-    float: right;
-    font-size: 20px;
-    height: 43px;
-    line-height: 38px;
-    text-align: center;
-    background-size: 100%;
-    margin: 20px 0;
-    transform: rotateY(180deg);
-    cursor: pointer;
-    div {
-      transform: rotateY(-180deg);
-      color: #09c0f7;
-    }
-  }
-
   .datetime-label {
     position: absolute;
-    left: 0px;
-    right: 0px;
-    top: 50px;
+    right: 20px;
     color: #fff;
-    width: 460px;
-    height: 50px;
-    margin: auto;
-    text-align: center;
   }
 
   .logo-label {
     position: absolute;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    width: 460px;
-    height: 50px;
-    margin: auto;
-    text-align: center;
-    margin-top: 6px;
-    z-index: 2;
-    color: #cef2fd;
-    font-weight: 600;
-    // text-shadow:0 0 0.1em #66a9ba,
-    //             -0 -0 0.1em #66a9ba;
-    letter-spacing: 6px;
-    font-size: 26px;
-    line-height: 34px;
-    padding-top: 6px;
-    background-image: linear-gradient(
-      to right,
-      transparent,
-      #135569,
-      transparent
-    );
-    border-top: 2px solid #66ddfb;
+    left: 20px;
+    color: #fff;
   }
 }
 
@@ -260,11 +183,11 @@ body {
   -o-transition: opacity 1s linear;
   -ms-transition: opacity 1s linear;
 }
-.mapboxgl-map {
-  background-image: url("./assest/bg.png");
-  border: 20px solid transparent;
-  border-image: url("./assest/mapbg.png") 5%;
-}
+// .mapboxgl-map {
+//   background-image: url("./assest/bg.png");
+//   border: 20px solid transparent;
+//   border-image: url("./assest/mapbg.png") 5%;
+// }
 
 .MapboxGLControl {
   box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2),

@@ -10,7 +10,7 @@ export default class BasePanel extends Component {
         size="small"
         bordered={false}
         className={"basepanel "+this.props.className}
-        title={<div>{[this.props.titleicon,<span style={{marginLeft:6}}>{this.props.title}</span>]}</div>}
+        title={<div>{[this.props.titleicon,<span style={{marginLeft:36}}>{this.props.title}</span>]}</div>}
      //   extra={<CloseOutlined onClick={this.props.onExtraClick} />}
         style={{ width: 400 }}
       >
