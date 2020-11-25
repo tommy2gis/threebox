@@ -110,8 +110,7 @@ Threebox.prototype = {
 		if (this.options.enableRotatingObjects) this.enableRotatingObjects = this.options.enableRotatingObjects;
 		if (this.options.enableTooltips) this.enableTooltips = this.options.enableTooltips;
 
-		//[jscastro] new event map on load
-		this.map.on('load', function () {
+		var initevent=()=>{
 
 			//[jscastro] new fields to manage events on map
 			let selectedObject; //selected object through click
@@ -122,8 +121,8 @@ Threebox.prototype = {
 			let overedFeature;//overed state for extrusion layer features
 			let selectedFeature;//selected state id for extrusion layer features
 
-			let canvas = this.getCanvasContainer();
-			this.getCanvasContainer().style.cursor = 'default';
+			let canvas = this.map.getCanvasContainer();
+			this.map.getCanvasContainer().style.cursor = 'default';
 			// Variable to hold the starting xy coordinates
 			// when 'mousedown' occured.
 			let start;
@@ -146,10 +145,10 @@ Threebox.prototype = {
 			// Return the xy coordinates of the mouse position
 			function mousePos(e) {
 				var rect = canvas.getBoundingClientRect();
-				return new mapboxgl.Point(
-					e.originalEvent.clientX - rect.left - canvas.clientLeft,
-					e.originalEvent.clientY - rect.top - canvas.clientTop
-				);
+				return {
+					x:e.originalEvent.clientX - rect.left - canvas.clientLeft,
+					y:e.originalEvent.clientY - rect.top - canvas.clientTop
+				};
 			}
 
 			function unselectFeature(f, map) {
@@ -201,6 +200,8 @@ Threebox.prototype = {
 			function addTooltip(f, map) {
 				if (!map.tb.enableTooltips) return;
 				let coordinates = map.tb.getFeatureCenter(f);
+				let text=f.properties.name || f.id || f.type;
+				if (!text) return;
 				let t = map.tb.tooltip({
 					text: f.properties.name || f.id || f.type,
 					mapboxStyle: true,
@@ -230,7 +231,8 @@ Threebox.prototype = {
 				let intersects = [];
 				if (map.tb.enableSelectingObjects) {
 					//raycast only if we are in a custom layer, for other layers go to the else, this avoids duplicated calls to raycaster
-					intersects = this.tb.queryRenderedFeatures(e.point);
+					//intersects = this.tb.queryRenderedFeatures(e.point);
+					intersects = this.tb.queryRenderedFeatures(e.point).filter(o=>Threebox.prototype.findParent3DObject(o).selectable===true);
 				}
 				intersectionExists = typeof intersects[0] == 'object';
 				// if intersect exists, highlight it
@@ -346,7 +348,7 @@ Threebox.prototype = {
 
 				if (map.tb.enableSelectingObjects) {
 					// calculate objects intersecting the picking ray
-					intersects = this.tb.queryRenderedFeatures(e.point);
+					intersects = this.tb.queryRenderedFeatures(e.point).filter(o=>Threebox.prototype.findParent3DObject(o).hoverable===true);
 				}
 				intersectionExists = typeof intersects[0] == 'object';
 
@@ -455,13 +457,13 @@ Threebox.prototype = {
 
 			//listener to the events
 			//this.on('contextmenu', map.onContextMenu);
-			this.on('click', map.onClick);
-			this.on('mousemove', map.onMouseMove);
-			this.on('mouseout', map.onMouseOut)
-			this.on('mousedown', map.onMouseDown);
+			this.map.on('click', map.onClick);
+			this.map.on('mousemove', map.onMouseMove);
+			this.map.on('mouseout', map.onMouseOut)
+			this.map.on('mousedown', map.onMouseDown);
 
-		});
-
+		}
+		initevent();
 	},
 
 	// Objects
@@ -677,6 +679,12 @@ Threebox.prototype = {
 		//[jscastro] remove the tooltip if not enabled
 		if (!this.enableTooltips && obj.tooltip) { obj.tooltip.visibility = false };
 		this.world.add(obj);
+	},
+
+	hide: function (obj) {
+		//obj.dispose()
+		this.world.remove(obj);
+		//obj = null;
 	},
 
 	remove: function (obj) {
@@ -16502,10 +16510,12 @@ Objects.prototype = {
 				if (obj.label) { obj.label.remove; }
 				let label = new CSS2D.CSS2DObject(div);
 				label.name = "label";
-				label.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z * 0.5); //middle-centered
+				label.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z * 1); //middle-centered
 				label.visible = visible;
 				label.alwaysVisible = visible;
-
+				div.onclick = function(){
+					label.visible=false;
+				}
 				return label;
 			}
 
@@ -16647,7 +16657,7 @@ Objects.prototype = {
 				get() { return _over; },
 				set(value) {
 					if (value) {
-						if (!obj.selected) {
+						if (!obj.selected&&obj.highlightable) {
 							if (obj.boundingBox) {
 								obj.boundingBox.material = Objects.prototype._defaults.materials.boxOverMaterial;
 								obj.boundingBox.parent.visible = true;
@@ -16655,7 +16665,7 @@ Objects.prototype = {
 								obj.boundingBoxShadow.layers.enable(1);
 							}
 						}
-						if (obj.label && !obj.label.alwaysVisible) { obj.label.visible = true; }
+					//	if (obj.label && !obj.label.alwaysVisible) { obj.label.visible = true; }
 						// Dispatch new event ObjectOver
 						obj.dispatchEvent(new CustomEvent('ObjectMouseOver', { detail: obj, bubbles: true, cancelable: true }));
 
@@ -16866,7 +16876,7 @@ Objects.prototype = {
 				let tip = document.createElement('div');
 				tip.className = 'mapboxgl-popup-tip';
 				let div = document.createElement('div');
-				div.className = 'marker mapboxgl-popup-anchor-bottom';
+				div.className = 'marker mapboxgl-popup mapboxgl-popup-anchor-bottom';
 				div.appendChild(tip);
 				div.appendChild(divContent);
 				divToolTip = document.createElement('div');
@@ -19918,3 +19928,15 @@ else {
 }
 
 }).call(this);
+
+var TWEEN=TWEEN||function(){var a,e,c,d,f=[];return{start:function(g){c=setInterval(this.update,1E3/(g||60))},stop:function(){clearInterval(c)},add:function(g){f.push(g)},getAll:function(){return f},removeAll:function(){f=[]},remove:function(g){a=f.indexOf(g);a!==-1&&f.splice(a,1)},update:function(){a=0;e=f.length;for(d=(new Date).getTime();a<e;)if(f[a].update(d))a++;else{f.splice(a,1);e--}}}}();
+TWEEN.Tween=function(a){var e={},c={},d={},f=1E3,g=0,j=null,n=TWEEN.Easing.Linear.EaseNone,k=null,l=null,m=null;this.to=function(b,h){if(h!==null)f=h;for(var i in b)if(a[i]!==null)d[i]=b[i];return this};this.start=function(){TWEEN.add(this);j=(new Date).getTime()+g;for(var b in d)if(a[b]!==null){e[b]=a[b];c[b]=d[b]-a[b]}return this};this.stop=function(){TWEEN.remove(this);return this};this.delay=function(b){g=b;return this};this.easing=function(b){n=b;return this};this.chain=function(b){k=b};this.onUpdate=
+function(b){l=b;return this};this.onComplete=function(b){m=b;return this};this.update=function(b){var h,i;if(b<j)return true;b=(b-j)/f;b=b>1?1:b;i=n(b);for(h in c)a[h]=e[h]+c[h]*i;l!==null&&l.call(a,i);if(b==1){m!==null&&m.call(a);k!==null&&k.start();return false}return true}};TWEEN.Easing={Linear:{},Quadratic:{},Cubic:{},Quartic:{},Quintic:{},Sinusoidal:{},Exponential:{},Circular:{},Elastic:{},Back:{},Bounce:{}};TWEEN.Easing.Linear.EaseNone=function(a){return a};
+TWEEN.Easing.Quadratic.EaseIn=function(a){return a*a};TWEEN.Easing.Quadratic.EaseOut=function(a){return-a*(a-2)};TWEEN.Easing.Quadratic.EaseInOut=function(a){if((a*=2)<1)return 0.5*a*a;return-0.5*(--a*(a-2)-1)};TWEEN.Easing.Cubic.EaseIn=function(a){return a*a*a};TWEEN.Easing.Cubic.EaseOut=function(a){return--a*a*a+1};TWEEN.Easing.Cubic.EaseInOut=function(a){if((a*=2)<1)return 0.5*a*a*a;return 0.5*((a-=2)*a*a+2)};TWEEN.Easing.Quartic.EaseIn=function(a){return a*a*a*a};
+TWEEN.Easing.Quartic.EaseOut=function(a){return-(--a*a*a*a-1)};TWEEN.Easing.Quartic.EaseInOut=function(a){if((a*=2)<1)return 0.5*a*a*a*a;return-0.5*((a-=2)*a*a*a-2)};TWEEN.Easing.Quintic.EaseIn=function(a){return a*a*a*a*a};TWEEN.Easing.Quintic.EaseOut=function(a){return(a-=1)*a*a*a*a+1};TWEEN.Easing.Quintic.EaseInOut=function(a){if((a*=2)<1)return 0.5*a*a*a*a*a;return 0.5*((a-=2)*a*a*a*a+2)};TWEEN.Easing.Sinusoidal.EaseIn=function(a){return-Math.cos(a*Math.PI/2)+1};
+TWEEN.Easing.Sinusoidal.EaseOut=function(a){return Math.sin(a*Math.PI/2)};TWEEN.Easing.Sinusoidal.EaseInOut=function(a){return-0.5*(Math.cos(Math.PI*a)-1)};TWEEN.Easing.Exponential.EaseIn=function(a){return a==0?0:Math.pow(2,10*(a-1))};TWEEN.Easing.Exponential.EaseOut=function(a){return a==1?1:-Math.pow(2,-10*a)+1};TWEEN.Easing.Exponential.EaseInOut=function(a){if(a==0)return 0;if(a==1)return 1;if((a*=2)<1)return 0.5*Math.pow(2,10*(a-1));return 0.5*(-Math.pow(2,-10*(a-1))+2)};
+TWEEN.Easing.Circular.EaseIn=function(a){return-(Math.sqrt(1-a*a)-1)};TWEEN.Easing.Circular.EaseOut=function(a){return Math.sqrt(1- --a*a)};TWEEN.Easing.Circular.EaseInOut=function(a){if((a/=0.5)<1)return-0.5*(Math.sqrt(1-a*a)-1);return 0.5*(Math.sqrt(1-(a-=2)*a)+1)};TWEEN.Easing.Elastic.EaseIn=function(a){var e,c=0.1,d=0.4;if(a==0)return 0;if(a==1)return 1;d||(d=0.3);if(!c||c<1){c=1;e=d/4}else e=d/(2*Math.PI)*Math.asin(1/c);return-(c*Math.pow(2,10*(a-=1))*Math.sin((a-e)*2*Math.PI/d))};
+TWEEN.Easing.Elastic.EaseOut=function(a){var e,c=0.1,d=0.4;if(a==0)return 0;if(a==1)return 1;d||(d=0.3);if(!c||c<1){c=1;e=d/4}else e=d/(2*Math.PI)*Math.asin(1/c);return c*Math.pow(2,-10*a)*Math.sin((a-e)*2*Math.PI/d)+1};
+TWEEN.Easing.Elastic.EaseInOut=function(a){var e,c=0.1,d=0.4;if(a==0)return 0;if(a==1)return 1;d||(d=0.3);if(!c||c<1){c=1;e=d/4}else e=d/(2*Math.PI)*Math.asin(1/c);if((a*=2)<1)return-0.5*c*Math.pow(2,10*(a-=1))*Math.sin((a-e)*2*Math.PI/d);return c*Math.pow(2,-10*(a-=1))*Math.sin((a-e)*2*Math.PI/d)*0.5+1};TWEEN.Easing.Back.EaseIn=function(a){return a*a*(2.70158*a-1.70158)};TWEEN.Easing.Back.EaseOut=function(a){return(a-=1)*a*(2.70158*a+1.70158)+1};
+TWEEN.Easing.Back.EaseInOut=function(a){if((a*=2)<1)return 0.5*a*a*(3.5949095*a-2.5949095);return 0.5*((a-=2)*a*(3.5949095*a+2.5949095)+2)};TWEEN.Easing.Bounce.EaseIn=function(a){return 1-TWEEN.Easing.Bounce.EaseOut(1-a)};TWEEN.Easing.Bounce.EaseOut=function(a){return(a/=1)<1/2.75?7.5625*a*a:a<2/2.75?7.5625*(a-=1.5/2.75)*a+0.75:a<2.5/2.75?7.5625*(a-=2.25/2.75)*a+0.9375:7.5625*(a-=2.625/2.75)*a+0.984375};
+TWEEN.Easing.Bounce.EaseInOut=function(a){if(a<0.5)return TWEEN.Easing.Bounce.EaseIn(a*2)*0.5;return TWEEN.Easing.Bounce.EaseOut(a*2-1)*0.5+0.5};

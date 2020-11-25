@@ -1,8 +1,8 @@
 import { MapboxLayer } from "@deck.gl/mapbox";
 import { TripsLayer } from "@deck.gl/geo-layers";
-import greatCircle from '@turf/great-circle';
-import {point,featureCollection}from '@turf/helpers'
-import centroid from '@turf/center';
+import greatCircle from "@turf/great-circle";
+import { point, featureCollection } from "@turf/helpers";
+import centroid from "@turf/center";
 import {
   getFireMaterial,
   getConeMaterial,
@@ -11,8 +11,6 @@ import {
   getShaderBarMaterial,
   getRingMaterial,
 } from "./material";
-
-
 
 let texture = new THREE.TextureLoader().load("images/red_line.png");
 texture.wrapS = THREE.RepeatWrapping;
@@ -171,16 +169,14 @@ function addCone(point, color) {
   return mesh;
 }
 
-
-
 function addLine(resolution) {
- 
-
   var arcSegments = 25;
   var linemeshs = [];
   var origns = [
     [120.54374098777771, 32.3888042415114],
     [120.55318236351012, 32.36818183094668],
+    [120.59675216674805, 32.37503232765891],
+    [120.54162740707397, 32.418442973316466]
   ];
 
   var destination = [120.56651830673216, 32.38668422833417];
@@ -286,7 +282,7 @@ function addFire(point) {
 
   _mesh.scale.set(0.04, 0.04, 0.04);
   let cube = tb
-    .Object3D({ obj: _mesh, adjustment: { x: 0, y: 0, z: 4 } })
+    .Object3D({ obj: _mesh, adjustment: { x: 0, y: 0.5, z: 0.01 } })
     .setCoords(point);
   cube.rotation.x = Math.PI / 2;
 
@@ -338,12 +334,8 @@ function addTree() {
   });
 }
 
-function addlinagc() {
-  var points = [
-    [120.56548297405243, 32.387051157252465],
-    [120.56567072868346, 32.38672499828758],
-    [120.5658209323883, 32.38643507821902],
-  ];
+function addlinagc(points,SelectedChange) {
+ 
   var options = {
     type: "mtl",
     obj: "models/粮仓模型/002.obj",
@@ -355,7 +347,75 @@ function addlinagc() {
       transparent: true,
       wireframe: false,
     }),
+    anchor: "center",
     rotation: { x: 90, y: 180, z: 180 },
+  };
+  points.forEach((point,index) => {
+    tb.loadObj(options, function (model) {
+      const obj = model.setCoords(point);
+      obj.attributes={name:(index+1)+'号稻谷仓'}
+      obj.addEventListener(
+                "SelectedChange",
+                SelectedChange,
+                false
+              );
+      tb.add(obj);
+    });
+  });
+}
+
+
+function addludeng() {
+  var points = [
+    [
+      120.56525766849516,
+      32.38705568722981
+    ],
+    [
+      120.56555807590485,
+      32.3864758482849
+    ],
+    [
+      120.56582629680632,
+      32.3860137864609
+    ],
+    [
+      120.56633055210114,
+      32.38600472640151
+    ],
+    [
+      120.56684553623201,
+      32.38619951747816
+    ],
+    [
+      120.56762337684631,
+      32.38673858826796
+    ],
+    [
+      120.56717813014984,
+      32.38752227367817
+    ],
+    [
+      120.566126704216,
+      32.387214236293275
+    ],
+    [
+      120.56571900844574,
+      32.387264065941466
+    ]
+  ];
+  var options = {
+    type: "dae",
+    obj: "models/路灯.dae",
+    scale: 0.1,
+    units: "meters",
+    // material: new THREE.MeshBasicMaterial({
+    //   map: new THREE.TextureLoader().load("models/粮仓模型/002.png"),
+    //   side: THREE.FrontSide,
+    //   transparent: true,
+    //   wireframe: false,
+    // }),
+    rotation: { x: 180, y: 180, z: 30 },
   };
   points.forEach((point) => {
     tb.loadObj(options, function (model) {
@@ -365,13 +425,9 @@ function addlinagc() {
   });
 }
 
-function addlinagc2() {
-  var points = [
-    [120.5671191215515, 32.387363725155375],
-    [120.56676506996156, 32.38722329623135],
-    [120.56643784046172, 32.387096457015566],
-    [120.56605696678162, 32.386965087640014],
-  ];
+
+function addlinagc2(points,SelectedChange) {
+  
   var options = {
     type: "mtl",
     obj: "models/粮仓模型/gong001.obj",
@@ -383,28 +439,31 @@ function addlinagc2() {
       transparent: true,
       clipIntersection: false,
     }),
+    anchor: "center",
     rotation: { x: 90, y: 180, z: 180 },
   };
-  points.forEach((point) => {
+  points.forEach((point,index) => {
     tb.loadObj(options, function (model) {
-      const truck = model.setCoords(point);
-      tb.add(truck);
+      const obj = model.setCoords(point);
+      obj.attributes={name:(index+1)+'号玉米谷仓'}
+      obj.addEventListener(
+                "SelectedChange",
+                SelectedChange,
+                false
+              );
+      tb.add(obj);
     });
   });
 }
 
-function addlinagc3() {
-  var points = [
-    [120.56687504053114, 32.3869741476031],
-    [120.56631714105605, 32.38677935819685],
-    [120.56647807359694, 32.3864713182785],
-    [120.56701987981796, 32.386670638345606],
-  ];
+function addlinagc3(points,SelectedChange) {
+ 
   var options = {
     type: "mtl",
     obj: "models/粮仓模型/003.obj",
     scale: 1,
     units: "meters",
+    anchor: "center",
     material: new THREE.MeshBasicMaterial({
       map: new THREE.TextureLoader().load("models/粮仓模型/003.png"),
       side: THREE.FrontSide,
@@ -413,77 +472,35 @@ function addlinagc3() {
     }),
     rotation: { x: 90, y: 295, z: 0 },
   };
-  points.forEach((point) => {
+   anchor: "center",
+  points.forEach((point,index) => {
     tb.loadObj(options, function (model) {
-      const truck = model.setCoords(point);
-      tb.add(truck);
+      const obj = model.setCoords(point);
+      obj.attributes={name:(index+1)+'号大豆谷仓'}
+      obj.addEventListener(
+                "SelectedChange",
+                SelectedChange,
+                false
+              );
+      tb.add(obj);
     });
   });
 }
 
-function addRoads(resolution) {
+function addRoads(resolution,roads) {
   var arcSegments = 25;
   var linemeshs = [];
-  var roads = [
-    [
-    [
-    120.5615186691284,
-    32.38396618993527
-  ],
-  [
-    120.56115388870238,
-    32.385198377476435
-  ],
-  [
-    120.56441545486449,
-    32.386629868367656
-  ],
-  [
-    120.56355714797974,
-    32.38797073799289
-  ],
-  [
-    120.56312799453734,
-    32.389655856727444
-  ],
-  [
-    120.56392192840576,
-    32.389764572985584
-  ]
-    ],
-    [
-    [
-    120.55293560028075,
-    32.38845996925133
-  ],
-  [
-    120.55224895477294,
-    32.39039874854987
-  ],
-  [
-    120.56177616119385,
-    32.39313471207973
-  ],
-  [
-    120.56229114532472,
-    32.39291728754617
-  ],
-  [
-    120.56313872337343,
-    32.38959243884977
-  ],
-  [
-    120.56387901306152,
-    32.38973739393332
-  ]
-    ],
-  ];
+
 
   roads.forEach((line, index) => {
+
+    //addTravelTruck(line);
+
+
     var straightProject = tb.utils.lnglatsToWorld(line);
     var normalized = tb.utils.normalizeVertices(straightProject);
     var flattenedArray = tb.utils.flattenVectors(normalized.vertices);
-
+    
     const meshLine = new MeshLine();
     meshLine.setGeometry(normalized);
 
@@ -505,9 +522,13 @@ function addRoads(resolution) {
     });
 
     var tmp = new THREE.Mesh(meshLine.geometry, material);
-    var features = featureCollection(line.map(e=>{return point(e)}));
+    var features = featureCollection(
+      line.map((e) => {
+        return point(e);
+      })
+    );
 
-    var center=centroid(features);
+    var center = centroid(features);
     tb.add(
       tb
         .Object3D({ obj: tmp, adjustment: { x: 0, y: 0, z: 0.5 } })
@@ -520,29 +541,52 @@ function addRoads(resolution) {
   return linemeshs;
 }
 
-
-
 function addCircle(point) {
-var texture = new THREE.TextureLoader().load("images/circular.png");
-var material = new THREE.MeshLambertMaterial({
-  map: texture,
-  side: THREE.FrontSide,
-  transparent: true,
-});
-function getRingeGeometry(width = 7, height = 7) {
-return new THREE.PlaneGeometry(width, height);
+  var texture = new THREE.TextureLoader().load("images/circular.png");
+  var material = new THREE.MeshLambertMaterial({
+    map: texture,
+    side: THREE.FrontSide,
+    transparent: true,
+  });
+  function getRingeGeometry(width = 7, height = 7) {
+    return new THREE.PlaneGeometry(width, height);
+  }
+
+  var ringeGeom = getRingeGeometry();
+
+  let mesh = new THREE.Mesh(ringeGeom, material);
+  let cube3d = tb
+    .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 0.1 } })
+    .setCoords(point);
+
+  tb.add(cube3d);
+  return mesh;
 }
 
-var ringeGeom = getRingeGeometry();
+function addTravelTruck (paths){
+  var options = {
+    type: "mtl",
+    obj: "models/Truck.obj",
+    mtl: "models/Truck.mtl",
+    scale: 15,
+    units: "meters",
+    anchor: "center",
+    rotation: { x: 90, y: 180, z: 0 }, //rotation to postiion the truck and heading properly
+  };
 
-let mesh = new THREE.Mesh(ringeGeom, material);
-let cube3d = tb
-  .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 0.1 } })
-  .setCoords(point);
+  tb.loadObj(options, function (model) {
+    const truck = model.setCoords(paths[0]);
+    tb.add(truck);
+    var options = {
+      path: paths,
+      duration: 200000,
+    };
 
-tb.add(cube3d);
-return mesh;
-}
+    truck.followPath(options, function () {
+      // tb.remove(line);
+    });
+  });
+};
 
 export {
   addTripLayer,
@@ -555,5 +599,7 @@ export {
   addCone,
   addRoads,
   addCircle,
-  addLine
+  addLine,
+  addTravelTruck,
+  addludeng
 };

@@ -103,17 +103,13 @@
 
 body {
   overflow: hidden;
-  background-image: url(./assest/fullbg.png);
-  background-size: 100%;
 }
 
 ::-webkit-scrollbar-button {
   height: 0px;
 }
 
-.ant-layout-content {
-  background-image: url(./assest/fullbg.png);
-}
+
 
 /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
 ::-webkit-scrollbar {
@@ -389,7 +385,9 @@ body {
 }
 
 .blue_popup {
+  
   .mapboxgl-popup-content {
+    background: transparent;
     background-image: url(./assest/popup-blue.png);
     background-size: contain;
     width: 388px;
@@ -413,6 +411,24 @@ body {
   .mapboxgl-popup-tip {
     display: none;
   }
+
+  .roominfo{
+    width: 300px;
+    margin-bottom: 150px;
+    background-repeat: no-repeat;
+    padding:8px 20px !important;
+    .roomtitle{
+      text-align: center;
+      font-size: 16px;
+    }
+    .roomcontain{
+      font-size: 14px;
+      text-align: left;
+      p {
+        margin-bottom: 0 !important;
+    }
+    }
+  }
 }
 
 .custom_popup.mapboxgl-popup-anchor-bottom.blue_popup {
@@ -431,10 +447,11 @@ body {
 .red_popup_small {
   .mapboxgl-popup-content {
     background-image: url(./assest/popup-red-small.png);
-    width: 200px;
-    height: 70px;
+    width: auto;
+    height: 55px;
+    background-size: 100% 40px;
     .title {
-      margin: 10px 20px 10px 20px;
+      margin: 2px;
       font-size: 16px;
       line-height: 36px;
     }

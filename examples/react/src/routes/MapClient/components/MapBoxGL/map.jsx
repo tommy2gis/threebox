@@ -2,7 +2,7 @@
  * @Author: 史涛
  * @Date: 2020-02-14 16:57:11
  * @Last Modified by: 史涛
- * @Last Modified time: 2020-11-19 14:48:24
+ * @Last Modified time: 2020-11-25 10:00:14
  */
 import ReactMapboxGl, {
   Layer,
@@ -13,6 +13,7 @@ import ReactMapboxGl, {
   ScaleControl,
   ZoomControl,
   RotationControl,
+  MapContext,
 } from "@shitao1988/swsk-react-mapbox-gl";
 
 import {
@@ -20,6 +21,7 @@ import {
   addlinagc3,
   addlinagc2,
   addlinagc,
+  addludeng,
   addTree,
   addFire,
   addWall,
@@ -76,12 +78,14 @@ import {
 } from "../../actions/draw";
 import "./style.less";
 
+import { DashboardOutlined } from "@ant-design/icons";
+
 const { TabPane } = Tabs;
 const Map = ReactMapboxGl({
   isIntScrollZoom: true,
   preserveDrawingBuffer: true, //允许保存图片
   //crs: "EPSG:4490",
-  maxZoom: 19,
+  maxZoom: 19.5,
   minZoom: 10,
   accessToken:
     "pk.eyJ1Ijoic2hpdGFvMTk4OCIsImEiOiJjaWc3eDJ2eHowMjA5dGpsdzZlcG5uNWQ5In0.nQQjb4DrqnZtY68rOQIjJA",
@@ -198,204 +202,13 @@ class MapBoxMap extends PureComponent {
    * @param {*} event
    */
   onMapClick = (map, evt) => {
-    //  const { spatialQueryShow, themlist } = this.props.thematics;
-    // const { drawOwner, drawStatus } = this.props.draw;
-    this.props.setSelectFaRenItem(null);
-    this.props.clearSelectItem();
     this.setState({
-      popupInfo: null,
-      waterPopupInfo: null,
-      buildingpopupInfo: null,
-    });
-    // if (!spatialQueryShow && drawStatus != "begin") {
-    //   const geometry = turfbuffer(
-    //     {
-    //       type: "Point",
-    //       coordinates: [evt.lngLat.lng, evt.lngLat.lat],
-    //     },
-    //     0.01
-    //   ).geometry;
-    //   const arcgisgeo = geojsonToArcGIS(geometry);
-
-    //   const selectedThematic = themlist.filter((e) => e.visibility);
-    //   selectedThematic.length &&
-    //     this.props.queryThematic(
-    //       selectedThematic[selectedThematic.length - 1].url,
-    //       selectedThematic[selectedThematic.length - 1].layers,
-    //       JSON.stringify(arcgisgeo),
-    //       "esriGeometryPolygon"
-    //     );
-
-    // }
-  };
-
-  onThreemodelAdd = (map, mbxContext) => {};
-
-  addTravelTruck = (threebox, paths) => {
-    var options = {
-      type: "mtl",
-      obj: "models/Truck.obj",
-      mtl: "models/Truck.mtl",
-      scale: 20,
-      units: "meters",
-      rotation: { x: 90, y: 180, z: 0 }, //rotation to postiion the truck and heading properly
-    };
-
-    threebox.loadObj(options, function (model) {
-      const truck = model.setCoords(paths.coordinates[0]);
-      threebox.add(truck);
-      var options = {
-        path: paths.coordinates,
-        duration: 200000,
-      };
-
-      truck.followPath(options, function () {
-        // tb.remove(line);
-      });
+      selectedobj: null,
     });
   };
 
-  addCricle = (threebox, origin) => {
-    let url = "building1.png";
-    const textureLoader = new THREE.TextureLoader();
-    var map = textureLoader.load(url);
-    map.repeat.x = 1;
-    var geo = new THREE.CylinderGeometry(3, 3, 5, 25, 1, true);
-    geo.translate(0, 0, 0);
-
-    var material = new THREE.MeshStandardMaterial({
-      transparent: true,
-      map,
-      opacity: 1,
-    });
-    var mesh = new THREE.Mesh(geo, material);
-    mesh.rotateX(Math.PI / 2);
-
-    var obj = new THREE.Object3D();
-    mesh.material.side = THREE.BackSide; // back faces
-    mesh.renderOrder = 0;
-    obj.add(mesh);
-
-    var mesh2 = new THREE.Mesh(geo, material.clone());
-    mesh2.rotateX(Math.PI / 2);
-    mesh2.material.side = THREE.FrontSide; // front faces
-    mesh2.renderOrder = 1;
-    obj.add(mesh2);
-    //mesh.rotateY(90);
-    const mesh3d = threebox
-      .Object3D({ obj: obj, adjustment: { x: 0, y: 0, z: 0.5 } })
-      .setCoords(origin);
-
-    threebox.add(mesh3d);
-
-    var animate = function () {
-      mesh3d.scale.x = mesh3d.scale.x + 0.01;
-      mesh3d.scale.y = mesh3d.scale.y + 0.01;
-      if (mesh3d.scale.x > 3) {
-        mesh3d.scale.x = 1;
-        mesh3d.scale.y = 1;
-      }
-
-      requestAnimationFrame(animate);
-      // threebox.update();
-    };
-
-    animate();
-  };
-
-  addRingeffect = (threebox, origin, color = "#9999FF") => {
-    function getMaterial(type = 0) {
-      var ringShield = {
-        uniforms: {
-          color: {
-            type: "c",
-            value: new THREE.Color(color),
-          },
-          time: {
-            type: "f",
-            value: -1.5,
-          },
-          type: {
-            type: "f",
-            value: type || 0,
-          },
-          num: {
-            type: "f",
-            value: 4,
-          },
-        },
-        vertexShaderSource: `
-              varying vec2 vUv;
-              void main(){
-                      vUv = uv;
-                      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-              }`,
-        fragmentShaderSource: `
-              uniform float time;
-              uniform vec3 color;
-              uniform float type;
-              uniform float num;
-              varying vec2 vUv;
-              void main(){
-                  float alpha = 1.0;
-                  float dis = distance(vUv,vec2(0.5));//0-0.5
-                  if(dis > 0.5){
-                      discard;
-                  }
-                  if(type ==0.0){
-                          float y = (sin(6.0 * num *(dis-time)) + 1.0)/2.0;
-                      alpha = smoothstep(1.0,0.0,abs(y-0.5)/0.5) * (0.5 -dis) * 2.;
-                  }else if(type ==1.0){
-                          float step = fract(time* 4.)* 0.5;
-                      if(dis<step){
-                              // alpha = smoothstep(1.0,0.0,abs(step-dis)/0.15);
-                          alpha =1.- abs(step-dis)/0.15;
-                      }else{
-                              alpha = smoothstep(1.0,0.0,abs(step-dis)/0.05);
-                      }
-                      alpha *= (pow((0.5 -dis)* 3.0,2.0));
-                  }
-                  gl_FragColor = vec4(color,alpha );
-              }`,
-      };
-      let material = new THREE.ShaderMaterial({
-        uniforms: ringShield.uniforms,
-        defaultAttributeValues: {},
-        vertexShader: ringShield.vertexShaderSource,
-        fragmentShader: ringShield.fragmentShaderSource,
-        blending: THREE.AdditiveBlending,
-        depthWrite: !1,
-        depthTest: !0,
-        side: THREE.DoubleSide,
-        transparent: !0,
-        fog: !0,
-      });
-      return material;
-    }
-    var material = getMaterial(0);
-    const geometry = new THREE.RingBufferGeometry(
-      0.001,
-      3,
-      20,
-      5,
-      0,
-      Math.PI * 2
-    );
-    const mesh = new THREE.Mesh(geometry, material);
-
-    const mesh3d = threebox
-      .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 0.5 } })
-      .setCoords(origin);
-
-    threebox.add(mesh3d);
-
-    var animate = function () {
-      mesh.material.uniforms.time.value += 0.002;
-      requestAnimationFrame(animate);
-      // threebox.update();
-    };
-
-    animate();
+  objSelected = (e) => {
+    this.setState({ selectedobj: e.detail });
   };
 
   addThreeModels = (map) => {
@@ -403,26 +216,233 @@ class MapBoxMap extends PureComponent {
       {
         id: "custom_layer",
         type: "custom",
-        onAdd: function (map, mbxContext) {
-          window.tb = new Threebox(map, mbxContext); //初始化
+        onAdd: (map, mbxContext) => {
+          window.tb = new Threebox(map, mbxContext, {
+            defaultLights: true,
+            enableSelectingObjects: true,
+            enableSelectingFeatures: true,
+            enableTooltips: false,
+          }); //初始化
+          map.doorobjs=[]
+
+          
+          
+           
+          
+
+
+ 
+
+          
+          var lineMaterial = new THREE.LineBasicMaterial({
+            // 线的颜色
+            color: "#57d8ff",
+            transparent: true,
+            linewidth: 5,
+            opacity: 1,
+            //depthTest: true,
+          });
+          lineMaterial.polygonOffset = true;
+          lineMaterial.depthTest = true;
+          lineMaterial.polygonOffsetFactor = 1;
+          lineMaterial.polygonOffsetUnits = 1.0;
+          // var options = {
+          //   type: "mtl",
+          //   obj: "models/building.obj",
+          //   scale: 1,
+          //   anchor: "center",
+          //   units: "meters",
+          //   rotation: { x: 90, y: 180, z: 0 },
+          // };
+
+          // let lineS;
+          // tb.loadObj(options, function (model) {
+          //   let mesh = model.children[0].children[0];
+          //   let edges = new THREE.EdgesGeometry(mesh.geometry, 1);
+          //   edges.scale(0.035, 0.035, 0.035);
+          //   // edges.rotation.x = Math.PI / 2;
+          //   //  lineS.rotation.z = Math.PI / 2;
+          //   lineS = new THREE.LineSegments(edges, lineMaterial);
+          //   // lineS.rotation.y = Math.PI;
+          //   lineS.rotation.x = Math.PI / 2;
+          //   lineS.rotation.y = Math.PI * 1.15;
+
+          //   let obj = tb
+          //     .Object3D({ obj: lineS, adjustment: { x: -0.2, y: 0, z: -0.3 } })
+          //     .setCoords([120.56642, 32.38535]);
+          //   obj.hoverable = false;
+          //   tb.add(obj);
+          // });
+          const basematerial = new THREE.MeshPhongMaterial({
+            color: 0x63a3,
+            map: new THREE.TextureLoader().load("images/building2.png"),
+            specular: 0x20202,
+            //wireframe:true,
+            shininess: 20,
+          });
+
+          const overmaterial = new THREE.MeshLambertMaterial({
+            color: 0x660000,
+            side: THREE.DoubleSide,
+          });
+
+          function getFloorOption(floor) {
+            return {
+              type: "dae",
+              obj: "models/" + floor + ".DAE",
+              material: basematerial,
+              scale: 1.15,
+              units: "meters",
+              anchor: "center",
+              rotation: { x: 90, y: 207.1, z: 0 },
+            };
+          }
+          let floorselected = false;
+          function onFloorSelect(e) {
+            lineS.material.opacity = 0;
+            floorselected = e.detail.selected;
+            if (floorselected) {
+              // floors.forEach((fl, index) => {
+              //   var c = tb.utils.projectToWorld([120.56656, 32.38536, index * 10-3]);
+              //   new TWEEN.Tween(fl.position)
+              // .to(
+              //   {
+              //     z: c.z,
+              //   },
+              //   500
+              // )
+              // .onComplete(function () {
+              // })
+              // .start();
+              // });
+            } else {
+              // floors.forEach((fl, index) => {
+              //   var c = tb.utils.projectToWorld([120.56656, 32.38536, index * 5-3]);
+              //   new TWEEN.Tween(fl.position)
+              // .to(
+              //   {
+              //     z: c.z,
+              //   },
+              //   500
+              // )
+              // .onComplete(function () {
+              // })
+              // .start();
+              // });
+            }
+          }
+
+          function onFloorOver(obj) {
+            if (!floorselected) {
+              lineS.material.opacity = 0.1;
+            }
+            obj.detail.children[0].children[0].children.forEach(
+              (e) => (e.material = overmaterial)
+            );
+          }
+
+          function onFloorOut(obj) {
+            if (!floorselected) {
+              lineS.material.opacity = 1;
+            }
+            obj.detail.children[0].children[0].children.forEach(
+              (e) => (e.material = basematerial)
+            );
+          }
+
+          var floors = [];
+          // ["floor1","floor2", "floor3", "floor4", "floor5"].forEach(
+          //   (fl, index) => {
+          //     tb.loadObj(getFloorOption(fl), function (model) {
+          //       let floor = model.setCoords([120.56656, 32.38536, index * 5-3]);
+          //       floor.addEventListener(
+          //         "SelectedChange",
+          //         onFloorSelect,
+          //         false
+          //       );
+          //       floor.addEventListener(
+          //         "ObjectMouseOver",
+          //         onFloorOver,
+          //         false
+          //       );
+
+          //       floor.addEventListener(
+          //         "ObjectMouseOut",
+          //         onFloorOut,
+          //         false
+          //       );
+
+          //       floors.push(floor);
+          //       floor.hoverable=true;
+          //       floor.selectable=true
+          //       tb.add(floor);
+          //     });
+          //   }
+          // );
+
           const el = document.getElementById("app");
           let resolution = new THREE.Vector2(el.offsetWidth, el.offsetHeight);
           addTree();
-          addlinagc();
-          addlinagc2();
-          addlinagc3();
-          var roadmeshs = addRoads(resolution);
-          var linemeshs = addLine(resolution);
+          addludeng();
+          var points = [
+            [120.56556344032288, 32.387096457015545],
+            [120.5657511949539, 32.38677029821425],
+            [120.56590139865875, 32.386480378291076],
+          ];
+          addlinagc(points, this.objSelected);
+          points = [
+            [120.5671191215515, 32.387363725155375],
+            [120.56676506996156, 32.38722329623135],
+            [120.56643784046172, 32.387096457015566],
+            [120.56605696678162, 32.386965087640014],
+          ];
+          addlinagc2(points, this.objSelected);
 
-          var fire = addFire([120.56687504053114, 32.3869741476031]);
-          var circlemesh=addCircle([ 120.55259227752686,32.388151935064236]);
-          var wallmesh = addWall();
-          var conepoints=[[ 120.56514501571654,32.3897192745606],[  120.56062817573546,32.3841564552852],[  120.55259227752686,32.388151935064236],[120.54374098777771,32.3888042415114],[120.55318236351012,32.36818183094668]]
-          var conemeshs=conepoints.map(point => {
-           return addCone(point);
+          points = [
+            [120.56687504053114, 32.3869741476031],
+            [120.56631714105605, 32.38677935819685],
+            [120.56647807359694, 32.3864713182785],
+            [120.56701987981796, 32.386670638345606],
+          ];
+          addlinagc3(points, this.objSelected);
+
+          var roads = [
+            [
+              [120.5615186691284, 32.38396618993527],
+              [120.56115388870238, 32.385198377476435],
+              [120.56441545486449, 32.386629868367656],
+              [120.56355714797974, 32.38797073799289],
+              [120.56312799453734, 32.389655856727444],
+              [120.56392192840576, 32.389764572985584],
+            ],
+            [
+              [120.55293560028075, 32.38845996925133],
+              [120.55224895477294, 32.39039874854987],
+              [120.56177616119385, 32.39313471207973],
+              [120.56229114532472, 32.39291728754617],
+              [120.56313872337343, 32.38959243884977],
+              [120.56387901306152, 32.38973739393332],
+            ],
+          ];
+
+          var roadmeshs = addRoads(resolution, roads);
+
+          //var linemeshs = addLine(resolution);
+
+          //var fire = addFire([120.56687504053114, 32.3869741476031]);
+          var circlemesh = addCircle([120.55259227752686, 32.388151935064236]);
+          //var wallmesh = addWall();
+          var conepoints = [
+            [120.56514501571654, 32.3897192745606],
+            [120.56062817573546, 32.3841564552852],
+            [120.55259227752686, 32.388151935064236],
+            [120.54374098777771, 32.3888042415114],
+            [120.55318236351012, 32.36818183094668],
+          ];
+          var conemeshs = conepoints.map((point) => {
+            return addCone(point);
           });
 
-          
           var _quat = new THREE.Quaternion();
           var _quat2 = new THREE.Quaternion();
           var _x = new THREE.Vector3(1, 0, 0);
@@ -432,51 +452,51 @@ class MapBoxMap extends PureComponent {
             var p = Math.pow(10, precision);
             return Math.round((min + Math.random() * (max - min)) * p) / p;
           }
-  
+
           function animate(e) {
             //火焰动画
-            fire.mesh.material.uniforms.uTime.value = e * 0.001;
-            var life = fire.geometry.attributes.life;
-            var orientation = fire.geometry.attributes.orientation;
-            var scale = fire.geometry.attributes.scale;
-            var randoms = fire.geometry.attributes.random;
-            for (let i = 0; i < 12; i++) {
-              var value = life.array[i];
-              value += 0.04;
-              if (value > 1) {
-                value -= 1;
-                _quat.setFromAxisAngle(_y, random(0, 3.14, 3));
-                _quat2.setFromAxisAngle(_x, random(-1, 1, 2) * 0.1);
-                _quat.multiply(_quat2);
-                _quat2.setFromAxisAngle(_z, random(-1, 1, 2) * 0.3);
-                _quat.multiply(_quat2);
-                orientation.setXYZW(i, _quat.x, _quat.y, _quat.z, _quat.w);
-                scale.setXY(i, random(0.8, 1.2, 3), random(0.8, 1.2, 3));
-                randoms.setX(i, random(0, 1, 3));
-              }
-              life.setX(i, value);
-            }
-            life.needsUpdate = true;
-            orientation.needsUpdate = true;
-            scale.needsUpdate = true;
-            randoms.needsUpdate = true;
+            // fire.mesh.material.uniforms.uTime.value = e * 0.001;
+            // var life = fire.geometry.attributes.life;
+            // var orientation = fire.geometry.attributes.orientation;
+            // var scale = fire.geometry.attributes.scale;
+            // var randoms = fire.geometry.attributes.random;
+            // for (let i = 0; i < 12; i++) {
+            //   var value = life.array[i];
+            //   value += 0.04;
+            //   if (value > 1) {
+            //     value -= 1;
+            //     _quat.setFromAxisAngle(_y, random(0, 3.14, 3));
+            //     _quat2.setFromAxisAngle(_x, random(-1, 1, 2) * 0.1);
+            //     _quat.multiply(_quat2);
+            //     _quat2.setFromAxisAngle(_z, random(-1, 1, 2) * 0.3);
+            //     _quat.multiply(_quat2);
+            //     orientation.setXYZW(i, _quat.x, _quat.y, _quat.z, _quat.w);
+            //     scale.setXY(i, random(0.8, 1.2, 3), random(0.8, 1.2, 3));
+            //     randoms.setX(i, random(0, 1, 3));
+            //   }
+            //   life.setX(i, value);
+            // }
+            // life.needsUpdate = true;
+            // orientation.needsUpdate = true;
+            // scale.needsUpdate = true;
+            // randoms.needsUpdate = true;
 
-            wallmesh.material.uniforms.time.value += 0.008;
-          
+            //wallmesh.material.uniforms.time.value += 0.008;
+
             conemeshs.forEach((conemesh) => {
-             conemesh.material.uniforms.time.value += 0.05;
-             conemesh.rotation.y += 0.02;
-           });
+              conemesh.material.uniforms.time.value += 0.05;
+              conemesh.rotation.y += 0.02;
+            });
 
-           circlemesh.rotation.z += 0.02;
-           linemeshs.forEach((linemesh) => {
-             linemesh.material.uniforms.dashOffset.value -= 0.01;
-           });
- 
-           roadmeshs.forEach((linemesh) => {
-             linemesh.material.uniforms.dashOffset.value -= 0.01;
-           });
-           
+            circlemesh.rotation.z += 0.02;
+            // linemeshs.forEach((linemesh) => {
+            //   linemesh.material.uniforms.dashOffset.value -= 0.01;
+            // });
+
+            roadmeshs.forEach((linemesh) => {
+              linemesh.material.uniforms.dashOffset.value -= 0.01;
+            });
+
             requestAnimationFrame(animate);
             map.triggerRepaint();
           }
@@ -491,8 +511,129 @@ class MapBoxMap extends PureComponent {
     ); //添加到建筑物图层之后
   };
 
+  
+  PrefixZero=(num, n)=>{
+    return (Array(n).join(0) + num).slice(-n);
+  }
+
+  onDoorOver=()=>{
+    this.setState({roomover:true})
+  }
+
+  onDoorOut=()=>{
+    this.setState({roomover:false})
+  }
+
+  onSelectedFeatureChange = (e) => {
+    let feature = e.detail;
+    if (feature &&feature.sourceLayer=='floorbuilding'&& feature.state && feature.state.select) {
+      this._map.doorobjs.map(obj => {
+        tb.remove(obj);
+      });
+      this._map.doorobjs=[];
+      var coords=[[ 120.56790500879288,32.38476688724421,(feature.properties.height-1)*6+3],[120.56777156889439,32.38471592369487,(feature.properties.height-1)*6+3]]
+
+      var textureDoor = new THREE.TextureLoader().load("models/door.png");
+          var doorMaterial = new THREE.SpriteMaterial({
+            map: textureDoor,
+            transparent:true,
+          });
+
+          var doorsprite = new THREE.Sprite(doorMaterial);
+           doorsprite.scale.set(0.1, 0.1, 0.1);
+           coords.forEach((point,index) => {
+            var doorobj= tb
+            .Object3D({ obj: doorsprite.clone(), adjustment: { x: 0, y: -1, z: 1 } })
+            .setCoords(point);
+            doorobj.coordinates=point;
+            doorobj.hoverable = true;
+            doorobj.selectable=true;
+            doorobj.highlightable=true;
+
+            doorobj.addEventListener(
+                  "ObjectMouseOver",
+                  this.onDoorOver,
+                  false
+                );
+                doorobj.addEventListener(
+                  "ObjectMouseOut",
+                  this.onDoorOut,
+                  false
+                );
+            tb.add(doorobj)
+            doorobj.addLabel(`<div class="blue_popup"><div class="roominfo mapboxgl-popup-content">
+              <div class="roomtitle">${this.PrefixZero(feature.properties.height-1,2)}${this.PrefixZero(index+1,2)}<div>
+              <div class="roomcontain">
+             <p> 居  室: 4室2厅2卫1厨 </p>
+             <p>建筑面积: 约168.00㎡ </p>
+             <p>朝  向: 朝南 </p>
+             <p>层  高: 3.00m</p>
+             <p>户型描述:客厅：朝南客厅连接阳台，采光通风较好。卫生间：双卫生间，方便使用。卧室：主卧拥有独立卫生间，私密性较高。</p>
+              </div>
+              </div></div>`);
+              this._map.doorobjs.push(doorobj);
+           
+           });
+      
+      this.setState({
+        fheight: feature.properties.height,
+        fbheight: feature.properties.baseheight,
+      });
+      this.props.updateLayer("楼栋2", {
+        filter: ["all", ["<", "height", feature.properties.height]],
+      });
+      this.props.updateLayer("楼栋1", {
+        filter: ["all", ["<", "height", feature.properties.height]],
+      });
+      this.props.updateLayer("楼栋", {layout:{visibility: 'none'}});
+    }
+  };
+
   onStyleLoad = (map) => {
+    console.log("b");
     this._map = map;
+
+    map.on("SelectedFeatureChange", this.onSelectedFeatureChange);
+
+    // const outletlayers = ["楼栋"];
+
+    // outletlayers.forEach((outlet) => {
+    //   map.on("click", outlet, (e) => {
+    //     // let coordinates = e.features[0].geometry.coordinates.slice();
+    //     let description = e.features[0].properties;
+
+    //     description.coordinates = [e.lngLat.lng, e.lngLat.lat];
+
+    //     // for (var key in description){
+    //     //   description[key.toLowerCase()] = description[key];
+    //     //   delete(description[key]);
+    //     // }
+
+    //     switch (outlet) {
+    //       case "outlet_南京长江入河排污口":
+    //       case "outlet_hedao":
+    //         this.setState({ selectoutlet: description });
+    //         break;
+    //       // case "outlet_江北入河排污口":
+    //       //   this.props.setSelectedFeature(description);
+    //       //   break;
+
+    //       default:
+    //         break;
+    //     }
+    //   });
+
+    //   // Change the cursor to a pointer when the mouse is over the places layer.
+    //   map.on("mouseenter", outlet, function() {
+    //     map.getCanvas().style.cursor = "pointer";
+    //   });
+
+    //   // Change it back to a pointer when it leaves.
+    //   map.on("mouseleave", outlet, function() {
+    //     map.getCanvas().style.cursor = "";
+    //   });
+    // });
+
     map.jumpTo({
       pitch: 60,
       bearing: 30,
@@ -608,173 +749,47 @@ class MapBoxMap extends PureComponent {
     );
   };
 
-  renderWaterHighLight = () => {
-    const { waterdatas } = this.props.intellisense;
-    if (!waterdatas) {
-      return null;
-    }
-    let feacollect = {
-      type: "FeatureCollection",
-      features: waterdatas.map((data) => {
-        return {
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "Point",
-            coordinates: [Number(data.X), Number(data.Y)],
-          },
-        };
-      }),
-    };
-    return (
-      <GeoJSONLayer
-        symbolLayout={{
-          "icon-image": "pulsing-dot-blue",
-        }}
-        data={feacollect}
-        layerOptions={{ filter: ["==", "$type", "Point"] }}
-      ></GeoJSONLayer>
-    );
-  };
-
-  /**
-   *渲染气泡框
-   *
-   * @returns
-   * @memberof MapBoxMap
-   */
-  _renderIntelllPopup() {
-    const { selecteditem, timedatas, showdata } = this.props.intellisense;
-    if (selecteditem && showdata === "duanmian") {
-      const {
-        DMMC,
-        SZJB,
-        SJLY,
-        HXXYL,
-        ZL,
-        SSLY,
-        AD,
-        XBXM,
-      } = selecteditem.features[0].properties;
+  renderObjPopup() {
+    const obj = this.state.selectedobj;
+    if (obj) {
       return (
         <Popup
-          className="custom_popup line_popup"
-          coordinates={selecteditem.features[0].geometry.coordinates}
+          className="custom_popup blue_popup"
+          coordinates={obj.coordinates}
           offset={{
             bottom: [0, -38],
           }}
         >
-          <div className="title">
-            <b>{DMMC}</b>
+          <div class="title">
+            <b>{obj.attributes.name}</b>
           </div>
-          <div className="content">
+          <div class="content">
             <Row gutter={16}>
-              <Col span={6}>
-                <Statistic title="水质级别" value={SZJB} />
+              <Col span={12}>
+                <Statistic
+                  title="存储量"
+                  value={128}
+                  prefix={<DashboardOutlined />}
+                  suffix="吨"
+                />
               </Col>
-              <Col span={6}>
-                <Statistic title="数据来源" value={SJLY} precision={2} />
+              <Col span={12}>
+                <Statistic
+                  title="温度"
+                  value={20}
+                  prefix={<i className="iconfont icon-wendu" />}
+                  suffix="℃"
+                />
               </Col>
-              <Col span={6}>
-                <Statistic title="所属流域" value={SSLY} precision={2} />
-              </Col>
-              <Col span={6}>
-                <Statistic title="氨氮" value={AD} precision={2} />
+              <Col span={12}>
+                <Statistic
+                  title="湿度"
+                  value={40}
+                  prefix={<i className="iconfont icon-shidu" />}
+                  suffix="%"
+                />
               </Col>
             </Row>
-            <Row gutter={16}>
-              <Col span={6}>
-                <Statistic title="需氧量" value={HXXYL} />
-              </Col>
-              <Col span={6}>
-                <Statistic title="总磷" value={ZL} precision={2} />
-              </Col>
-              <Col span={7}>
-                <Statistic title="超标项目" value={XBXM} precision={2} />
-              </Col>
-            </Row>
-          </div>
-        </Popup>
-      );
-    } else if (selecteditem && showdata === "air") {
-      const {
-        AQI,
-        PM25A24,
-        PM10A24,
-        SO2,
-        NO2,
-        CO,
-        O3,
-        LB,
-        ZDMC,
-      } = selecteditem.features[0].properties;
-      return (
-        <Popup
-          className="custom_popup line_popup"
-          coordinates={selecteditem.features[0].geometry.coordinates}
-          offset={{
-            bottom: [0, -38],
-          }}
-        >
-          <div className="title">
-            <b>{ZDMC}</b>
-          </div>
-          <div className="content">
-            <Row gutter={16}>
-              <Col span={6}>
-                <Statistic title="AQI" value={AQI} />
-              </Col>
-              <Col span={6}>
-                <Statistic title="PM25" value={PM25A24} precision={2} />
-              </Col>
-              <Col span={6}>
-                <Statistic title="PM10" value={PM10A24} precision={2} />
-              </Col>
-              <Col span={6}>
-                <Statistic title="SO2" value={SO2} precision={2} />
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={6}>
-                <Statistic title="NO2" value={NO2} />
-              </Col>
-              <Col span={6}>
-                <Statistic title="CO" value={CO} precision={2} />
-              </Col>
-              <Col span={6}>
-                <Statistic title="O3" value={O3} precision={2} />
-              </Col>
-              <Col span={6}>
-                <Statistic title="污染级别" value={LB} precision={2} />
-              </Col>
-            </Row>
-          </div>
-        </Popup>
-      );
-    } else if (timedatas && showdata === "water") {
-      return (
-        <Popup
-          className="custom_popup line_popup"
-          coordinates={timedatas[0].geometry.coordinates}
-          offset={{
-            bottom: [0, -38],
-          }}
-        >
-          <div className="title">
-            <b>{timedatas[0].properties.JCZMC}</b>
-          </div>
-          <div className="content">
-            <Timeline>
-              {timedatas.map((item) => {
-                return (
-                  <Timeline.Item>
-                    {moment(item.properties.INSERT_DAT).format("MM-DD")}
-                    <br /> 总磷:{item.properties.ZL} 总氮:{item.properties.ZD}
-                    氨氮:{item.properties.AD}
-                  </Timeline.Item>
-                );
-              })}
-            </Timeline>
           </div>
         </Popup>
       );
@@ -782,10 +797,37 @@ class MapBoxMap extends PureComponent {
     return null;
   }
 
+  renderEmergencyPopup() {
+    return (
+      <Popup
+        className="custom_popup blue_popup"
+        coordinates={[120.56514501571654, 32.3897192745606]}
+        offset={{
+          bottom: [0, -38],
+        }}
+      >
+        <div class="title">
+          <b>新冠疫情</b>
+        </div>
+        <div class="content"></div>
+      </Popup>
+    );
+  }
+
   _renderXiaoFangPopup() {
     const datas = {
       type: "FeatureCollection",
       features: [
+        {
+          type: "Feature",
+          properties: {
+            name: "市公安消防大队",
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [120.54374098777771, 32.3888042415114],
+          },
+        },
         {
           type: "Feature",
           properties: {
@@ -816,6 +858,26 @@ class MapBoxMap extends PureComponent {
             coordinates: [120.54162740707397, 32.418442973316466],
           },
         },
+        {
+          type: "Feature",
+          properties: {
+            name: "市人民医院",
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [120.56062817573546, 32.3841564552852],
+          },
+        },
+        {
+          type: "Feature",
+          properties: {
+            name: "市第四人民医院",
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [120.55259227752686, 32.388151935064236],
+          },
+        },
       ],
     };
 
@@ -836,302 +898,6 @@ class MapBoxMap extends PureComponent {
       );
     });
   }
-
-  _renderFaRenPopup() {
-    const { selecteditem } = this.props.query;
-
-    return (
-      selecteditem && (
-        <Popup
-          className="custom_popup blue_popup"
-          coordinates={[
-            Number(selecteditem.x_wgs84),
-            Number(selecteditem.y_wgs84),
-          ]}
-          offset={{
-            bottom: [0, -38],
-          }}
-        >
-          <div class="title">
-            <b>公司信息</b>
-          </div>
-          <div class="content">
-            <p>
-              <span>企业名称:</span>
-              {selecteditem.name}
-            </p>
-            <p>
-              <span>地址:</span>
-              {selecteditem.dz}
-            </p>
-            <p>
-              <span>企业法人:</span>
-              {selecteditem.charge}
-            </p>
-            <p>
-              <span>代码:</span>
-              {selecteditem.code}
-            </p>
-          </div>
-        </Popup>
-      )
-    );
-  }
-
-  _renderRenKouContent = () => {
-    return [
-      <GeoJSONLayer
-        fillExtrusionPaint={{
-          "fill-extrusion-color": [
-            "step",
-            ["get", "renkou"],
-            "#c6dbef",
-            60000,
-            "#9ecae1",
-            90000,
-            "#6baed6",
-            120000,
-            "#4292c6",
-            150000,
-            "#2171b5",
-            170000,
-            "#08519c",
-            200000,
-            "#08306b",
-          ],
-          "fill-extrusion-height": ["*", 0.02, ["get", "renkou"]],
-          "fill-extrusion-base": 0,
-          "fill-extrusion-opacity": 0.9,
-          "fill-extrusion-vertical-gradient": false,
-        }}
-        data={mapConfigJson.dataurl + "/xzq_s.json"}
-        layerOptions={{
-          filter: ["all", ["==", "$type", "Polygon"]],
-        }}
-      ></GeoJSONLayer>,
-      <GeoJSONLayer
-        symbolLayout={{
-          "text-padding": 2,
-          "text-font": ["Microsoft YaHei Regular"],
-          "text-anchor": "left",
-          "text-field": "{NAME}",
-          "text-offset": [0.6, 0],
-          "text-size": 16,
-          "text-max-width": 6,
-          visibility: "visible",
-          "icon-offset": [6, 0],
-          "icon-anchor": "right",
-        }}
-        symbolPaint={{
-          "icon-opacity": 1,
-          "text-halo-blur": 0.5,
-          "text-color": "rgba(76, 76, 76, 1)",
-          "text-halo-width": 1,
-          "text-halo-color": "#ffffff",
-        }}
-        data={mapConfigJson.dataurl + "/zxqpoint.json"}
-        layerOptions={{
-          filter: ["all", ["==", "$type", "Point"]],
-        }}
-      ></GeoJSONLayer>,
-    ];
-  };
-
-  _renderGridContent = () => {
-    const { griddatas } = this.props.devops;
-    let layeroptions = {
-      // fillPaint: { "fill-color": "#6157cc", "fill-opacity": 0.6 },
-      fillExtrusionPaint: {
-        "fill-extrusion-color": [
-          "step",
-          ["get", "count"],
-          "#a6d96a",
-          10,
-          "#d9ef8b",
-          30,
-          "#ffffbf",
-          50,
-          "#fee08b",
-          100,
-          "#fdae61",
-          200,
-          "#f46d43",
-          300,
-          "#d73027",
-        ],
-        "fill-extrusion-height": ["*", 30, ["get", "count"]],
-        "fill-extrusion-base": 0,
-        "fill-extrusion-opacity": 0.8,
-      },
-    };
-    if (griddatas) {
-      let data = {
-        type: "FeatureCollection",
-        features: [],
-      };
-      data.features = griddatas.map((grid) => {
-        let geom = wkt.parse(grid.wkt);
-        return {
-          type: "Feature",
-          geometry: geom,
-          properties: {
-            count: grid.count,
-          },
-        };
-      });
-
-      return <GeoJSONLayer {...layeroptions} data={data}></GeoJSONLayer>;
-    }
-    return null;
-  };
-
-  _renderDuanmianContent = () => {
-    const { duanmiandatas, showdata } = this.props.intellisense;
-    if (duanmiandatas && showdata === "duanmian") {
-      return duanmiandatas.map((item, index) => {
-        return (
-          <Marker
-            key={`mainmarker-${index}`}
-            coordinates={item.geometry.coordinates}
-          >
-            <MarkerPin
-              size={30}
-              text={index + 1}
-              color="#3FB1CE"
-              title={item.properties.DMMC}
-              onClick={() =>
-                this.props.queryIntelService(
-                  "gdqgk_sk_skdmjcxx",
-                  "DMMC = '" + item.properties.DMMC + "'"
-                )
-              }
-            />
-          </Marker>
-        );
-      });
-    }
-    return null;
-  };
-
-  _renderJiangchenContent = () => {
-    const { jiangchendatas, showdata } = this.props.intellisense;
-    if (jiangchendatas && showdata === "jiangchen") {
-      return jiangchendatas.map((item, index) => {
-        return (
-          <Marker
-            key={`mainmarker-${index}`}
-            coordinates={item.geometry.coordinates}
-          >
-            <MarkerPin
-              size={30}
-              text={index + 1}
-              color="#3FB1CE"
-              title={item.properties.ZDMC}
-              // onClick={
-              //   () =>this.setState({ waterPopupInfo: item, smallinfo: false })
-              // }
-            />
-          </Marker>
-        );
-      });
-    }
-    return null;
-  };
-
-  _renderAirContent = () => {
-    const { airdatas, showdata } = this.props.intellisense;
-    if (airdatas && showdata === "air") {
-      return airdatas.map((item, index) => {
-        return (
-          <Marker
-            key={`mainmarker-${index}`}
-            coordinates={item.geometry.coordinates}
-          >
-            <MarkerPin
-              size={30}
-              text={index + 1}
-              color="#3FB1CE"
-              title={item.properties.ZDMC}
-              onClick={() =>
-                this.props.queryIntelService(
-                  "kqjcdxx",
-                  "ZDMC = '" + item.properties.ZDMC + "'"
-                )
-              }
-            />
-          </Marker>
-        );
-      });
-    }
-    return null;
-  };
-
-  getIntellItem = (item, type) => {};
-
-  /**
-   *渲染水质结果
-   *
-   * @returns
-   */
-  _renderWaterContent = () => {
-    const { waterdatas, showdata } = this.props.intellisense;
-    if (waterdatas && showdata === "water") {
-      return waterdatas.map((item, index) => {
-        return (
-          <Marker
-            key={`mainmarker-${index}`}
-            coordinates={item.geometry.coordinates}
-          >
-            <MarkerPin
-              size={30}
-              text={index + 1}
-              color="#3FB1CE"
-              title={item.properties.ZDMC}
-              onClick={() =>
-                this.props.queryTimeLineIntelService(
-                  "gdqsydszssjcz",
-                  "JCZMC = '" + item.properties.ZDMC + "'"
-                )
-              }
-            />
-          </Marker>
-        );
-      });
-    }
-    return null;
-  };
-  /**
-   *渲染水质结果
-   *
-   * @returns
-   */
-  _renderPaiwuContent = () => {
-    const { paiwudatas, showdata } = this.props.intellisense;
-    if (paiwudatas && showdata === "paiwu") {
-      // this.setState({
-      //   highlightdatas: {
-      //     type: "FeatureCollection",
-      //     features: paiwudatas,
-      //   },
-      // });
-      return paiwudatas.map((item, index) => {
-        return (
-          <Marker
-            key={`mainmarker-${index}`}
-            coordinates={item.geometry.coordinates}
-          >
-            <MarkerPin
-              size={30}
-              text={index + 1}
-              color="#3FB1CE"
-              title={item.properties.ZDMC}
-            />
-          </Marker>
-        );
-      });
-    }
-    return null;
-  };
 
   /**
    *渲染查询结果
@@ -1582,124 +1348,6 @@ class MapBoxMap extends PureComponent {
     );
   }
 
-  /**
-   *渲染建筑信息气泡框
-   *
-   * @returns
-   * @memberof MapBoxMap
-   */
-  _renderBuildingPopup() {
-    const { buildingInfo, buildinglngLat } = this.state;
-    const { themresult } = this.props.thematics;
-    if (themresult && themresult.features) {
-      const dataSource = themresult.features.map((fea) => {
-        return fea.attributes;
-      });
-      const columns = [
-        {
-          title: "企业名称",
-          dataIndex: "name",
-          width: 60,
-          key: "name",
-        },
-        {
-          title: "法人",
-          dataIndex: "charge",
-          width: 40,
-          key: "charge",
-        },
-        {
-          title: "统一信用代码",
-          dataIndex: "code",
-          width: 80,
-          key: "code",
-        },
-        {
-          title: "住址",
-          dataIndex: "dz",
-          width: 100,
-          key: "dz",
-        },
-
-        {
-          title: "注册资本(万元)",
-          dataIndex: "capital",
-          width: 60,
-          key: "capital",
-        },
-      ];
-      return (
-        buildingInfo &&
-        buildingInfo.layer.id == "3d-buildings" && (
-          <Popup
-            coordinates={[
-              Number(buildinglngLat.lng),
-              Number(buildinglngLat.lat),
-            ]}
-            offset={{
-              bottom: [0, -18],
-            }}
-          >
-            <div className="title">
-              <b>{buildingInfo.properties.Name}</b>
-              <Icon
-                style={{ float: "right", marginTop: 8 }}
-                onClick={() => this.setState({ buildingInfo: null })}
-                type="close"
-              />
-            </div>
-            <div className="content">
-              <Tabs defaultActiveKey="1" animated={false}>
-                <TabPane tab="基本信息" key="1">
-                  <p>类型：{buildingInfo.properties.Type}</p>
-                  <p>建筑结构：{buildingInfo.properties.Structure}</p>
-                </TabPane>
-                <TabPane tab={"法人信息(" + dataSource.length + ")"} key="2">
-                  <Table
-                    size="small"
-                    bordered={true}
-                    pagination={false}
-                    scroll={{ x: 500, y: "calc(100vh - 700px)" }}
-                    dataSource={dataSource}
-                    columns={columns}
-                  />
-                </TabPane>
-              </Tabs>
-            </div>
-          </Popup>
-        )
-      );
-    } else {
-      return (
-        buildingInfo &&
-        buildingInfo.layer.id == "3d-buildings" && (
-          <Popup
-            tipSize={5}
-            offset={{
-              bottom: [0, -18],
-            }}
-            coordinates={[
-              Number(buildinglngLat.lng),
-              Number(buildinglngLat.lat),
-            ]}
-          >
-            <div className="title">
-              <b>{buildingInfo.properties.Name}</b>
-              <Icon
-                style={{ float: "right", marginTop: 8 }}
-                onClick={() => this.setState({ buildingInfo: null })}
-                type="close"
-              />
-            </div>
-            <div className="content">
-              <p>{buildingInfo.properties.Type}</p>
-            </div>
-          </Popup>
-        )
-      );
-    }
-  }
-
   renderMeasureContent = () => {
     const { drawStatus, drawOwner, geometry } = this.props.draw;
     let contents = [];
@@ -1920,6 +1568,22 @@ class MapBoxMap extends PureComponent {
     }
   };
 
+  fillExtrusionOnMouseMove = () => {
+    if (e.features.length > 0) {
+      if (hoveredStateId) {
+        this._map.setFeatureState(
+          { source: "building", id: hoveredStateId },
+          { hover: false }
+        );
+      }
+      hoveredStateId = e.features[0].id;
+      this._map.setFeatureState(
+        { source: "building", id: hoveredStateId },
+        { hover: true }
+      );
+    }
+  };
+
   UNSAFE_componentWillReceiveProps(newProps) {
     // if(this._map&&newProps.map.curarea&&newProps.map.curarea !== this.props.map.curarea){
     //   var relatedFeatures = this._map.querySourceFeatures('xzq_polygon', {
@@ -2025,6 +1689,25 @@ class MapBoxMap extends PureComponent {
     }
   }
 
+  floorClick=(e)=>{
+
+    if(this.state.roomover)return;
+    this.props.updateLayer("楼栋2", {
+      filter: ["all"],
+    });
+    this.props.updateLayer("楼栋1", {
+      filter: ["all"],
+    });
+    this.props.updateLayer("楼栋", {layout:{visibility: 'visible'}});
+    document.getElementById("labelCanvas").innerHTML="";
+    
+    this._map.doorobjs.map(obj => {
+      tb.hide(obj);
+    });
+    this._map.doorobjs=[];
+    this.setState({fheight:0})
+  }
+
   render() {
     const { mapstyle, center, zoom, bearing, pitch } = this.props.map3d;
     //右键菜单
@@ -2063,29 +1746,44 @@ class MapBoxMap extends PureComponent {
             onClick={this.onMapClick}
             onStyleLoad={this.onStyleLoad}
             onMouseDown={this._hideContextMenu}
-            onContextMenu={this._showContextMenu}
             containerStyle={{
               height: "100vh",
             }}
           >
-            {/* {this._renderXiaoFangPopup()} */}
-            {this.props.showmode === "Corporation" && this._renderFaRenPopup()}
-            {this.props.showmode === "IntelliSense" && [
-              this._renderWaterContent(),
-              this._renderAirContent(),
-              this._renderPaiwuContent(),
-              this._renderJiangchenContent(),
-              this._renderDuanmianContent(),
-            ]}
-
-            {this.props.showmode === "IntelliSense" &&
-              this._renderIntelllPopup()}
-            {this.props.showmode === "IntelliSense" && this.renderHighLight()}
-            {this.props.showmode === "DevOps" && this._renderGridContent()}
-            {this.props.map.staticsmodule === "xzq" && this._renderXZQContent()}
-            {this.props.map.staticsmodule === "renkou" &&
-              this._renderRenKouContent()}
-
+            {this.state.fheight && (
+              <GeoJSONLayer
+                data={mapConfigJson.dataurl + "/floor.geojson"}
+                fillExtrusionOnClick={this.floorClick}
+                fillExtrusionPaint={{
+                  "fill-extrusion-color": "rgba(85,253,171, 0.8)",
+                  "fill-extrusion-height": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    10,
+                    0,
+                    18,
+                    this.state.fheight * 6-3
+                  ],
+                  "fill-extrusion-base": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    10,
+                    0,
+                    18,
+                    this.state.fbheight * 6
+                  ],
+                  "fill-extrusion-opacity": 0.8,
+                  "fill-extrusion-intensity": 5,
+                  "fill-extrusion-bottom-color": "#081d58",
+                  "fill-extrusion-vertical-gradient": false,
+                }}
+              />
+            )}
+            {this._renderXiaoFangPopup()}
+            {this.renderObjPopup()}
+            {/* {this.renderEmergencyPopup()} */}
             <DrawControl
               modes={modes}
               ref={(drawControl) => {

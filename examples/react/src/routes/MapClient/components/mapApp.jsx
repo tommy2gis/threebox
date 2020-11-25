@@ -2,7 +2,7 @@
  * @Author: 史涛
  * @Date: 2019-01-05 17:40:59
  * @Last Modified by: 史涛
- * @Last Modified time: 2020-11-19 17:03:16
+ * @Last Modified time: 2020-11-24 16:10:02
  */
 
 
@@ -92,11 +92,11 @@ class mapApp extends React.Component {
       return (
         <Layout>
           <Header className="mapheader">
-            <div className="logo-label">如皋</div>
+            {/* <div className="logo-label">如皋</div> */}
             <div className="datetime-label"><TimeControl></TimeControl></div>
           </Header>
           <Content>
-            <Panels></Panels>
+            {/* <Panels></Panels> */}
          { curmode !== "DevOps" &&<MapBoxMap showmode={curmode} onMapViewChanges={this.props.onMapViewChanges} />}
           </Content>
         </Layout>

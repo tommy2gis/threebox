@@ -2,7 +2,7 @@
  * @Author: 史涛
  * @Date: 2019-01-05 19:31:08
  * @Last Modified by: 史涛
- * @Last Modified time: 2020-07-27 16:07:28
+ * @Last Modified time: 2020-11-23 17:28:41
  */
 
 var {
@@ -59,7 +59,7 @@ function mapboxgl(state = null, action) {
             layers: state.mapstyle.layers.map(layer => {
               if (layer.id === action.layerid) {
                 return Object.assign({}, layer, action.filter&&{
-                  filter: assign({},layer.filter,action.filter)
+                  filter: action.filter
                 },action.paint&&{
                   paint:assign({},layer.paint,action.paint)
                 },action.layout&&{

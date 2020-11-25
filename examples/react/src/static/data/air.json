@@ -1,9 +1,0 @@
-{
-"type": "FeatureCollection",
-"name": "air",
-"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::4490" } },
-"features": [
-{ "type": "Feature", "properties": { "OBJECTID": 39, "ZDMC": "如皋监测站" }, "geometry": { "type": "Point", "coordinates": [ 120.559108, 32.383838 ] } },
-{ "type": "Feature", "properties": { "OBJECTID": 41, "ZDMC": "如皋美能得" }, "geometry": { "type": "Point", "coordinates": [ 120.53745, 32.401109 ] } }
-]
-}

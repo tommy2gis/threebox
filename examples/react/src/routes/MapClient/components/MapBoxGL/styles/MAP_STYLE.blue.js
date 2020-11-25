@@ -35,7 +35,7 @@ const mapBlueStyle =  {
       "scheme": "xyz",
       "minzoom": 0,
       "tiles": [
-        "http://geowork.wicp.vip:25081/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=swsk:block&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"
+        "http://geowork.wicp.vip/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=swsk:block&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"
       ],
       "crs": "EPSG:3857"
     },
@@ -45,7 +45,7 @@ const mapBlueStyle =  {
       "scheme": "xyz",
       "minzoom": 0,
       "tiles": [
-        "http://geowork.wicp.vip:25081/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=swsk:roads&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"
+        "http://geowork.wicp.vip/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=swsk:roads&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"
       ],
       "crs": "EPSG:3857"
     },
@@ -54,7 +54,7 @@ const mapBlueStyle =  {
       "scheme": "xyz",
       "minzoom": 0,
       "tiles": [
-        "http://geowork.wicp.vip:25081/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=swsk:poi&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"
+        "http://geowork.wicp.vip/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=swsk:poi&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"
       ],
       "crs": "EPSG:3857"
     },
@@ -63,7 +63,7 @@ const mapBlueStyle =  {
       "scheme": "xyz",
       "minzoom": 10,
       "tiles": [
-        "http://geowork.wicp.vip:25081/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=swsk:building&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"
+        "http://geowork.wicp.vip/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=swsk:building&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/x-protobuf;type=mapbox-vector&TILECOL={x}&TILEROW={y}"
       ],
       "crs": "EPSG:3857"
     }
@@ -595,7 +595,14 @@ const mapBlueStyle =  {
       ],
       "layout": {"visibility": "visible"},
       "paint": {
-        "fill-extrusion-color": "rgba(85,253,171, 0.8)",
+        "fill-extrusion-color":[
+          'case',
+          ['boolean', ['feature-state', 'select'], false],
+          "lightgreen",
+          ['boolean', ['feature-state', 'hover'], false],
+          "lightblue",
+          'rgba(85,253,171, 0.8)'
+        ],
         "fill-extrusion-height": [
           "interpolate",
           ["linear"],
@@ -822,6 +829,111 @@ const mapBlueStyle =  {
       }
     },
     {
+      "id": "楼栋1",
+      "type": "fill-extrusion",
+      "source": "citybuilding",
+      "source-layer": "floorbuilding",
+      "minzoom": 13,
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "fill-extrusion-color":[
+          'case',
+          ['boolean', ['feature-state', 'select'], false],
+          "#FF9800",
+          ['boolean', ['feature-state', 'hover'], false],
+          "#FF9800",
+          'rgba(85,253,171, 0.8)'
+        ],
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0,
+          18,
+           ["*", 6, ["get", "height"]]
+        ],
+        "fill-extrusion-base": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0,
+          18,
+          ["*", 6, ["get", "baseheight"]]
+        ],
+        "fill-extrusion-opacity": 1,
+        "fill-extrusion-intensity":5,
+        "fill-extrusion-bottom-color":"#1290ac",
+        "fill-extrusion-vertical-gradient": false,
+      }
+    },
+    {
+      "id": "楼栋2",
+      "type": "fill-extrusion",
+      "source": "citybuilding",
+      "source-layer": "floorbuilding",
+      "minzoom": 13,
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "fill-extrusion-color":'rgba(85,253,171, 0.8)',
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0,
+          18,
+           ["*", 6, ["get", "height"]]
+        ],
+        "fill-extrusion-base": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0,
+          18,
+          ["*", 6, ["get", "baseheight"]]
+        ],
+        "fill-extrusion-opacity": 0.2,
+        "fill-extrusion-pattern": {
+          "stops": [[16, "午夜蓝8"], [19, "午夜蓝16"], [20, "午夜蓝8"]]
+        }
+      }
+    },
+    {
+      "id": "楼栋",
+      "type": "fill-extrusion",
+      "source": "citybuilding",
+      "filter": ["all", ["==", "floor", 14]],
+      "source-layer": "floorbuilding",
+      "minzoom": 13,
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "fill-extrusion-color": "#2f4e77",
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0,
+          18,
+           ["*", 6, ["get", "height"]]
+        ],
+        "fill-extrusion-base": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0,
+          18,
+           ["*", 6, ["get", "height"]]
+        ],
+        "fill-extrusion-opacity": 1,
+        "fill-extrusion-vertical-gradient": false
+      }
+    },
+    {
       "id": "铁路",
       "type": "line",
       "metadata": {"mapbox:group": "1444849354174.1904"},
@@ -1041,7 +1153,7 @@ const mapBlueStyle =  {
       "type": "symbol",
       "source": "poi",
       "source-layer": "DMDZBZ",
-      "minzoom": 16,
+      "minzoom": 12,
       "maxzoom": 24,
       "filter": ["all", ["==", "CLASSIFY", "企业"]],
       "layout": {
@@ -1053,7 +1165,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "none",
+        "visibility": "visible",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-size": 0.8
@@ -1071,7 +1183,7 @@ const mapBlueStyle =  {
       "type": "symbol",
       "source": "poi",
       "source-layer": "DMDZBZ",
-      "minzoom": 16,
+      "minzoom": 12,
       "maxzoom": 24,
       "filter": ["all", ["in", "CLASSIFY", "居民点", "住宅区"]],
       "layout": {
@@ -1082,7 +1194,7 @@ const mapBlueStyle =  {
         "text-offset": [0.6, 0],
         "text-size": 13,
         "text-max-width": 6,
-        "visibility": "none",
+        "visibility": "visible",
         "icon-offset": [6, 0],
         "icon-anchor": "right",
         "icon-image": "{CLASSIFY}",

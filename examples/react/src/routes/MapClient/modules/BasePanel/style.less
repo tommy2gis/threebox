@@ -10,6 +10,7 @@
     top: 100px;
     right: 20px;
 }
+
 .basepanel {
   z-index: 1000;
   background: transparent;
@@ -37,8 +38,10 @@
       color: #00bbf2;
     }
   }
+ 
 
   .ant-card-body {
+    
     p {
       text-indent: 2em;
       font-size: 14px;
@@ -55,6 +58,12 @@
         );
     }
   }
+}
+
+.withborder{
+  .ant-card-body {
+  border: 5px solid transparent;
+  border-image: url(./border.png) 2%;}
 }
 
 

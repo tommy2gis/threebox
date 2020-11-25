@@ -1,184 +1,135 @@
 {
-  "id": "1668098",
-  "name": "城管一张图",
+  "id": "1966010",
+  "name": "城市运营中心",
   "font_family": "iconfont",
   "css_prefix_text": "icon-",
   "description": "",
   "glyphs": [
     {
-      "icon_id": "7411245",
-      "name": "文件上传",
-      "font_class": "wenjianshangchuan",
-      "unicode": "e605",
-      "unicode_decimal": 58885
+      "icon_id": "529393",
+      "name": "停车位",
+      "font_class": "tingchewei",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
     },
     {
-      "icon_id": "15815105",
-      "name": "地图导出",
-      "font_class": "ditudaochu",
-      "unicode": "e60a",
-      "unicode_decimal": 58890
+      "icon_id": "12863150",
+      "name": "车辆",
+      "font_class": "cheliang",
+      "unicode": "e71a",
+      "unicode_decimal": 59162
     },
     {
-      "icon_id": "7326936",
-      "name": "网络虚拟身份知识图谱系统icon1",
-      "font_class": "wangluoxunishenfenzhishitupuxitongicon",
-      "unicode": "e604",
-      "unicode_decimal": 58884
+      "icon_id": "4884599",
+      "name": "作物-大豆",
+      "font_class": "beans",
+      "unicode": "e7d4",
+      "unicode_decimal": 59348
     },
     {
-      "icon_id": "2705219",
-      "name": "number",
-      "font_class": "number",
-      "unicode": "e601",
-      "unicode_decimal": 58881
-    },
-    {
-      "icon_id": "10019566",
-      "name": "Abc",
-      "font_class": "Abc1",
+      "icon_id": "8314987",
+      "name": "稻谷",
+      "font_class": "daogu",
       "unicode": "e602",
       "unicode_decimal": 58882
     },
     {
-      "icon_id": "7154266",
-      "name": "分屏对比",
-      "font_class": "fenpingduibi",
-      "unicode": "e64b",
-      "unicode_decimal": 58955
+      "icon_id": "13965954",
+      "name": "玉米",
+      "font_class": "yumi",
+      "unicode": "e690",
+      "unicode_decimal": 59024
     },
     {
-      "icon_id": "11064342",
-      "name": "测面",
-      "font_class": "cemian",
-      "unicode": "e61f",
-      "unicode_decimal": 58911
+      "icon_id": "3761501",
+      "name": "监控",
+      "font_class": "jiankong",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
     },
     {
-      "icon_id": "11765072",
-      "name": "测距",
-      "font_class": "ceju",
-      "unicode": "e61e",
-      "unicode_decimal": 58910
+      "icon_id": "4415526",
+      "name": "温度",
+      "font_class": "wendu",
+      "unicode": "e677",
+      "unicode_decimal": 58999
     },
     {
-      "icon_id": "8138168",
-      "name": "四叶草",
-      "font_class": "siyecao",
+      "icon_id": "9592265",
+      "name": "湿度",
+      "font_class": "shidu",
+      "unicode": "e6cd",
+      "unicode_decimal": 59085
+    },
+    {
+      "icon_id": "5719214",
+      "name": "常住人口城镇化率",
+      "font_class": "changzhurenkouchengzhenhuashuai",
+      "unicode": "e886",
+      "unicode_decimal": 59526
+    },
+    {
+      "icon_id": "2344372",
+      "name": "历史",
+      "font_class": "history",
+      "unicode": "e63a",
+      "unicode_decimal": 58938
+    },
+    {
+      "icon_id": "5981318",
+      "name": "部门",
+      "font_class": "bumen",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "11339200",
+      "name": "种类",
+      "font_class": "zhonglei",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "12167451",
+      "name": "影像 拷贝",
+      "font_class": "images",
       "unicode": "e600",
       "unicode_decimal": 58880
     },
     {
-      "icon_id": "8153562",
-      "name": "图层",
-      "font_class": "tuceng",
-      "unicode": "e609",
-      "unicode_decimal": 58889
+      "icon_id": "14670998",
+      "name": "数据",
+      "font_class": "shuju",
+      "unicode": "e751",
+      "unicode_decimal": 59217
     },
     {
-      "icon_id": "2332238",
-      "name": "print",
-      "font_class": "print",
-      "unicode": "e91e",
-      "unicode_decimal": 59678
+      "icon_id": "7729377",
+      "name": "法人资格",
+      "font_class": "faren",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
     },
     {
-      "icon_id": "3285254",
-      "name": "可视化",
-      "font_class": "keshihua",
-      "unicode": "e630",
-      "unicode_decimal": 58928
+      "icon_id": "1344244",
+      "name": "代理人级别1",
+      "font_class": "step1",
+      "unicode": "e6e0",
+      "unicode_decimal": 59104
     },
     {
-      "icon_id": "4691717",
-      "name": "地图定位",
-      "font_class": "ditudingwei",
-      "unicode": "e64f",
-      "unicode_decimal": 58959
+      "icon_id": "1344251",
+      "name": "代理人级别10",
+      "font_class": "step10",
+      "unicode": "e6e2",
+      "unicode_decimal": 59106
     },
     {
-      "icon_id": "5943001",
-      "name": "print",
-      "font_class": "print1",
-      "unicode": "e6c8",
-      "unicode_decimal": 59080
-    },
-    {
-      "icon_id": "6196561",
-      "name": "加",
-      "font_class": "jia",
-      "unicode": "e632",
-      "unicode_decimal": 58930
-    },
-    {
-      "icon_id": "6720596",
-      "name": "地图查询",
-      "font_class": "dituchaxun",
-      "unicode": "e62e",
-      "unicode_decimal": 58926
-    },
-    {
-      "icon_id": "6864829",
-      "name": "全屏",
-      "font_class": "quanping",
-      "unicode": "e629",
-      "unicode_decimal": 58921
-    },
-    {
-      "icon_id": "9209764",
-      "name": "清除",
-      "font_class": "shanchulaji-xianxing",
-      "unicode": "e635",
-      "unicode_decimal": 58933
-    },
-    {
-      "icon_id": "9851593",
-      "name": "城市管理",
-      "font_class": "chengshiguanli",
-      "unicode": "e610",
-      "unicode_decimal": 58896
-    },
-    {
-      "icon_id": "10700641",
-      "name": "分 享 ",
-      "font_class": "fenxiang",
-      "unicode": "e817",
-      "unicode_decimal": 59415
-    },
-    {
-      "icon_id": "11508113",
-      "name": "工具箱",
-      "font_class": "gongjuxiang",
-      "unicode": "e6c1",
-      "unicode_decimal": 59073
-    },
-    {
-      "icon_id": "12786661",
-      "name": "分 享",
-      "font_class": "fenxiang1",
-      "unicode": "e636",
-      "unicode_decimal": 58934
-    },
-    {
-      "icon_id": "12977407",
-      "name": "location",
-      "font_class": "location-ok-copy",
-      "unicode": "e737",
-      "unicode_decimal": 59191
-    },
-    {
-      "icon_id": "12989601",
-      "name": "编 辑",
-      "font_class": "bianji",
-      "unicode": "e622",
-      "unicode_decimal": 58914
-    },
-    {
-      "icon_id": "13186495",
-      "name": "减",
-      "font_class": "jian",
-      "unicode": "e70f",
-      "unicode_decimal": 59151
+      "icon_id": "12568858",
+      "name": "city",
+      "font_class": "city",
+      "unicode": "e601",
+      "unicode_decimal": 58881
     }
   ]
 }
