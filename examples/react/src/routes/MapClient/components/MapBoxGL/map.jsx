@@ -2,7 +2,7 @@
  * @Author: 史涛
  * @Date: 2020-02-14 16:57:11
  * @Last Modified by: 史涛
- * @Last Modified time: 2020-12-10 09:33:15
+ * @Last Modified time: 2020-12-10 10:44:09
  */
 import ReactMapboxGl, {
   Layer,
@@ -112,8 +112,7 @@ class MapBoxMap extends PureComponent {
   };
 
   componentDidMount() {
-    const ele = document.getElementById("loading");
-    ele.style.display = "none";
+    
     const { latitude, longitude, zoom, maxZoom, minZoom, bearing, pitch } = this
       .props.map3d.zoom
       ? this.props.map3d
@@ -240,33 +239,33 @@ class MapBoxMap extends PureComponent {
           lineMaterial.depthTest = true;
           lineMaterial.polygonOffsetFactor = 1;
           lineMaterial.polygonOffsetUnits = 1.0;
-          // var options = {
-          //   type: "mtl",
-          //   obj: "models/building.obj",
-          //   scale: 1,
-          //   anchor: "center",
-          //   units: "meters",
-          //   rotation: { x: 90, y: 180, z: 0 },
-          // };
+          var options = {
+            type: "mtl",
+            obj: "models/building.obj",
+            scale: 1,
+            anchor: "center",
+            units: "meters",
+            rotation: { x: 90, y: 180, z: 0 },
+          };
 
-          // let lineS;
-          // tb.loadObj(options, function (model) {
-          //   let mesh = model.children[0].children[0];
-          //   let edges = new THREE.EdgesGeometry(mesh.geometry, 1);
-          //   edges.scale(0.035, 0.035, 0.035);
-          //   // edges.rotation.x = Math.PI / 2;
-          //   //  lineS.rotation.z = Math.PI / 2;
-          //   lineS = new THREE.LineSegments(edges, lineMaterial);
-          //   // lineS.rotation.y = Math.PI;
-          //   lineS.rotation.x = Math.PI / 2;
-          //   lineS.rotation.y = Math.PI * 1.15;
+          let lineS;
+          tb.loadObj(options, function (model) {
+            let mesh = model.children[0].children[0];
+            let edges = new THREE.EdgesGeometry(mesh.geometry, 1);
+            edges.scale(0.035, 0.035, 0.035);
+            // edges.rotation.x = Math.PI / 2;
+            //  lineS.rotation.z = Math.PI / 2;
+            lineS = new THREE.LineSegments(edges, lineMaterial);
+            // lineS.rotation.y = Math.PI;
+            lineS.rotation.x = Math.PI / 2;
+            lineS.rotation.y = Math.PI * 1.15;
 
-          //   let obj = tb
-          //     .Object3D({ obj: lineS, adjustment: { x: -0.2, y: 0, z: -0.3 } })
-          //     .setCoords([120.56642, 32.38535]);
-          //   obj.hoverable = false;
-          //   tb.add(obj);
-          // });
+            let obj = tb
+              .Object3D({ obj: lineS, adjustment: { x: -0.2, y: 0, z: -0.3 } })
+              .setCoords([120.56642, 32.38535]);
+            obj.hoverable = false;
+            tb.add(obj);
+          });
           const basematerial = new THREE.MeshPhongMaterial({
             color: 0x63a3,
             map: new THREE.TextureLoader().load("images/building2.png"),
@@ -280,10 +279,11 @@ class MapBoxMap extends PureComponent {
             side: THREE.DoubleSide,
           });
 
-          function getFloorOption(floor) {
+          function getFloorOption(index) {
             return {
               type: "dae",
-              obj: "models/" + floor + ".DAE",
+              obj: "models/floor"+(index+1)+ ".DAE",
+              floorindex:index,
               material: basematerial,
               scale: 1.15,
               units: "meters",
@@ -292,37 +292,42 @@ class MapBoxMap extends PureComponent {
             };
           }
           let floorselected = false;
+          let selectedfloor=-1;
           function onFloorSelect(e) {
             lineS.material.opacity = 0;
             floorselected = e.detail.selected;
+            selectedfloor=e.detail.floorindex;
             if (floorselected) {
-              // floors.forEach((fl, index) => {
-              //   var c = tb.utils.projectToWorld([120.56656, 32.38536, index * 10-3]);
+              floors.forEach((fl, index) => {
+                var c = tb.utils.projectToWorld([120.56656, 32.38536, fl.floorindex>selectedfloor?1000:5*fl.floorindex-2]);
+                fl.position.z=c.z;
               //   new TWEEN.Tween(fl.position)
               // .to(
               //   {
               //     z: c.z,
               //   },
-              //   500
+              //   4000
               // )
               // .onComplete(function () {
               // })
               // .start();
-              // });
+               });
             } else {
-              // floors.forEach((fl, index) => {
-              //   var c = tb.utils.projectToWorld([120.56656, 32.38536, index * 5-3]);
-              //   new TWEEN.Tween(fl.position)
-              // .to(
-              //   {
-              //     z: c.z,
-              //   },
-              //   500
-              // )
-              // .onComplete(function () {
-              // })
-              // .start();
-              // });
+              selectedfloor=-1;
+              floors.forEach((fl, index) => {
+                var c = tb.utils.projectToWorld([120.56656, 32.38536, fl.floorindex * 5-2]);
+                fl.position.z=c.z;
+                new TWEEN.Tween(fl.position)
+              .to(
+                {
+                  z: c.z,
+                },
+                4000
+              )
+              .onComplete(function () {
+              })
+              .start();
+              });
             }
           }
 
@@ -347,8 +352,14 @@ class MapBoxMap extends PureComponent {
           var floors = [];
           ["floor1","floor2", "floor3", "floor4", "floor5"].forEach(
             (fl, index) => {
-              tb.loadObj(getFloorOption(fl), function (model) {
-                let floor = model.setCoords([120.56656, 32.38536, index * 5-3]);
+              tb.loadObj(getFloorOption(index), function (model) {
+                const {floorindex}=model.userData;
+               
+                if(floorindex==2){
+                  const ele = document.getElementById("loading");
+                  ele.style.display = "none";
+                }
+                let floor = model.setCoords([120.56656, 32.38536, floorindex * 5-3]);
                 floor.addEventListener(
                   "SelectedChange",
                   onFloorSelect,
@@ -365,7 +376,7 @@ class MapBoxMap extends PureComponent {
                   onFloorOut,
                   false
                 );
-
+                floor.floorindex=floorindex;
                 floors.push(floor);
                 floor.hoverable=true;
                 floor.selectable=true

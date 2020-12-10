@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=10">
     <title>数据可视化</title>
-    <link href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css" rel="stylesheet">
     <style>
         body,
         html {
@@ -133,7 +132,8 @@
 <body>
     <div id='loading'>
         <div class="load-container load8">
-            <div class="loader">加载中...</div>
+            <div class="loader"></div>
+			 <div style="text-align: center;color: #fff;">模型加载中...</div>
         </div>
     </div>
     <div id="app"></div>
@@ -146,7 +146,7 @@
     <script src="dll.js"></script>
     <script src="bundle-vendors.js"></script>
     <script src="bundle-main.js"></script>
-
+    <script src="mapbox/Tween.min.js" type="text/javascript"></script>
 </body>
 
 </html>
