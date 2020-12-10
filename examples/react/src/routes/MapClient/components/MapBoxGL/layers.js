@@ -1,5 +1,6 @@
 import { MapboxLayer } from "@deck.gl/mapbox";
-import { TripsLayer } from "@deck.gl/geo-layers";
+import { TripsLayer,Tile3DLayer } from "@deck.gl/geo-layers";
+import {Tiles3DLoader} from '@loaders.gl/3d-tiles';
 import greatCircle from "@turf/great-circle";
 import { point, featureCollection } from "@turf/helpers";
 import centroid from "@turf/center";
@@ -45,6 +46,18 @@ function addTripLayer(map, routes) {
 
   map.addLayer(tripLayer);
   return tripLayer;
+}
+
+function add3dTilesLayer(map,data) {
+  const tilesLayer = new MapboxLayer({
+    type: Tile3DLayer,
+    id: "3dtiles-layer",
+    loader: Tiles3DLoader,
+    data
+  });
+
+  map.addLayer(tilesLayer,"兴趣点-level-towm");
+  return tilesLayer;
 }
 
 function getWallGeometry(line, height) {
@@ -487,6 +500,28 @@ function addlinagc3(points,SelectedChange) {
   });
 }
 
+function addWalkPeop(point){
+  var options = {
+    obj: 'models/Soldier.glb',
+    type: 'gltf',
+    scale: 2,
+    units: 'meters',
+    rotation: { x: 90, y: 0, z: 0 }, //default rotation
+    anchor: 'center'
+    }
+    let peop;
+    tb.loadObj(options, function (model) {
+        //origin3[2] += model.modelSize.z;
+        peop = model.setCoords(point);
+        tb.add(peop);
+        // play animation 3, for 10 seconds
+        peop.playAnimation(options = { animation: 1, duration: 1000 });
+
+    })
+
+    return peop;
+}
+
 function addRoads(resolution,roads) {
   var arcSegments = 25;
   var linemeshs = [];
@@ -494,7 +529,7 @@ function addRoads(resolution,roads) {
 
   roads.forEach((line, index) => {
 
-    //addTravelTruck(line);
+    addTravelTruck(line);
 
 
     var straightProject = tb.utils.lnglatsToWorld(line);
@@ -590,6 +625,7 @@ function addTravelTruck (paths){
 
 export {
   addTripLayer,
+  add3dTilesLayer,
   addlinagc3,
   addlinagc2,
   addlinagc,
@@ -601,5 +637,6 @@ export {
   addCircle,
   addLine,
   addTravelTruck,
+  addWalkPeop,
   addludeng
 };

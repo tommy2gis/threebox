@@ -106,9 +106,9 @@
                     // IMPORTANT: .glb is not a standard MIME TYPE, you'll have to add it to your web server config,
                     // otherwise you'll receive a 404 error
                     var options = {
-                        obj: './models/soldier.glb',
+                        obj: './react/dist/models/girl_walk/scene.gltf',
                         type: 'gltf',
-                        scale: 100,
+                        scale: 1,
                         units: 'meters',
                         rotation: { x: 90, y: 0, z: 0 }, //default rotation
                         anchor: 'center'
@@ -119,7 +119,7 @@
                         let soldier = model.setCoords(origin3);
                         tb.add(soldier);
                         // play animation 3, for 10 seconds
-                        soldier.playAnimation(options = { animation: 1, duration: 10000 });
+                        soldier.playAnimation(options = { animation: 1, duration: 100 });
 
                     })
 

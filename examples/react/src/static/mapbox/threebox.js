@@ -926,25 +926,26 @@ AnimationManager.prototype = {
 
 		//[jscastro] set the action to play
 		function setAction(animationIndex) {
-			for (let i = 0; i < obj.animations.length; i++) {
+				for (let i = 0; i < obj.animations.length; i++) {
 
-				if (animationIndex > obj.animations.length)
-					console.log("The animation index " + animationIndex + " doesn't exist for this object");
-				let animation = obj.animations[i];
-				let action = obj.mixer.clipAction(animation);
-				obj.actions.push(action);
-
-				//select the default animation and set the weight to 1
-				if (animationIndex === i) {
-					obj.defaultAction = action;
-					action.setEffectiveWeight(1);
+					if (animationIndex > obj.animations.length)
+						console.log("The animation index " + animationIndex + " doesn't exist for this object");
+					let animation = obj.animations[i];
+					let action = obj.mixer.clipAction(animation);
+					obj.actions.push(action);
+	
+					//select the default animation and set the weight to 1
+					if (animationIndex === i) {
+						obj.defaultAction = action;
+						action.setEffectiveWeight(1);
+					}
+					else {
+						action.setEffectiveWeight(0);
+					}
+					action.play();
+	
 				}
-				else {
-					action.setEffectiveWeight(0);
-				}
-				action.play();
-
-			}
+			
 		}
 
 		let _isPlaying = false;
@@ -3044,6 +3045,9 @@ function loadObj(options, cb, promise) {
 					if(options.material){obj.material=options.material}
 					break;
 				case "gltf":
+					animations = obj.animations;
+					obj = obj.scene;
+					break;
 				case "dae":
 					animations = obj.animations;
 					obj = obj.scene;
@@ -3078,6 +3082,7 @@ function loadObj(options, cb, promise) {
 
 			Objects.prototype._addMethods(userScaleGroup);
 			//[jscastro] calculate automatically the pivotal center of the object
+			userScaleGroup.animations = animations;
 			userScaleGroup.setAnchor(options.anchor);
 			//[jscastro] override the center calculated if the object has adjustments
 			userScaleGroup.setCenter(options.adjustment);

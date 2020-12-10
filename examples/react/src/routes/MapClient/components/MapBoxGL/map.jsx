@@ -2,7 +2,7 @@
  * @Author: 史涛
  * @Date: 2020-02-14 16:57:11
  * @Last Modified by: 史涛
- * @Last Modified time: 2020-11-25 10:00:14
+ * @Last Modified time: 2020-12-10 09:33:15
  */
 import ReactMapboxGl, {
   Layer,
@@ -18,6 +18,7 @@ import ReactMapboxGl, {
 
 import {
   addTripLayer,
+  add3dTilesLayer,
   addlinagc3,
   addlinagc2,
   addlinagc,
@@ -26,6 +27,7 @@ import {
   addFire,
   addWall,
   addLine,
+  addWalkPeop,
   addRoads,
   addCircle,
   addCone,
@@ -225,15 +227,7 @@ class MapBoxMap extends PureComponent {
           }); //初始化
           map.doorobjs=[]
 
-          
-          
-           
-          
 
-
- 
-
-          
           var lineMaterial = new THREE.LineBasicMaterial({
             // 线的颜色
             color: "#57d8ff",
@@ -351,34 +345,34 @@ class MapBoxMap extends PureComponent {
           }
 
           var floors = [];
-          // ["floor1","floor2", "floor3", "floor4", "floor5"].forEach(
-          //   (fl, index) => {
-          //     tb.loadObj(getFloorOption(fl), function (model) {
-          //       let floor = model.setCoords([120.56656, 32.38536, index * 5-3]);
-          //       floor.addEventListener(
-          //         "SelectedChange",
-          //         onFloorSelect,
-          //         false
-          //       );
-          //       floor.addEventListener(
-          //         "ObjectMouseOver",
-          //         onFloorOver,
-          //         false
-          //       );
+          ["floor1","floor2", "floor3", "floor4", "floor5"].forEach(
+            (fl, index) => {
+              tb.loadObj(getFloorOption(fl), function (model) {
+                let floor = model.setCoords([120.56656, 32.38536, index * 5-3]);
+                floor.addEventListener(
+                  "SelectedChange",
+                  onFloorSelect,
+                  false
+                );
+                floor.addEventListener(
+                  "ObjectMouseOver",
+                  onFloorOver,
+                  false
+                );
 
-          //       floor.addEventListener(
-          //         "ObjectMouseOut",
-          //         onFloorOut,
-          //         false
-          //       );
+                floor.addEventListener(
+                  "ObjectMouseOut",
+                  onFloorOut,
+                  false
+                );
 
-          //       floors.push(floor);
-          //       floor.hoverable=true;
-          //       floor.selectable=true
-          //       tb.add(floor);
-          //     });
-          //   }
-          // );
+                floors.push(floor);
+                floor.hoverable=true;
+                floor.selectable=true
+                tb.add(floor);
+              });
+            }
+          );
 
           const el = document.getElementById("app");
           let resolution = new THREE.Vector2(el.offsetWidth, el.offsetHeight);
@@ -426,12 +420,15 @@ class MapBoxMap extends PureComponent {
           ];
 
           var roadmeshs = addRoads(resolution, roads);
-
+          var walkpeop=addWalkPeop( [
+            120.56525766849516,
+            32.38705568722981
+          ]);
           //var linemeshs = addLine(resolution);
 
-          //var fire = addFire([120.56687504053114, 32.3869741476031]);
+          var fire = addFire([120.56687504053114, 32.3869741476031]);
           var circlemesh = addCircle([120.55259227752686, 32.388151935064236]);
-          //var wallmesh = addWall();
+          var wallmesh = addWall();
           var conepoints = [
             [120.56514501571654, 32.3897192745606],
             [120.56062817573546, 32.3841564552852],
@@ -455,33 +452,33 @@ class MapBoxMap extends PureComponent {
 
           function animate(e) {
             //火焰动画
-            // fire.mesh.material.uniforms.uTime.value = e * 0.001;
-            // var life = fire.geometry.attributes.life;
-            // var orientation = fire.geometry.attributes.orientation;
-            // var scale = fire.geometry.attributes.scale;
-            // var randoms = fire.geometry.attributes.random;
-            // for (let i = 0; i < 12; i++) {
-            //   var value = life.array[i];
-            //   value += 0.04;
-            //   if (value > 1) {
-            //     value -= 1;
-            //     _quat.setFromAxisAngle(_y, random(0, 3.14, 3));
-            //     _quat2.setFromAxisAngle(_x, random(-1, 1, 2) * 0.1);
-            //     _quat.multiply(_quat2);
-            //     _quat2.setFromAxisAngle(_z, random(-1, 1, 2) * 0.3);
-            //     _quat.multiply(_quat2);
-            //     orientation.setXYZW(i, _quat.x, _quat.y, _quat.z, _quat.w);
-            //     scale.setXY(i, random(0.8, 1.2, 3), random(0.8, 1.2, 3));
-            //     randoms.setX(i, random(0, 1, 3));
-            //   }
-            //   life.setX(i, value);
-            // }
-            // life.needsUpdate = true;
-            // orientation.needsUpdate = true;
-            // scale.needsUpdate = true;
-            // randoms.needsUpdate = true;
+            fire.mesh.material.uniforms.uTime.value = e * 0.001;
+            var life = fire.geometry.attributes.life;
+            var orientation = fire.geometry.attributes.orientation;
+            var scale = fire.geometry.attributes.scale;
+            var randoms = fire.geometry.attributes.random;
+            for (let i = 0; i < 12; i++) {
+              var value = life.array[i];
+              value += 0.04;
+              if (value > 1) {
+                value -= 1;
+                _quat.setFromAxisAngle(_y, random(0, 3.14, 3));
+                _quat2.setFromAxisAngle(_x, random(-1, 1, 2) * 0.1);
+                _quat.multiply(_quat2);
+                _quat2.setFromAxisAngle(_z, random(-1, 1, 2) * 0.3);
+                _quat.multiply(_quat2);
+                orientation.setXYZW(i, _quat.x, _quat.y, _quat.z, _quat.w);
+                scale.setXY(i, random(0.8, 1.2, 3), random(0.8, 1.2, 3));
+                randoms.setX(i, random(0, 1, 3));
+              }
+              life.setX(i, value);
+            }
+            life.needsUpdate = true;
+            orientation.needsUpdate = true;
+            scale.needsUpdate = true;
+            randoms.needsUpdate = true;
 
-            //wallmesh.material.uniforms.time.value += 0.008;
+            wallmesh.material.uniforms.time.value += 0.008;
 
             conemeshs.forEach((conemesh) => {
               conemesh.material.uniforms.time.value += 0.05;
@@ -595,52 +592,14 @@ class MapBoxMap extends PureComponent {
 
     map.on("SelectedFeatureChange", this.onSelectedFeatureChange);
 
-    // const outletlayers = ["楼栋"];
-
-    // outletlayers.forEach((outlet) => {
-    //   map.on("click", outlet, (e) => {
-    //     // let coordinates = e.features[0].geometry.coordinates.slice();
-    //     let description = e.features[0].properties;
-
-    //     description.coordinates = [e.lngLat.lng, e.lngLat.lat];
-
-    //     // for (var key in description){
-    //     //   description[key.toLowerCase()] = description[key];
-    //     //   delete(description[key]);
-    //     // }
-
-    //     switch (outlet) {
-    //       case "outlet_南京长江入河排污口":
-    //       case "outlet_hedao":
-    //         this.setState({ selectoutlet: description });
-    //         break;
-    //       // case "outlet_江北入河排污口":
-    //       //   this.props.setSelectedFeature(description);
-    //       //   break;
-
-    //       default:
-    //         break;
-    //     }
-    //   });
-
-    //   // Change the cursor to a pointer when the mouse is over the places layer.
-    //   map.on("mouseenter", outlet, function() {
-    //     map.getCanvas().style.cursor = "pointer";
-    //   });
-
-    //   // Change it back to a pointer when it leaves.
-    //   map.on("mouseleave", outlet, function() {
-    //     map.getCanvas().style.cursor = "";
-    //   });
-    // });
 
     map.jumpTo({
       pitch: 60,
       bearing: 30,
     });
-    this.addThreeModels(map);
-    let tripLayer = addTripLayer(map, routes);
-
+   this.addThreeModels(map);
+   let tripLayer = addTripLayer(map, routes);
+    let tilesLayer = add3dTilesLayer(map,'http://geowork.wicp.vip/gateway/3dtiles/rugaocq/tileset.json');
     function animate() {
       //车辆轨迹动画
       var loopLength = 300; // unit corresponds to the timestamp in source data

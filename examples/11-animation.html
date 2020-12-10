@@ -354,10 +354,10 @@
 					selectedObject.stop();
 				} else {
 					// play animation 3, for 10 seconds
-					selectedObject.playAnimation(options = { animation: 1, duration: 10000 });
+					selectedObject.playAnimation(options = { animation: 1, duration: 100 });
 
 					//if animationDefault was defined in creation just do this
-					//selectedObject.playDefault(options = { duration: 10000 });
+					selectedObject.playDefault(options = { duration: 10000 });
 
 				}
 			}
