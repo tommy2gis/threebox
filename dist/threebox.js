@@ -110,8 +110,7 @@ Threebox.prototype = {
 		if (this.options.enableRotatingObjects) this.enableRotatingObjects = this.options.enableRotatingObjects;
 		if (this.options.enableTooltips) this.enableTooltips = this.options.enableTooltips;
 
-		//[jscastro] new event map on load
-		this.map.on('load', function () {
+		var initevent=()=>{
 
 			//[jscastro] new fields to manage events on map
 			let selectedObject; //selected object through click
@@ -122,8 +121,8 @@ Threebox.prototype = {
 			let overedFeature;//overed state for extrusion layer features
 			let selectedFeature;//selected state id for extrusion layer features
 
-			let canvas = this.getCanvasContainer();
-			this.getCanvasContainer().style.cursor = 'default';
+			let canvas = this.map.getCanvasContainer();
+			this.map.getCanvasContainer().style.cursor = 'default';
 			// Variable to hold the starting xy coordinates
 			// when 'mousedown' occured.
 			let start;
@@ -146,10 +145,10 @@ Threebox.prototype = {
 			// Return the xy coordinates of the mouse position
 			function mousePos(e) {
 				var rect = canvas.getBoundingClientRect();
-				return new mapboxgl.Point(
-					e.originalEvent.clientX - rect.left - canvas.clientLeft,
-					e.originalEvent.clientY - rect.top - canvas.clientTop
-				);
+				return {
+					x:e.originalEvent.clientX - rect.left - canvas.clientLeft,
+					y:e.originalEvent.clientY - rect.top - canvas.clientTop
+				};
 			}
 
 			function unselectFeature(f, map) {
@@ -201,6 +200,8 @@ Threebox.prototype = {
 			function addTooltip(f, map) {
 				if (!map.tb.enableTooltips) return;
 				let coordinates = map.tb.getFeatureCenter(f);
+				let text=f.properties.name || f.id || f.type;
+				if (!text) return;
 				let t = map.tb.tooltip({
 					text: f.properties.name || f.id || f.type,
 					mapboxStyle: true,
@@ -230,7 +231,8 @@ Threebox.prototype = {
 				let intersects = [];
 				if (map.tb.enableSelectingObjects) {
 					//raycast only if we are in a custom layer, for other layers go to the else, this avoids duplicated calls to raycaster
-					intersects = this.tb.queryRenderedFeatures(e.point);
+					//intersects = this.tb.queryRenderedFeatures(e.point);
+					intersects = this.tb.queryRenderedFeatures(e.point).filter(o=>Threebox.prototype.findParent3DObject(o).selectable===true);
 				}
 				intersectionExists = typeof intersects[0] == 'object';
 				// if intersect exists, highlight it
@@ -346,7 +348,7 @@ Threebox.prototype = {
 
 				if (map.tb.enableSelectingObjects) {
 					// calculate objects intersecting the picking ray
-					intersects = this.tb.queryRenderedFeatures(e.point);
+					intersects = this.tb.queryRenderedFeatures(e.point).filter(o=>Threebox.prototype.findParent3DObject(o).hoverable===true);
 				}
 				intersectionExists = typeof intersects[0] == 'object';
 
@@ -455,13 +457,13 @@ Threebox.prototype = {
 
 			//listener to the events
 			//this.on('contextmenu', map.onContextMenu);
-			this.on('click', map.onClick);
-			this.on('mousemove', map.onMouseMove);
-			this.on('mouseout', map.onMouseOut)
-			this.on('mousedown', map.onMouseDown);
+			this.map.on('click', map.onClick);
+			this.map.on('mousemove', map.onMouseMove);
+			this.map.on('mouseout', map.onMouseOut)
+			this.map.on('mousedown', map.onMouseDown);
 
-		});
-
+		}
+		initevent();
 	},
 
 	// Objects
@@ -677,6 +679,12 @@ Threebox.prototype = {
 		//[jscastro] remove the tooltip if not enabled
 		if (!this.enableTooltips && obj.tooltip) { obj.tooltip.visibility = false };
 		this.world.add(obj);
+	},
+
+	hide: function (obj) {
+		//obj.dispose()
+		this.world.remove(obj);
+		//obj = null;
 	},
 
 	remove: function (obj) {
@@ -16502,10 +16510,12 @@ Objects.prototype = {
 				if (obj.label) { obj.label.remove; }
 				let label = new CSS2D.CSS2DObject(div);
 				label.name = "label";
-				label.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z * 0.5); //middle-centered
+				label.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z * 1); //middle-centered
 				label.visible = visible;
 				label.alwaysVisible = visible;
-
+				div.onclick = function(){
+					label.visible=false;
+				}
 				return label;
 			}
 
@@ -16647,7 +16657,7 @@ Objects.prototype = {
 				get() { return _over; },
 				set(value) {
 					if (value) {
-						if (!obj.selected) {
+						if (!obj.selected&&obj.highlightable) {
 							if (obj.boundingBox) {
 								obj.boundingBox.material = Objects.prototype._defaults.materials.boxOverMaterial;
 								obj.boundingBox.parent.visible = true;
@@ -16655,7 +16665,7 @@ Objects.prototype = {
 								obj.boundingBoxShadow.layers.enable(1);
 							}
 						}
-						if (obj.label && !obj.label.alwaysVisible) { obj.label.visible = true; }
+					//	if (obj.label && !obj.label.alwaysVisible) { obj.label.visible = true; }
 						// Dispatch new event ObjectOver
 						obj.dispatchEvent(new CustomEvent('ObjectMouseOver', { detail: obj, bubbles: true, cancelable: true }));
 
@@ -16866,7 +16876,7 @@ Objects.prototype = {
 				let tip = document.createElement('div');
 				tip.className = 'mapboxgl-popup-tip';
 				let div = document.createElement('div');
-				div.className = 'marker mapboxgl-popup-anchor-bottom';
+				div.className = 'marker mapboxgl-popup mapboxgl-popup-anchor-bottom';
 				div.appendChild(tip);
 				div.appendChild(divContent);
 				divToolTip = document.createElement('div');
