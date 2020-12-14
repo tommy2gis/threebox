@@ -1,6 +1,9 @@
+/**
+ * @author jscastro / https://github.com/jscastro76
+ */
 const utils = require("../utils/utils.js");
 const Objects = require('./objects.js');
-const THREE = require('./CSS2DRenderer.js');
+const CSS2D = require('./CSS2DRenderer.js');
 
 function Label(obj) {
 
@@ -8,11 +11,10 @@ function Label(obj) {
 
 	let div = Objects.prototype.drawLabelHTML(obj.htmlElement, obj.cssClass);
 
-	let label = new THREE.CSS2DObject(div);
+	let label = new CSS2D.CSS2DObject(div);
 	label.name = "label";
 	label.visible = obj.alwaysVisible;
 	label.alwaysVisible = obj.alwaysVisible;
-
 	var userScaleGroup = Objects.prototype._makeGroup(label, obj);
 	Objects.prototype._addMethods(userScaleGroup);
 	userScaleGroup.visibility = obj.alwaysVisible;

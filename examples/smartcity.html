@@ -27,6 +27,7 @@
     <script src="https://cdn.jsdelivr.net/npm/deck.gl@8.3.7/dist/dist.dev.js"></script>
     <script src="../dist/MAP_STYLE.darkblue.js"></script>
     <script src="../dist/threebox.js"></script>
+    <script src="meshline.js"></script>
     <script src="material.js"></script>
     <script src="./geojson/tripdata.js"></script>
     <script>
@@ -412,13 +413,14 @@
             2
           );
           const mesh = new THREE.Mesh(geometry, getWallMaterial());
-          mesh.rotation.z = Math.PI;
+         
           tb.add(
             tb
-              .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 0.01 } })
+              .Object3D({ obj: mesh, adjustment: { x: 1, y: 0.2, z: 0.01 } })
               .setCoords([120.56302607059479,
               32.390421397594814])
           );
+          mesh.rotation.z = -Math.PI;
           return mesh;
         }
 
@@ -436,13 +438,13 @@
           geometry.scale(0.1, 0.1, 0.1);
           // geometry.computeBoundingSphere();
           const mesh = new THREE.Mesh(geometry, getConeMaterial(color));
-          mesh.rotation.x = -Math.PI / 2;
+         
           tb.add(
             tb
               .Object3D({ obj: mesh, adjustment: { x: 0, y: 0, z: 2 } })
               .setCoords(point)
           );
-
+          mesh.rotation.x = -Math.PI / 2;
           return mesh;
         }
 
@@ -511,7 +513,7 @@
             tb.add(
               tb
                 .Object3D({ obj: tmp, adjustment: { x: 0, y: 0, z: 0.5 } })
-                .setCoords([line[12][0], line[12][1]])
+                .setCoords([line[0][0], line[0][1]])
             );
 
             linemeshs.push(tmp);
@@ -594,10 +596,9 @@
           _geometry.addAttribute("life", life);
           _geometry.addAttribute("random", randoms);
           _mesh = new THREE.Mesh(_geometry, getFireMaterial());
-         
-          _mesh.scale.set(0.04, 0.04, 0.04);
+          _mesh.geometry.scale(0.04, 0.04, 0.04)
           cube3d = tb
-          .Object3D({ obj: _mesh, adjustment: { x: 0, y: 0, z: 4 } })
+          .Object3D({ obj: _mesh, adjustment: { x: 0, y: 0, z: 14 } })
           .setCoords(point);
           cube3d.rotation.x = Math.PI / 2;
         
@@ -945,7 +946,7 @@
             tb.add(
               tb
                 .Object3D({ obj: tmp, adjustment: { x: 0, y: 0, z: 0.5 } })
-                .setCoords(center.geometry.coordinates)
+                .setCoords(line[0])
             );
 
             linemeshs.push(tmp);
@@ -961,7 +962,7 @@
         addlinagc2();
         addlinagc3();
        var  fire= addFire([ 120.56687504053114,
-            32.3869741476031]);
+            32.3869741476031,50]);
          var wallmesh = addWall();
          var circlemesh=addCircle([ 120.55259227752686,32.388151935064236]);
          var conepoints=[[ 120.56514501571654,32.3897192745606],[  120.56062817573546,32.3841564552852],[  120.55259227752686,32.388151935064236],[120.54374098777771,32.3888042415114],[120.55318236351012,32.36818183094668]]
@@ -1028,6 +1029,7 @@
            conemeshs.forEach((conemesh) => {
             conemesh.material.uniforms.time.value += 0.05;
             conemesh.rotation.y += 0.02;
+            
           });
 
            circlemesh.rotation.z += 0.02;

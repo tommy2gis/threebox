@@ -126,9 +126,7 @@ function fromByteArray (uint8) {
 
   // go through the array every three bytes, we'll deal with trailing stuff later
   for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-    parts.push(encodeChunk(
-      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
-    ))
+    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
   }
 
   // pad the end with zeros, but make sure to not forget the extra bytes
@@ -157,7 +155,7 @@ function fromByteArray (uint8) {
 },{}],3:[function(require,module,exports){
 arguments[4][2][0].apply(exports,arguments)
 },{"dup":2}],4:[function(require,module,exports){
-(function (Buffer){
+(function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -1936,9 +1934,9 @@ function numberIsNaN (obj) {
   return obj !== obj // eslint-disable-line no-self-compare
 }
 
-}).call(this,require("buffer").Buffer)
+}).call(this)}).call(this,require("buffer").Buffer)
 },{"base64-js":1,"buffer":4,"ieee754":21}],5:[function(require,module,exports){
-(function (Buffer){
+(function (Buffer){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2047,7 +2045,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-}).call(this,{"isBuffer":require("../../is-buffer/index.js")})
+}).call(this)}).call(this,{"isBuffer":require("../../is-buffer/index.js")})
 },{"../../is-buffer/index.js":24}],6:[function(require,module,exports){
 var objectKeys = require('object-keys');
 var isArguments = require('is-arguments');
@@ -3169,7 +3167,7 @@ var implementation = require('./implementation');
 module.exports = Function.prototype.bind || implementation;
 
 },{"./implementation":16}],18:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 'use strict';
 
 var origSymbol = global.Symbol;
@@ -3184,7 +3182,7 @@ module.exports = function hasNativeSymbols() {
 	return hasSymbolSham();
 };
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./shams":19}],19:[function(require,module,exports){
 'use strict';
 
@@ -3237,6 +3235,7 @@ var bind = require('function-bind');
 module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
 
 },{"function-bind":17}],21:[function(require,module,exports){
+/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -3801,7 +3800,7 @@ module.exports = function isArguments(value) {
 };
 
 },{}],36:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 // .dirname, .basename, and .extname methods are extracted from Node.js v8.11.1,
 // backported and transplited with Babel, with backwards-compat fixes
 
@@ -4105,9 +4104,9 @@ var substr = 'ab'.substr(-1) === 'b'
     }
 ;
 
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"_process":38}],37:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 'use strict';
 
 if (typeof process === 'undefined' ||
@@ -4154,7 +4153,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 }
 
 
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"_process":38}],38:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
@@ -4525,7 +4524,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
 },{"./_stream_transform":43,"core-util-is":5,"inherits":22}],42:[function(require,module,exports){
-(function (process,global){
+(function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5545,7 +5544,7 @@ function indexOf(xs, x) {
   }
   return -1;
 }
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./_stream_duplex":40,"./internal/streams/BufferList":45,"./internal/streams/destroy":46,"./internal/streams/stream":47,"_process":38,"core-util-is":5,"events":14,"inherits":22,"isarray":28,"process-nextick-args":37,"safe-buffer":48,"string_decoder/":49,"util":2}],43:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -5762,7 +5761,7 @@ function done(stream, er, data) {
   return stream.push(null);
 }
 },{"./_stream_duplex":40,"core-util-is":5,"inherits":22}],44:[function(require,module,exports){
-(function (process,global,setImmediate){
+(function (process,global,setImmediate){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -6450,7 +6449,7 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
+}).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
 },{"./_stream_duplex":40,"./internal/streams/destroy":46,"./internal/streams/stream":47,"_process":38,"core-util-is":5,"inherits":22,"process-nextick-args":37,"safe-buffer":48,"timers":71,"util-deprecate":72}],45:[function(require,module,exports){
 'use strict';
 
@@ -7091,7 +7090,7 @@ module.exports = function shimFlags() {
 };
 
 },{"./polyfill":56,"define-properties":7}],58:[function(require,module,exports){
-(function (process,setImmediate){
+(function (process,setImmediate){(function (){
 var through = require('through');
 var nextTick = typeof setImmediate !== 'undefined'
     ? setImmediate
@@ -7122,7 +7121,7 @@ module.exports = function (write, end) {
     return tr;
 };
 
-}).call(this,require('_process'),require("timers").setImmediate)
+}).call(this)}).call(this,require('_process'),require("timers").setImmediate)
 },{"_process":38,"through":70,"timers":71}],59:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -7321,7 +7320,7 @@ module.exports = function shimStringTrim() {
 };
 
 },{"./polyfill":62,"define-properties":7}],64:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 var defined = require('defined');
 var createDefaultStream = require('./lib/default_stream');
 var Test = require('./lib/test');
@@ -7473,9 +7472,9 @@ function createHarness(conf_) {
     return test;
 }
 
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"./lib/default_stream":65,"./lib/results":66,"./lib/test":67,"_process":38,"defined":8,"through":70}],65:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 var through = require('through');
 var fs = require('fs');
 
@@ -7507,9 +7506,9 @@ module.exports = function () {
     }
 };
 
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"_process":38,"fs":3,"through":70}],66:[function(require,module,exports){
-(function (process,setImmediate){
+(function (process,setImmediate){(function (){
 var defined = require('defined');
 var EventEmitter = require('events').EventEmitter;
 var inherits = require('inherits');
@@ -7725,9 +7724,9 @@ function invalidYaml(str) {
     return regexpTest(yamlIndicators, str);
 }
 
-}).call(this,require('_process'),require("timers").setImmediate)
+}).call(this)}).call(this,require('_process'),require("timers").setImmediate)
 },{"_process":38,"defined":8,"events":14,"function-bind":17,"has":20,"inherits":22,"object-inspect":69,"resumer":58,"through":70,"timers":71}],67:[function(require,module,exports){
-(function (process,setImmediate,__dirname){
+(function (process,setImmediate,__dirname){(function (){
 var deepEqual = require('deep-equal');
 var defined = require('defined');
 var path = require('path');
@@ -8328,7 +8327,7 @@ Test.skip = function (name_, _opts, _cb) {
 
 // vim: set softtabstop=4 shiftwidth=4:
 
-}).call(this,require('_process'),require("timers").setImmediate,"/node_modules/tape/lib")
+}).call(this)}).call(this,require('_process'),require("timers").setImmediate,"/node_modules/tape/lib")
 },{"_process":38,"deep-equal":6,"defined":8,"events":14,"for-each":15,"function-bind":17,"has":20,"inherits":22,"is-regex":68,"object-inspect":69,"path":36,"string.prototype.trim":61,"timers":71}],68:[function(require,module,exports){
 'use strict';
 
@@ -8680,7 +8679,7 @@ function arrObjKeys(obj, inspect) {
 }
 
 },{"./util.inspect":2}],70:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 var Stream = require('stream')
 
 // through
@@ -8790,9 +8789,9 @@ function through (write, end, opts) {
 }
 
 
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"_process":38,"stream":59}],71:[function(require,module,exports){
-(function (setImmediate,clearImmediate){
+(function (setImmediate,clearImmediate){(function (){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
 var slice = Array.prototype.slice;
@@ -8869,9 +8868,9 @@ exports.setImmediate = typeof setImmediate === "function" ? setImmediate : funct
 exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
   delete immediateIds[id];
 };
-}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+}).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
 },{"process/browser.js":38,"timers":71}],72:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 
 /**
  * Module exports.
@@ -8940,31 +8939,30 @@ function config (name) {
   return String(val).toLowerCase() === 'true';
 }
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],73:[function(require,module,exports){
 /**
  * @author peterqliu / https://github.com/peterqliu
  * @author jscastro / https://github.com/jscastro76
  */
 
-var THREE = require("./three.js");
-var CameraSync = require("./camera/CameraSync.js");
-var utils = require("./utils/utils.js");
-var SunCalc = require("./utils/suncalc.js");
-var AnimationManager = require("./animation/AnimationManager.js");
-var ThreeboxConstants = require("./utils/constants.js");
-
-var Objects = require("./objects/objects.js");
-var material = require("./utils/material.js");
-var sphere = require("./objects/sphere.js");
-var label = require("./objects/label.js");
-var tooltip = require("./objects/tooltip.js");
-var loader = require("./objects/loadObj.js");
-var Object3D = require("./objects/Object3D.js");
-var line = require("./objects/line.js");
-var tube = require("./objects/tube.js");
-var LabelRenderer = require("./objects/LabelRenderer.js");
-var BuildingShadows = require("./objects/effects/BuildingShadows.js");
+const THREE = require("./three.js");
+const CameraSync = require("./camera/CameraSync.js");
+const utils = require("./utils/utils.js");
+const SunCalc = require("./utils/suncalc.js");
+const ThreeboxConstants = require("./utils/constants.js");
+const Objects = require("./objects/objects.js");
+const material = require("./utils/material.js");
+const sphere = require("./objects/sphere.js");
+const extrusion = require("./objects/extrusion.js");
+const label = require("./objects/label.js");
+const tooltip = require("./objects/tooltip.js");
+const loader = require("./objects/loadObj.js");
+const Object3D = require("./objects/Object3D.js");
+const line = require("./objects/line.js");
+const tube = require("./objects/tube.js");
+const LabelRenderer = require("./objects/LabelRenderer.js");
+const BuildingShadows = require("./objects/effects/BuildingShadows.js");
 
 function Threebox(map, glContext, options){
 
@@ -9025,6 +9023,7 @@ Threebox.prototype = {
 		this.scene.add(this.world);
 
 		this.objectsCache = new Map();
+		this.zoomLayers = [];
 		
 		this.cameraSync = new CameraSync(this.map, this.camera, this.world);
 
@@ -9039,35 +9038,41 @@ Threebox.prototype = {
 		this.lightLng = this.mapCenter.lng;
 		this.lightLat = this.mapCenter.lat;
 		this.sunPosition;
+		this.rotationStep = 5;// degrees step size for rotation
+		this.gridStep = 6;// decimals to adjust the lnglat grid step, 6 = 11.1cm
+		this.altitudeStep = 0.1; // 1px = 0.1m = 10cm
 
 		this.lights = this.initLights;
 		if (this.options.defaultLights) this.defaultLights();
-		if (this.options.realSunlight) this.realSunlight();
-		if (this.options.enableSelectingFeatures) this.enableSelectingFeatures = this.options.enableSelectingFeatures;
-		if (this.options.enableSelectingObjects) this.enableSelectingObjects = this.options.enableSelectingObjects;
-		if (this.options.enableDraggingObjects) this.enableDraggingObjects = this.options.enableDraggingObjects;
-		if (this.options.enableRotatingObjects) this.enableRotatingObjects = this.options.enableRotatingObjects;
-		if (this.options.enableTooltips) this.enableTooltips = this.options.enableTooltips;
+		if (this.options.realSunlight) this.realSunlight(this.options.realSunlightHelper);
+		this.enableSelectingFeatures = this.options.enableSelectingFeatures || false;
+		this.enableSelectingObjects = this.options.enableSelectingObjects || false;
+		this.enableDraggingObjects = this.options.enableDraggingObjects || false;
+		this.enableRotatingObjects = this.options.enableRotatingObjects || false;
+		this.enableTooltips = this.options.enableTooltips || false;
+		this.multiLayer = this.options.multiLayer || false;
+
+		this.map.on('style.load', function () {
+			this.tb.zoomLayers = [];
+			//[jscastro] if multiLayer, create a by default layer in the map, so tb.update won't be needed in client side to avoid duplicating calls to render
+			if (this.tb.options.multiLayer) this.addLayer({ id: "threebox_layer", type: 'custom', renderingMode: '3d', map: this, onAdd: function (map, gl) { }, render: function (gl, matrix) { this.map.tb.update(); } })
+		});
 
 		//[jscastro] new event map on load
 		this.map.on('load', function () {
-
 			//[jscastro] new fields to manage events on map
-			let selectedObject; //selected object through click
-			let draggedObject; //dragged object through mousedown + mousemove
+			this.selectedObject; //selected object through click
+			this.selectedFeature;//selected state id for extrusion layer features
+			this.draggedObject; //dragged object through mousedown + mousemove
 			let draggedAction; //dragged action to notify frontend
-			let overedObject; //overed object through mouseover
-
-			let overedFeature;//overed state for extrusion layer features
-			let selectedFeature;//selected state id for extrusion layer features
+			this.overedObject; //overed object through mouseover
+			this.overedFeature;//overed state for extrusion layer features
 
 			let canvas = this.getCanvasContainer();
 			this.getCanvasContainer().style.cursor = 'default';
 			// Variable to hold the starting xy coordinates
 			// when 'mousedown' occured.
 			let start;
-			let rotationStep = 10;// degrees step size for rotation
-			let gridStep = 6;// decimals to adjust the lnglat
 
 			//when object selected
 			let startCoords = [];
@@ -9081,90 +9086,92 @@ Threebox.prototype = {
 
 			let lngDiff; // difference between cursor and model left corner
 			let latDiff; // difference between cursor and model bottom corner
+			let altDiff; // difference between cursor and model height
+			let rotationDiff; 
 
 			// Return the xy coordinates of the mouse position
 			function mousePos(e) {
 				var rect = canvas.getBoundingClientRect();
-				return new mapboxgl.Point(
-					e.originalEvent.clientX - rect.left - canvas.clientLeft,
-					e.originalEvent.clientY - rect.top - canvas.clientTop
-				);
+				return {
+					x: e.originalEvent.clientX - rect.left - canvas.clientLeft,
+					y: e.originalEvent.clientY - rect.top - canvas.clientTop
+				};
 			}
 
-			function unselectFeature(f, map) {
+			
+			this.unselectObject = function (o) {
+				//deselect, reset and return
+				o.selected = false;
+				this.selectedObject = null;
+			}
+
+			this.unselectFeature = function (f) {
 				if (typeof f.id == 'undefined') return;
-				map.setFeatureState(
+				this.setFeatureState(
 					{ source: f.source, sourceLayer: f.sourceLayer, id: f.id },
 					{ select: false }
 				);
 
-				removeTooltip(f, map);
-				f = map.queryRenderedFeatures({ layers: [f.layer.id], filter: ["==", ['id'], f.id] })[0];
+				this.removeTooltip(f);
+				f = this.queryRenderedFeatures({ layers: [f.layer.id], filter: ["==", ['id'], f.id] })[0];
 				// Dispatch new event f for unselected
-				if (f) map.fire('SelectedFeatureChange', { detail: f });
-				selectedFeature = null;
+				if (f) this.fire('SelectedFeatureChange', { detail: f });
+				this.selectedFeature = null;
 
 			}
 
-			function selectFeature(f, map) {
-				selectedFeature = f;
-				map.setFeatureState(
-					{ source: selectedFeature.source, sourceLayer: selectedFeature.sourceLayer, id: selectedFeature.id },
+			this.selectFeature = function(f) {
+				this.selectedFeature = f;
+				this.setFeatureState(
+					{ source: this.selectedFeature.source, sourceLayer: this.selectedFeature.sourceLayer, id: this.selectedFeature.id },
 					{ select: true }
 				);
-				selectedFeature = map.queryRenderedFeatures({ layers: [selectedFeature.layer.id], filter: ["==", ['id'], selectedFeature.id] })[0];
-				addTooltip(selectedFeature, map)
+				this.selectedFeature = this.queryRenderedFeatures({ layers: [this.selectedFeature.layer.id], filter: ["==", ['id'], this.selectedFeature.id] })[0];
+				this.addTooltip(this.selectedFeature);
 				// Dispatch new event SelectedFeature for selected
-				map.fire('SelectedFeatureChange', { detail: selectedFeature });
+				this.fire('SelectedFeatureChange', { detail: this.selectedFeature });
 
 			}
 
-			function unoverFeature(f, map) {
-				if (overedFeature && typeof overedFeature != 'undefined' && overedFeature.id != f) {
+			this.unoverFeature = function(f) {
+				if (this.overedFeature && typeof this.overedFeature != 'undefined' && this.overedFeature.id != f) {
 					map.setFeatureState(
-						{ source: overedFeature.source, sourceLayer: overedFeature.sourceLayer, id: overedFeature.id },
+						{ source: this.overedFeature.source, sourceLayer: this.overedFeature.sourceLayer, id: this.overedFeature.id },
 						{ hover: false }
 					);
-					removeTooltip(overedFeature, map);
-					overedFeature = null;
+					this.removeTooltip(this.overedFeature);
+					this.overedFeature = null;
 				}
 			}
 
-
-			function unselectObject(o) {
-				//deselect, reset and return
-				o.selected = false;
-				selectedObject = null;
-			}
-
-			function addTooltip(f, map) {
-				if (!map.tb.enableTooltips) return;
-				let coordinates = map.tb.getFeatureCenter(f);
-				let t = map.tb.tooltip({
+			this.addTooltip = function(f) {
+				if (!this.tb.enableTooltips) return;
+				let coordinates = this.tb.getFeatureCenter(f);
+				let t = this.tb.tooltip({
 					text: f.properties.name || f.id || f.type,
 					mapboxStyle: true,
 					feature: f
 				});
 				t.setCoords(coordinates);
-				map.tb.add(t);
+				this.tb.add(t, f.layer.id);
 				f.tooltip = t;
 				f.tooltip.tooltip.visible = true;
 			}
 
-			function removeTooltip(f, map) {
+			this.removeTooltip = function(f) {
 				if (f.tooltip) {
 					f.tooltip.visibility = false;
-					map.tb.remove(f.tooltip);
+					this.tb.remove(f.tooltip);
 					f.tooltip = null;
 				}
 			}
 
 			map.onContextMenu = function (e) {
-				alert('contextMenu');
+				alert('contextMenu'); //TODO: implement a callback
 			}
 
 			// onclick function
-			map.onClick = function (e) {
+			this.onClick = function (e) {
 				let intersectionExists
 				let intersects = [];
 				if (map.tb.enableSelectingObjects) {
@@ -9179,29 +9186,29 @@ Threebox.prototype = {
 
 					if (nearestObject) {
 						//if extrusion object selected, unselect
-						if (selectedFeature) {
-							unselectFeature(selectedFeature, this);
+						if (this.selectedFeature) {
+							this.unselectFeature(this.selectedFeature);
 						}
 						//if not selected yet, select it
-						if (!selectedObject) {
-							selectedObject = nearestObject;
-							selectedObject.selected = true;
+						if (!this.selectedObject) {
+							this.selectedObject = nearestObject;
+							this.selectedObject.selected = true;
 						}
-						else if (selectedObject.uuid != nearestObject.uuid) {
+						else if (this.selectedObject.uuid != nearestObject.uuid) {
 							//it's a different object, restore the previous and select the new one
-							selectedObject.selected = false;
+							this.selectedObject.selected = false;
 							nearestObject.selected = true;
-							selectedObject = nearestObject;
+							this.selectedObject = nearestObject;
 
-						} else if (selectedObject.uuid == nearestObject.uuid) {
+						} else if (this.selectedObject.uuid == nearestObject.uuid) {
 							//deselect, reset and return
-							unselectObject(selectedObject);
+							this.unselectObject(this.selectedObject);
 							return;
 						}
 
 						// fire the Wireframed event to notify UI status change
-						selectedObject.dispatchEvent(new CustomEvent('Wireframed', { detail: selectedObject, bubbles: true, cancelable: true }));
-						selectedObject.dispatchEvent(new CustomEvent('IsPlayingChanged', { detail: selectedObject, bubbles: true, cancelable: true }));
+						this.selectedObject.dispatchEvent(new CustomEvent('Wireframed', { detail: this.selectedObject, bubbles: true, cancelable: true }));
+						this.selectedObject.dispatchEvent(new CustomEvent('IsPlayingChanged', { detail: this.selectedObject, bubbles: true, cancelable: true }));
 
 						this.repaint = true;
 						e.preventDefault();
@@ -9218,22 +9225,22 @@ Threebox.prototype = {
 						if (features[0].layer.type == 'fill-extrusion' && typeof features[0].id != 'undefined') {
 
 							//if 3D object selected, unselect
-							if (selectedObject) {
-								unselectObject(selectedObject);
+							if (this.selectedObject) {
+								this.unselectObject(this.selectedObject);
 							}
 
 							//if not selected yet, select it
-							if (!selectedFeature) {
-								selectFeature(features[0], this)
+							if (!this.selectedFeature) {
+								this.selectFeature(features[0])
 							}
-							else if (selectedFeature.id != features[0].id) {
+							else if (this.selectedFeature.id != features[0].id) {
 								//it's a different feature, restore the previous and select the new one
-								unselectFeature(selectedFeature, this);
-								selectFeature(features[0], this)
+								this.unselectFeature(this.selectedFeature);
+								this.selectFeature(features[0])
 
-							} else if (selectedFeature.id == features[0].id) {
+							} else if (this.selectedFeature.id == features[0].id) {
 								//deselect, reset and return
-								unselectFeature(selectedFeature, this);
+								this.unselectFeature(this.selectedFeature);
 								return;
 							}
 
@@ -9242,13 +9249,14 @@ Threebox.prototype = {
 				}
 			}
 
-			map.onMouseMove = function (e) {
+			this.onMouseMove = function (e) {
+
 				// Capture the ongoing xy coordinates
 				let current = mousePos(e);
 
 				this.getCanvasContainer().style.cursor = 'default';
 				//check if being rotated
-				if (e.originalEvent.altKey && draggedObject) {
+				if (e.originalEvent.altKey && this.draggedObject) {
 
 					if (!map.tb.enableRotatingObjects) return;
 					draggedAction = 'rotate';
@@ -9259,15 +9267,16 @@ Threebox.prototype = {
 						minY = Math.min(start.y, current.y),
 						maxY = Math.max(start.y, current.y);
 					//set the movement fluid we rotate only every 10px moved, in steps of 10 degrees up to 360
-					let rotation = { x: 0, y: 0, z: 360 + ((~~((current.x - start.x) / rotationStep) % 360 * rotationStep) % 360) };
+					let rotation = { x: 0, y: 0, z: (Math.round(rotationDiff[2] + (~~((current.x - start.x) / this.tb.rotationStep) % 360 * this.tb.rotationStep) % 360)) };
 					//now rotate the model depending the axis
-					draggedObject.setRotation(rotation);
-					//draggedObject.setRotationAxis(rotation);
+					this.draggedObject.setRotation(rotation);
+					this.draggedObject.addHelp("rot: " + rotation.z + "&#176;");
+					//this.draggedObject.setRotationAxis(rotation);
 					return;
 				}
 
 				//check if being moved
-				if (e.originalEvent.shiftKey && draggedObject) {
+				if (e.originalEvent.shiftKey && this.draggedObject) {
 					if (!map.tb.enableDraggingObjects) return;
 
 					draggedAction = 'translate';
@@ -9275,8 +9284,23 @@ Threebox.prototype = {
 					this.getCanvasContainer().style.cursor = 'move';
 					// Capture the first xy coordinates, height must be the same to move on the same plane
 					let coords = e.lngLat;
-					let options = [Number((coords.lng + lngDiff).toFixed(gridStep)), Number((coords.lat + latDiff).toFixed(gridStep)), draggedObject.modelHeight];
-					draggedObject.setCoords(options);
+					let options = [Number((coords.lng + lngDiff).toFixed(this.tb.gridStep)), Number((coords.lat + latDiff).toFixed(this.tb.gridStep)), this.draggedObject.modelHeight];
+					this.draggedObject.setCoords(options);
+					this.draggedObject.addHelp("lng: " + options[0] + "&#176;, lat: " + options[1] + "&#176;");
+					return;
+				}
+
+				//check if being moved on altitude
+				if (e.originalEvent.ctrlKey && this.draggedObject) {
+					if (!map.tb.enableDraggingObjects) return;
+					draggedAction = 'altitude';
+					// Set a UI indicator for dragging.
+					this.getCanvasContainer().style.cursor = 'move';
+					// Capture the first xy coordinates, height must be the same to move on the same plane
+					let now = (e.point.y * this.tb.altitudeStep);
+					let options = [this.draggedObject.coordinates[0], this.draggedObject.coordinates[1], Number((- now - altDiff).toFixed(this.tb.gridStep))];
+					this.draggedObject.setCoords(options);
+					this.draggedObject.addHelp("alt: " + options[2] + "m");
 					return;
 				}
 
@@ -9293,15 +9317,15 @@ Threebox.prototype = {
 				if (intersectionExists) {
 					let nearestObject = Threebox.prototype.findParent3DObject(intersects[0]);
 					if (nearestObject) {
-						unoverFeature(overedFeature, this);
+						this.unoverFeature(this.overedFeature);
 						this.getCanvasContainer().style.cursor = 'pointer';
-						if (!selectedObject || nearestObject.uuid != selectedObject.uuid) {
-							if (overedObject) {
-								overedObject.over = false;
-								overedObject = null;
+						if (!this.selectedObject || nearestObject.uuid != this.selectedObject.uuid) {
+							if (this.overedObject) {
+								this.overedObject.over = false;
+								this.overedObject = null;
 							}
 							nearestObject.over = true;
-							overedObject = nearestObject;
+							this.overedObject = nearestObject;
 						}
 						this.repaint = true;
 						e.preventDefault();
@@ -9309,25 +9333,25 @@ Threebox.prototype = {
 				}
 				else {
 					//clean the object overed
-					if (overedObject) { overedObject.over = false; overedObject = null; }
+					if (this.overedObject) { this.overedObject.over = false; this.overedObject = null; }
 					//now let's check the extrusion layer objects
 					let features = [];
 					if (map.tb.enableSelectingFeatures) {
 						features = this.queryRenderedFeatures(e.point);
 					}
 					if (features.length > 0) {
-						unoverFeature(features[0], this);
+						this.unoverFeature(features[0]);
 
 						if (features[0].layer.type == 'fill-extrusion' && typeof features[0].id != 'undefined') {
-							if ((!selectedFeature || selectedFeature.id != features[0].id)) {
+							if ((!this.selectedFeature || this.selectedFeature.id != features[0].id)) {
 								this.getCanvasContainer().style.cursor = 'pointer';
-								overedFeature = features[0];
+								this.overedFeature = features[0];
 								this.setFeatureState(
-									{ source: overedFeature.source, sourceLayer: overedFeature.sourceLayer, id: overedFeature.id },
+									{ source: this.overedFeature.source, sourceLayer: this.overedFeature.sourceLayer, id: this.overedFeature.id },
 									{ hover: true }
 								);
-								overedFeature = map.queryRenderedFeatures({ layers: [overedFeature.layer.id], filter: ["==", ['id'], overedFeature.id] })[0];
-								addTooltip(overedFeature, this);
+								this.overedFeature = map.queryRenderedFeatures({ layers: [this.overedFeature.layer.id], filter: ["==", ['id'], this.overedFeature.id] })[0];
+								this.addTooltip(this.overedFeature);
 
 							}
 						}
@@ -9336,10 +9360,11 @@ Threebox.prototype = {
 
 			}
 
-			map.onMouseDown = function (e) {
+			this.onMouseDown = function (e) {
 
 				// Continue the rest of the function shiftkey or altkey are pressed, and if object is selected
-				if (!((e.originalEvent.shiftKey || e.originalEvent.altKey) && e.originalEvent.button === 0 && selectedObject)) return;
+				if (!((e.originalEvent.shiftKey || e.originalEvent.altKey || e.originalEvent.ctrlKey) && e.originalEvent.button === 0 && this.selectedObject)) return;
+				if (!map.tb.enableDraggingObjects && !map.tb.enableRotatingObjects) return;
 
 				e.preventDefault();
 
@@ -9349,63 +9374,72 @@ Threebox.prototype = {
 				//map.dragPan.disable();
 
 				// Call functions for the following events
-				map.once('mouseup', map.onMouseUp);
-				map.once('mouseout', map.onMouseUp);
+				map.once('mouseup', this.onMouseUp);
+				//map.once('mouseout', this.onMouseUp);
 
 				// move the selected object
-				draggedObject = selectedObject;
+				this.draggedObject = this.selectedObject;
 
 				// Capture the first xy coordinates
 				start = mousePos(e);
-				startCoords = draggedObject.coordinates;
+				startCoords = this.draggedObject.coordinates;
+
+				rotationDiff = utils.degreeify(this.draggedObject.rotation);
 				lngDiff = startCoords[0] - e.lngLat.lng;
 				latDiff = startCoords[1] - e.lngLat.lat;
+				altDiff = -this.draggedObject.modelHeight - (e.point.y * this.tb.altitudeStep);
 			}
 
-			map.onMouseUp = function (e) {
+			this.onMouseUp = function (e) {
 
 				// Set a UI indicator for dragging.
 				this.getCanvasContainer().style.cursor = 'default';
 
 				// Remove these events now that finish has been called.
 				//map.off('mousemove', onMouseMove);
-				this.off('mouseup', map.onMouseUp);
-				this.off('mouseout', map.onMouseUp);
+				this.off('mouseup', this.onMouseUp);
+				this.off('mouseout', this.onMouseUp);
 				this.dragPan.enable();
 
-				if (draggedObject) {
-					draggedObject.dispatchEvent(new CustomEvent('ObjectDragged', { detail: { draggedObject: draggedObject, draggedAction: draggedAction }, bubbles: true, cancelable: true }));
-
-					draggedObject = null;
+				if (this.draggedObject) {
+					this.draggedObject.dispatchEvent(new CustomEvent('ObjectDragged', { detail: { draggedObject: this.draggedObject, draggedAction: draggedAction }, bubbles: true, cancelable: true }));
+					this.draggedObject.removeHelp();
+					this.draggedObject = null;
 					draggedAction = null;
 				};
 			}
 
-			map.onMouseOut = function (e) {
-				if (overedFeature) {
+			this.onMouseOut = function (e) {
+				if (this.overedFeature) {
 					let features = this.queryRenderedFeatures(e.point);
-					if (features.length > 0 && overedFeature.id != features[0].id) {
+					if (features.length > 0 && this.overedFeature.id != features[0].id) {
 						this.getCanvasContainer().style.cursor = 'default';
 						//only unover when new feature is another
-						unoverFeature(features[0], this);
+						this.unoverFeature(features[0]);
 					}
 				}
 			}
 
+			this.onZoomEnd = function (e) {
+				this.tb.zoomLayers.forEach((l) => {this.tb.toggleLayer(l);});
+			}
+
 			//listener to the events
 			//this.on('contextmenu', map.onContextMenu);
-			this.on('click', map.onClick);
-			this.on('mousemove', map.onMouseMove);
-			this.on('mouseout', map.onMouseOut)
-			this.on('mousedown', map.onMouseDown);
+			this.on('click', this.onClick);
+			this.on('mousemove', this.onMouseMove);
+			this.on('mouseout', this.onMouseOut)
+			this.on('mousedown', this.onMouseDown);
+			this.on('zoom', this.onZoomEnd);
 
 		});
-
 	},
 
 	// Objects
-
-	sphere: sphere,
+	sphere: function (options) {
+		this.setDefaultView(options, this.options);
+		return sphere(options, this.world)
+	},
 
 	line: line,
 
@@ -9413,16 +9447,23 @@ Threebox.prototype = {
 
 	tooltip: tooltip,
 
-	tube: function (obj) {
-		return tube(obj, this.world)
+	tube: function (options) {
+		this.setDefaultView(options, this.options);
+		return tube(options, this.world)
 	},
 
-	Object3D: function (obj, o) {
-		return Object3D(obj, o)
+	extrusion: function (options) {
+		this.setDefaultView(options, this.options);
+		return extrusion(options);
+	},
+
+	Object3D: function (options) {
+		this.setDefaultView(options, this.options);
+		return Object3D(options)
 	},
 
 	loadObj: async function loadObj(options, cb) {
-
+		this.setDefaultView(options, this.options);
 		//[jscastro] new added cache for 3D Objects
 		let cache = this.objectsCache.get(options.obj);
 		if (cache) {
@@ -9438,8 +9479,8 @@ Threebox.prototype = {
 		} else {
 			this.objectsCache.set(options.obj, {
 				promise: new Promise(
-					function (resolve, reject) {
-						loader(options, cb, function (obj) {
+					async (resolve, reject) => {
+						loader(options, cb, async (obj) => {
 							//console.log("Loading " + options.obj);
 							if (obj.duplicate) {
 								resolve(obj.duplicate());
@@ -9524,11 +9565,6 @@ Threebox.prototype = {
 		return result;
 	},
 
-	//[jscastro] method set the CSS2DObjects zoom range and hide them at the same time the layer is
-	setLabelZoomRange: function (minzoom, maxzoom) {
-		this.labelRenderer.setZoomRange(minzoom, maxzoom);
-	},
-
 	//[jscastro] method to replicate behaviour of map.setLayoutProperty when Threebox are affected
 	setLayoutProperty: function (layerId, name, value) {
 		//first set layout property at the map
@@ -9536,7 +9572,7 @@ Threebox.prototype = {
 		if (value !== null && value !== undefined) {
 			if (name === 'visibility') {
 				this.world.children.forEach(function (obj) {
-					if (obj.userData.feature && obj.userData.feature.layer === layerId) {
+					if (obj.layer === layerId) {
 						obj.visibility = value;
 					}
 				});
@@ -9546,10 +9582,11 @@ Threebox.prototype = {
 	},
 
 	//[jscastro] Custom Layers doesn't work on minzoom and maxzoom attributes, and if the layer is including labels they don't hide either on minzoom
-	setLayerZoomRange: function (layer3d, minZoomLayer, maxZoomLayer) {
-		if (this.map.getLayer(layer3d)) {
-			this.map.setLayerZoomRange(layer3d, minZoomLayer, maxZoomLayer)
-			this.setLabelZoomRange(minZoomLayer, maxZoomLayer);
+	setLayerZoomRange: function (layerId, minZoomLayer, maxZoomLayer) {
+		if (this.map.getLayer(layerId)) {
+			this.map.setLayerZoomRange(layerId, minZoomLayer, maxZoomLayer);
+			if (!this.zoomLayers.includes(layerId)) this.zoomLayers.push(layerId);
+			this.toggleLayer(layerId);
 		}
 	},
 
@@ -9579,16 +9616,31 @@ Threebox.prototype = {
 
 	//[jscastro] mapbox setStyle removes all the layers, including custom layers, so tb.world must be cleaned up too
 	setStyle: function (styleId, options) {
-		this.map.setStyle(styleId, options);
-		this.clear(null, true);
+		this.clear().then(() => {
+			this.map.setStyle(styleId, options);
+		});
+	},
+
+	//[jscastro] method to toggle Layer visibility checking zoom range
+	toggleLayer: function (layerId, visible = true) {
+		let l = this.map.getLayer(layerId);
+		if (l) {
+			if (!visible) {
+				this.toggle(l.id, false);
+				return;
+			}
+			let z = this.map.getZoom();
+			if (l.minzoom && z < l.minzoom) { console.log("< minzoom"); this.toggle(l.id, false); return; };
+			if (l.maxzoom && z >= l.maxzoom) { console.log(">= maxzoom"); this.toggle(l.id, false); return; };
+			this.toggle(l.id, true);
+		};
 	},
 
 	//[jscastro] method to toggle Layer visibility
-	toggleLayer: function (layerId, visible) {
-		if (this.map.getLayer(layerId)) {
-			//call
-			this.setLayoutProperty(layerId, 'visibility', (visible ? 'visible' : 'none'))
-		};
+	toggle: function (layerId, visible) {
+		//call
+		this.setLayoutProperty(layerId, 'visibility', (visible ? 'visible' : 'none'))
+		this.labelRenderer.toggleLabels(layerId, visible);
 	},
 
 	update: function () {
@@ -9612,14 +9664,24 @@ Threebox.prototype = {
 		if (this.options.passiveRendering === false) this.map.triggerRepaint();
 	},
 
-	add: function (obj) {
+	add: function (obj, layerId, sourceId) {
 		//[jscastro] remove the tooltip if not enabled
 		if (!this.enableTooltips && obj.tooltip) { obj.tooltip.visibility = false };
 		this.world.add(obj);
+		if (layerId) {
+			obj.layer = layerId;
+			obj.source = sourceId;
+			let l = this.map.getLayer(layerId);
+			if (l) {
+				let v = l.visibility;
+				let u = typeof v === 'undefined';
+				obj.visibility = (u || v === 'visible' ? true : false);
+			}
+		}
 	},
 
 	remove: function (obj) {
-		obj.dispose()
+		if (obj.dispose) obj.dispose();
 		this.world.remove(obj);
 		obj = null;
 	},
@@ -9634,10 +9696,19 @@ Threebox.prototype = {
 			for (let i = 0; i < objects.length; i++) {
 				let obj = objects[i];
 				//if layerId, check the layer to remove, otherwise always remove
-				if ((layerId && obj.userData.feature.layer === layerId) || !layerId) {
+				if (obj.layer === layerId || !layerId) {
 					this.remove(obj);
 				}
 			}
+			if (dispose) {
+				this.objectsCache.forEach((value) => {
+					value.promise.then(obj => {
+						obj.dispose();
+						obj = null;
+					})
+				})
+			}
+
 			resolve("clear");
 		});
 	},
@@ -9650,8 +9721,13 @@ Threebox.prototype = {
 	},
 
 	//[jscastro] get the sun position (azimuth, altitude) from a given datetime, lng, lat
-	getSunPosition: function (date, lng, lat) {
-		return SunCalc.getPosition(date, lat, lng);  
+	getSunPosition: function (date, coords) {
+		return SunCalc.getPosition(date, coords[1], coords[0]);  
+	},
+
+	//[jscastro] get the sun times for sunrise, sunset, etc.. from a given datetime, lng, lat and alt
+	getSunTimes: function (date, coords) {
+		return SunCalc.getTimes(date, coords[1], coords[0], (coords[2] ? coords[2] : 0));
 	},
 
 	//[jscastro] set shadows for fill-extrusion layers
@@ -9675,7 +9751,8 @@ Threebox.prototype = {
 		var date = new Date(newDate.getTime());
 
 		if (coords) {
-			this.mapCenter = { lng: coords[0], lat: coords[1] };
+			if (coords.lng && coords.lat) this.mapCenter = coords
+			else this.mapCenter = { lng: coords[0], lat: coords[1] };
 		}
 		else {
 			this.mapCenter = this.map.getCenter();
@@ -9688,7 +9765,7 @@ Threebox.prototype = {
 		this.lightDateTime = date;
 		this.lightLng = this.mapCenter.lng; 
 		this.lightLat = this.mapCenter.lat
-		this.sunPosition = this.getSunPosition(date, this.mapCenter.lng, this.mapCenter.lat);  
+		this.sunPosition = this.getSunPosition(date, [this.mapCenter.lng, this.mapCenter.lat]);  
 		let altitude = this.sunPosition.altitude;
 		let azimuth = Math.PI + this.sunPosition.azimuth;
 		//console.log("Altitude: " + utils.degreeify(altitude) + ", Azimuth: " + (utils.degreeify(azimuth)));
@@ -9730,21 +9807,25 @@ Threebox.prototype = {
 	//[jscastro] method to fully dispose the resources, watch out is you call this without navigating to other page
 	dispose: async function () {
 
-		console.log(window.tb.memory());
+		console.log(this.memory());
 		//console.log(window.performance.memory);
 
-		return new Promise(disposed => {
-			this.clear(null, true);
-			this.map.remove();
-			this.map = {};
-			this.scene.remove(this.world);
-			this.scene.dispose();
-			this.world.children = [];
-			this.world = null;
-			this.labelRenderer.dispose();
-			console.log(window.tb.memory());
-			this.renderer.dispose();
-			disposed('dispose finished');
+		return new Promise((resolve) => {
+			resolve(
+				this.clear(null, true).then((resolve) => {
+					this.map.remove();
+					this.map = {};
+					this.scene.remove(this.world);
+					this.scene.dispose();
+					this.world.children = [];
+					this.world = null;
+					this.objectsCache.clear();
+					this.labelRenderer.dispose();
+					console.log(this.memory());
+					this.renderer.dispose();
+					return resolve;
+				})
+			);
 			//console.log(window.performance.memory);
 		});
 
@@ -9765,14 +9846,16 @@ Threebox.prototype = {
 
 	},
 
-	realSunlight: function () {
+	realSunlight: function (helper = false) {
 
 		this.renderer.shadowMap.enabled = true;
 		//this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 		this.lights.dirLight = new THREE.DirectionalLight(0xffffff, 1);
 		this.scene.add(this.lights.dirLight);
-		this.lights.dirLightHelper = new THREE.DirectionalLightHelper(this.lights.dirLight, 5);
-		this.scene.add(this.lights.dirLightHelper);
+		if (helper) {
+			this.lights.dirLightHelper = new THREE.DirectionalLightHelper(this.lights.dirLight, 5);
+			this.scene.add(this.lights.dirLightHelper);
+		}
 		let d2 = 1000; let r2 = 2; let mapSize2 = 8192;
 		this.lights.dirLight.castShadow = true;
 		this.lights.dirLight.shadow.radius = r2;
@@ -9793,32 +9876,41 @@ Threebox.prototype = {
 
 	},
 
+	setDefaultView: function (options, defOptions) {
+		options.bbox = options.bbox || defOptions.enableSelectingObjects;
+		options.tooltip = options.tooltip || defOptions.enableTooltips;
+	},
+
 	memory: function () { return this.renderer.info.memory },
 
 	programs: function () { return this.renderer.info.programs.length },
 
-	version: '2.0.7',
+	version: '2.1.2',
 
 }
 
 var defaultOptions = {
 	defaultLights: false,
 	realSunlight: false,
+	realSunlightHelper: false,
 	passiveRendering: true,
 	enableSelectingFeatures: false,
 	enableSelectingObjects: false,
 	enableDraggingObjects: false,
 	enableRotatingObjects: false,
-	enableTooltips: false
+	enableTooltips: false,
+	multiLayer: false,
 }
 module.exports = exports = Threebox;
 
 
-},{"./animation/AnimationManager.js":74,"./camera/CameraSync.js":75,"./objects/LabelRenderer.js":77,"./objects/Object3D.js":78,"./objects/effects/BuildingShadows.js":80,"./objects/label.js":81,"./objects/line.js":82,"./objects/loadObj.js":83,"./objects/objects.js":89,"./objects/sphere.js":90,"./objects/tooltip.js":91,"./objects/tube.js":92,"./three.js":93,"./utils/constants.js":94,"./utils/material.js":95,"./utils/suncalc.js":96,"./utils/utils.js":97}],74:[function(require,module,exports){
+},{"./camera/CameraSync.js":75,"./objects/LabelRenderer.js":77,"./objects/Object3D.js":78,"./objects/effects/BuildingShadows.js":80,"./objects/extrusion.js":81,"./objects/label.js":82,"./objects/line.js":83,"./objects/loadObj.js":84,"./objects/objects.js":90,"./objects/sphere.js":91,"./objects/tooltip.js":92,"./objects/tube.js":93,"./three.js":94,"./utils/constants.js":95,"./utils/material.js":96,"./utils/suncalc.js":97,"./utils/utils.js":98}],74:[function(require,module,exports){
+/**
+ * @author peterqliu / https://github.com/peterqliu
+ * @author jscastro / https://github.com/jscastro76
+*/
 const THREE = require('../three.js');
-var threebox = require('../Threebox.js');
-var utils = require("../utils/utils.js");
-var validate = require("../utils/validate.js");
+const utils = require("../utils/utils.js");
 
 function AnimationManager(map) {
 
@@ -9902,7 +9994,7 @@ AnimationManager.prototype = {
 			//if duration is set, animate to the new state
 			if (options.duration > 0) {
 
-				var newParams = {
+				let newParams = {
 					start: Date.now(),
 					expiration: Date.now() + options.duration,
 					endState: {}
@@ -9910,13 +10002,13 @@ AnimationManager.prototype = {
 
 				utils.extend(options, newParams);
 
-				var translating = options.coords;
-				var rotating = options.rotation;
-				var scaling = options.scale || options.scaleX || options.scaleY || options.scaleZ;
+				let translating = options.coords;
+				let rotating = options.rotation;
+				let scaling = options.scale || options.scaleX || options.scaleY || options.scaleZ;
 
 				if (rotating) {
 
-					var r = obj.rotation;
+					let r = obj.rotation;
 					options.startRotation = [r.x, r.y, r.z];
 
 
@@ -9928,7 +10020,7 @@ AnimationManager.prototype = {
 				}
 
 				if (scaling) {
-					var s = obj.scale;
+					let s = obj.scale;
 					options.startScale = [s.x, s.y, s.z];
 					options.endState.scale = utils.types.scale(options.scale, options.startScale);
 
@@ -9940,7 +10032,7 @@ AnimationManager.prototype = {
 
 				if (translating) options.pathCurve = new THREE.CatmullRomCurve3(utils.lnglatsToWorld([obj.coordinates, options.coords]));
 
-				var entry = {
+				let entry = {
 					type: 'set',
 					parameters: options
 				}
@@ -9978,7 +10070,7 @@ AnimationManager.prototype = {
 
 		obj.followPath = function (options, cb) {
 
-			var entry = {
+			let entry = {
 				type: 'followPath',
 				parameters: utils._validate(options, defaults.followPath)
 			};
@@ -10005,22 +10097,22 @@ AnimationManager.prototype = {
 
 		obj._setObject = function (options) {
 
-			var p = options.position; // lnglat
-			var r = options.rotation; // radians
-			var s = options.scale; // 
-			var w = options.worldCoordinates; //Vector3
-			var q = options.quaternion; // [axis, angle in rads]
-			var t = options.translate; //[jscastro] lnglat + height for 3D objects
+			let p = options.position; // lnglat
+			let r = options.rotation; // radians
+			let s = options.scale; // 
+			let w = options.worldCoordinates; //Vector3
+			let q = options.quaternion; // [axis, angle in rads]
+			let t = options.translate; //[jscastro] lnglat + height for 3D objects
 
 			if (p) {
 				this.coordinates = p;
-				var c = utils.projectToWorld(p);
+				let c = utils.projectToWorld(p);
 				this.position.copy(c)
 			}
 
 			if (t) {
 				this.coordinates = [this.coordinates[0] + t[0], this.coordinates[1] + t[1], this.coordinates[2] + t[2]];
-				var c = utils.projectToWorld(t);
+				let c = utils.projectToWorld(t);
 				this.translateX(c.x);
 				this.translateY(c.y);
 				this.translateZ(c.z);
@@ -10042,7 +10134,7 @@ AnimationManager.prototype = {
 		obj.playDefault = function (options) {
 			if (obj.mixer && obj.hasDefaultAnimation) {
 
-				var newParams = {
+				let newParams = {
 					start: Date.now(),
 					expiration: Date.now() + options.duration,
 					endState: {}
@@ -10050,7 +10142,9 @@ AnimationManager.prototype = {
 
 				utils.extend(options, newParams);
 
-				var entry = {
+				obj.mixer.timeScale = options.speed || 1;
+
+				let entry = {
 					type: 'playDefault',
 					parameters: options
 				};
@@ -10128,25 +10222,25 @@ AnimationManager.prototype = {
 
 		if (this.previousFrameTime === undefined) this.previousFrameTime = now;
 
-		var dimensions = ['X', 'Y', 'Z'];
+		let dimensions = ['X', 'Y', 'Z'];
 
 		//[jscastro] when function expires this produces an error
 		if (!this.enrolledObjects) return false;
 
 		//iterate through objects in queue. count in reverse so we can cull objects without frame shifting
-		for (var a = this.enrolledObjects.length - 1; a >= 0; a--) {
+		for (let a = this.enrolledObjects.length - 1; a >= 0; a--) {
 
-			var object = this.enrolledObjects[a];
+			let object = this.enrolledObjects[a];
 
 			if (!object.animationQueue || object.animationQueue.length === 0) continue;
 
 			//[jscastro] now multiple animations on a single object is possible
-			for (var i = object.animationQueue.length - 1; i >= 0; i--) {
+			for (let i = object.animationQueue.length - 1; i >= 0; i--) {
 
 				//focus on first item in queue
-				var item = object.animationQueue[i];
+				let item = object.animationQueue[i];
 				if (!item) continue;
-				var options = item.parameters;
+				let options = item.parameters;
 
 				// if an animation is past its expiration date, cull it
 				if (!options.expiration) {
@@ -10161,7 +10255,7 @@ AnimationManager.prototype = {
 				}
 
 				//if finished, jump to end state and flag animation entry for removal next time around. Execute callback if there is one
-				var expiring = now >= options.expiration;
+				let expiring = now >= options.expiration;
 
 				if (expiring) {
 					options.expiration = false;
@@ -10175,11 +10269,11 @@ AnimationManager.prototype = {
 
 				else {
 
-					var timeProgress = (now - options.start) / options.duration;
+					let timeProgress = (now - options.start) / options.duration;
 
 					if (item.type === 'set') {
 
-						var objectState = {};
+						let objectState = {};
 
 						if (options.pathCurve) objectState.worldCoordinates = options.pathCurve.getPoint(timeProgress);
 
@@ -10200,24 +10294,24 @@ AnimationManager.prototype = {
 
 					if (item.type === 'followPath') {
 
-						var position = options.pathCurve.getPointAt(timeProgress);
+						let position = options.pathCurve.getPointAt(timeProgress);
 						objectState = { worldCoordinates: position };
 
 						// if we need to track heading
 						if (options.trackHeading) {
 
-							var tangent = options.pathCurve
+							let tangent = options.pathCurve
 								.getTangentAt(timeProgress)
 								.normalize();
 
-							var axis = new THREE.Vector3(0, 0, 0);
-							var up = new THREE.Vector3(0, 1, 0);
+							let axis = new THREE.Vector3(0, 0, 0);
+							let up = new THREE.Vector3(0, 1, 0);
 
 							axis
 								.crossVectors(up, tangent)
 								.normalize();
 
-							var radians = Math.acos(up.dot(tangent));
+							let radians = Math.acos(up.dot(tangent));
 
 							objectState.quaternion = [axis, radians];
 
@@ -10254,17 +10348,21 @@ const defaults = {
     }
 }
 module.exports = exports = AnimationManager;
-},{"../Threebox.js":73,"../three.js":93,"../utils/utils.js":97,"../utils/validate.js":98}],75:[function(require,module,exports){
-var THREE = require("../three.js");
-var utils = require("../utils/utils.js");
-var ThreeboxConstants = require("../utils/constants.js");
+},{"../three.js":94,"../utils/utils.js":98}],75:[function(require,module,exports){
+/**
+ * @author peterqliu / https://github.com/peterqliu
+ * @author jscastro / https://github.com/jscastro76
+ */
+const THREE = require("../three.js");
+const utils = require("../utils/utils.js");
+const ThreeboxConstants = require("../utils/constants.js");
 
 function CameraSync(map, camera, world) {
     this.map = map;
     this.camera = camera;
     this.active = true;
 
-    this.camera.matrixAutoUpdate = false;   // We're in charge of the camera now!
+    this.camera.matrixAutoUpdate = false; // We're in charge of the camera now!
 
     // Postion and configure the world group so we can scale it appropriately when the camera zooms
     this.world = world || new THREE.Group();
@@ -10279,10 +10377,10 @@ function CameraSync(map, camera, world) {
     };
 
     // Listen for move events from the map and update the Three.js camera
-    var _this = this;
+    let _this = this; // keep the function on _this
     this.map
         .on('move', function () {
-            _this.updateCamera()
+            _this.updateCamera();
         })
         .on('resize', function () {
             _this.setupCamera();
@@ -10338,19 +10436,19 @@ CameraSync.prototype = {
 
         // Unlike the Mapbox GL JS camera, separate camera translation and rotation out into its world matrix
         // If this is applied directly to the projection matrix, it will work OK but break raycasting
-        var cameraWorldMatrix = this.calcCameraMatrix(t._pitch, t.angle);
+        let cameraWorldMatrix = this.calcCameraMatrix(t._pitch, t.angle);
         this.camera.matrixWorld.copy(cameraWorldMatrix);
 
-        var zoomPow = t.scale * this.state.worldSizeRatio;
+        let zoomPow = t.scale * this.state.worldSizeRatio;
         // Handle scaling and translation of objects in the map in the world's matrix transform, not the camera
-        var scale = new THREE.Matrix4;
-        var translateMap = new THREE.Matrix4;
-        var rotateMap = new THREE.Matrix4;
+        let scale = new THREE.Matrix4;
+        let translateMap = new THREE.Matrix4;
+        let rotateMap = new THREE.Matrix4;
 
         scale.makeScale(zoomPow, zoomPow, zoomPow);
 
-        var x = t.x || t.point.x;
-        var y = t.y || t.point.y;
+        let x = t.x || t.point.x;
+        let y = t.y || t.point.y;
         translateMap.makeTranslation(-x, y, 0);
         rotateMap.makeRotationZ(Math.PI);
 
@@ -10378,7 +10476,7 @@ CameraSync.prototype = {
 }
 
 module.exports = exports = CameraSync;
-},{"../three.js":93,"../utils/constants.js":94,"../utils/utils.js":97}],76:[function(require,module,exports){
+},{"../three.js":94,"../utils/constants.js":95,"../utils/utils.js":98}],76:[function(require,module,exports){
 /**
  * @author mrdoob / http://mrdoob.com/
  */
@@ -10395,22 +10493,20 @@ THREE.CSS2DObject = function (element) {
 	//[jscastro] some labels must be always visible
 	this.alwaysVisible = false;
 
+	//[jscastro] layer is needed to be rendered/hidden based on layer visibility
+	Object.defineProperty(this, 'layer', {
+		get() { return (this.parent && this.parent.parent ? this.parent.parent.layer : null) }
+	});
+
 	this.dispose = function () {
 		this.remove();
 		this.element = null;
-		if (this.parent) this.parent.remove(this);
 	}
 
 	this.remove = function () {
-		this.traverse(function (object) {
-
-			if (object.element instanceof Element && object.element.parentNode !== null) {
-
-				object.element.parentNode.removeChild(object.element);
-
-			}
-
-		});
+		if (this.element instanceof Element && this.element.parentNode !== null) {
+			this.element.parentNode.removeChild(this.element);
+		}
 	}
 
 	this.addEventListener('removed', function () {
@@ -10485,7 +10581,11 @@ THREE.CSS2DRenderer = function () {
 		if (object instanceof THREE.CSS2DObject) {
 
 			//[jscastro] optimize performance and don't update and remove the labels that are not visible
-			if (!object.visible) { object.remove(); }
+			if (!object.visible) {
+				cache.objects.delete({ key: object.uuid });
+				cache.list.delete(object.uuid);
+				object.remove();
+			}
 			else {
 
 				object.onBeforeRender(_this, scene, camera);
@@ -10507,8 +10607,8 @@ THREE.CSS2DRenderer = function () {
 					distanceToCameraSquared: getDistanceToSquared(camera, object)
 				};
 
-				cache.objects.set(object, objectData);
-				cache.list.set(object, object);
+				cache.objects.set({ key: object.uuid }, objectData);
+				cache.list.set(object.uuid, object);
 
 				if (element.parentNode !== domElement) {
 
@@ -10562,8 +10662,8 @@ THREE.CSS2DRenderer = function () {
 
 		var sorted = filterAndFlatten(scene).sort(function (a, b) {
 			//[jscastro] check the objects already exist in the cache
-			let cacheA = cache.objects.get(a);
-			let cacheB = cache.objects.get(b);
+			let cacheA = cache.objects.get({ key: a.uuid });
+			let cacheB = cache.objects.get({ key: b.uuid });
 
 			if (cacheA && cacheB) {
 				var distanceA = cacheA.distanceToCameraSquared;
@@ -10597,36 +10697,21 @@ THREE.CSS2DRenderer = function () {
 
 	};
 
-	this.setVisibility = function (visible, scene, camera) {
-		var a = cache.objects;
-		cache.list.forEach(function (l) {
-			l.visible = visible;
-			this.renderObject(l, scene, camera);
-		});
-	};
-
 };
 
 module.exports = exports = { CSS2DRenderer: THREE.CSS2DRenderer, CSS2DObject: THREE.CSS2DObject };
 
 
-},{"../three.js":93}],77:[function(require,module,exports){
+},{"../three.js":94}],77:[function(require,module,exports){
 /**
  * @author jscastro / https://github.com/jscastro76
  */
 
-var THREE = require("./CSS2DRenderer.js");
+const THREE = require("./CSS2DRenderer.js");
 
 function LabelRenderer(map) {
 
 	this.map = map;
-
-	this.minzoom = map.minzoom;
-
-	this.maxzoom = map.maxzoom;
-
-	var zoomEventHandler;
-	var onZoomRange = true;
 
 	this.renderer = new THREE.CSS2DRenderer();
 
@@ -10634,6 +10719,7 @@ function LabelRenderer(map) {
 	this.renderer.domElement.style.position = 'absolute';
 	this.renderer.domElement.id = 'labelCanvas'; //TODO: this value must come by parameter
 	this.renderer.domElement.style.top = 0;
+	this.renderer.domElement.style.zIndex = "0";
 	this.map.getCanvasContainer().appendChild(this.renderer.domElement);
 
 	this.scene, this.camera;
@@ -10658,44 +10744,24 @@ function LabelRenderer(map) {
 		}
 	}
 
-	this.render = function (scene, camera) {
+	this.render = async function (scene, camera) {
 		this.scene = scene;
 		this.camera = camera;
-		this.renderer.render(scene, camera);
+		return new Promise((resolve) => { resolve(this.renderer.render(scene, camera)) }); 
 	}
 
-	this.setZoomRange = function (minzoom, maxzoom) {
-		//[jscastro] we only attach once if there are multiple custom layers
-		if (!zoomEventHandler) {
-			this.minzoom = minzoom;
-			this.maxzoom = maxzoom;
-			zoomEventHandler = this.mapZoom.bind(this);
-			this.map.on('zoom', zoomEventHandler);
-		}
-	};
-
-	this.mapZoom = function (e) {
-		if (this.map.getZoom() < this.minzoom || this.map.getZoom() > this.maxzoom) {
-			this.toggleLabels(false);
-		} else {
-			this.toggleLabels(true);
-		}
-	};
-
 	//[jscastro] method to toggle Layer visibility
-	this.toggleLabels = function (visible) {
-		if (onZoomRange != visible) {
-			// [jscastro] Render any label
-			this.setVisibility(visible, this.scene, this.camera, this.renderer);
-			onZoomRange = visible;
-		}
+	this.toggleLabels = async function (layerId, visible) {
+		return new Promise((resolve) => {
+			resolve(this.setVisibility(layerId, visible, this.scene, this.camera, this.renderer));
+		}) 
 	};
 
 	//[jscastro] method to set visibility
-	this.setVisibility = function (visible, scene, camera, renderer) {
+	this.setVisibility = function (layerId, visible, scene, camera, renderer) {
 		var cache = this.renderer.cacheList;
 		cache.forEach(function (l) {
-			if (l.visible != visible) {
+			if (l.visible != visible && l.layer === layerId) {
 				if ((visible && l.alwaysVisible) || !visible) {
 					l.visible = visible;
 					renderer.renderObject(l, scene, camera);
@@ -10708,41 +10774,37 @@ function LabelRenderer(map) {
 
 module.exports = exports = LabelRenderer;
 },{"./CSS2DRenderer.js":76}],78:[function(require,module,exports){
-var Objects = require('./objects.js');
-var utils = require("../utils/utils.js");
+/**
+ * @author peterqliu / https://github.com/peterqliu
+ * @author jscastro / https://github.com/jscastro76
+ */
+const Objects = require('./objects.js');
+const utils = require("../utils/utils.js");
 
-function Object3D(options) {
-	options = utils._validate(options, Objects.prototype._defaults.Object3D);
-
+function Object3D(opt) {
+	opt = utils._validate(opt, Objects.prototype._defaults.Object3D);
 	// [jscastro] full refactor of Object3D to behave exactly like 3D Models loadObj
-	var obj = options.obj;
-	var projScaleGroup = new THREE.Group();
-	projScaleGroup.add(obj);
-	var userScaleGroup = Objects.prototype._makeGroup(projScaleGroup, options);
-	options.obj.name = "model";
-	//userScaleGroup.model = options.obj;
-
+	let obj = opt.obj;
+	// [jscastro] options.rotation was wrongly used
+	const r = utils.types.rotation(opt.rotation, [0, 0, 0]);
+	const s = utils.types.scale(opt.scale, [1, 1, 1]);
+	obj.rotation.set(r[0], r[1], r[2]);
+	obj.scale.set(s[0], s[1], s[2]);
+	obj.name = "model";
+	let userScaleGroup = Objects.prototype._makeGroup(obj, opt);
+	opt.obj.name = "model";
 	Objects.prototype._addMethods(userScaleGroup);
 	//[jscastro] calculate automatically the pivotal center of the object
-	userScaleGroup.setAnchor(options.anchor);
+	userScaleGroup.setAnchor(opt.anchor);
 	//[jscastro] override the center calculated if the object has adjustments
-	userScaleGroup.setCenter(options.adjustment);
-
-	// [jscastro] after adding methods create the bounding box at userScaleGroup but add it to its children for positioning
-	let boxGrid = userScaleGroup.drawBoundingBox();
-	projScaleGroup.add(boxGrid);
-
-	// [jscastro] we add by default a tooltip that can be override later or hide it with threebox `enableTooltips`
-	userScaleGroup.addTooltip(userScaleGroup.uuid, true, userScaleGroup.anchor);
-
+	userScaleGroup.setCenter(opt.adjustment);
 	userScaleGroup.visibility = true;
 
 	return userScaleGroup
 }
 
-
 module.exports = exports = Object3D;
-},{"../utils/utils.js":97,"./objects.js":89}],79:[function(require,module,exports){
+},{"../utils/utils.js":98,"./objects.js":90}],79:[function(require,module,exports){
 /** @license zlib.js 2012 - imaya [ https://github.com/imaya/zlib.js ] The MIT License */var mod = {}, l = void 0, aa = mod; function r(c, d) { var a = c.split("."), b = aa; !(a[0] in b) && b.execScript && b.execScript("var " + a[0]); for (var e; a.length && (e = a.shift());)!a.length && d !== l ? b[e] = d : b = b[e] ? b[e] : b[e] = {} }; var t = "undefined" !== typeof Uint8Array && "undefined" !== typeof Uint16Array && "undefined" !== typeof Uint32Array && "undefined" !== typeof DataView; function v(c) { var d = c.length, a = 0, b = Number.POSITIVE_INFINITY, e, f, g, h, k, m, n, p, s, x; for (p = 0; p < d; ++p)c[p] > a && (a = c[p]), c[p] < b && (b = c[p]); e = 1 << a; f = new (t ? Uint32Array : Array)(e); g = 1; h = 0; for (k = 2; g <= a;) { for (p = 0; p < d; ++p)if (c[p] === g) { m = 0; n = h; for (s = 0; s < g; ++s)m = m << 1 | n & 1, n >>= 1; x = g << 16 | p; for (s = m; s < e; s += k)f[s] = x; ++h } ++g; h <<= 1; k <<= 1 } return [f, a, b] }; function w(c, d) {
 this.g = []; this.h = 32768; this.d = this.f = this.a = this.l = 0; this.input = t ? new Uint8Array(c) : c; this.m = !1; this.i = y; this.r = !1; if (d || !(d = {})) d.index && (this.a = d.index), d.bufferSize && (this.h = d.bufferSize), d.bufferType && (this.i = d.bufferType), d.resize && (this.r = d.resize); switch (this.i) {
 	case A: this.b = 32768; this.c = new (t ? Uint8Array : Array)(32768 + this.h + 258); break; case y: this.b = 0; this.c = new (t ? Uint8Array : Array)(this.h); this.e = this.z; this.n = this.v; this.j = this.w; break; default: throw Error("invalid inflate mode");
@@ -10842,7 +10904,7 @@ class BuildingShadows {
 		const buildingsLayer = map.getLayer(this.buildingsLayerId);
 		const context = this.map.painter.context;
 		const { lng, lat } = this.map.getCenter();
-		const pos = this.tb.getSunPosition(this.tb.lightDateTime, lng, lat);
+		const pos = this.tb.getSunPosition(this.tb.lightDateTime, [lng, lat]);
 		gl.uniform1f(this.uAltitude, (pos.altitude > this.minAltitude ? pos.altitude : 0));
 		gl.uniform1f(this.uAzimuth, pos.azimuth + 3 * Math.PI / 2);
 		//this.opacity = Math.sin(Math.max(pos.altitude, 0)) * 0.6;
@@ -10886,10 +10948,73 @@ class BuildingShadows {
 
 
 module.exports = exports = BuildingShadows;
-},{"../../utils/suncalc.js":96}],81:[function(require,module,exports){
+},{"../../utils/suncalc.js":97}],81:[function(require,module,exports){
+/**
+ * @author jscastro / https://github.com/jscastro76
+ */
+const Objects = require('./objects.js');
+const utils = require("../utils/utils.js");
+const THREE = require("../three.js");
+const Object3D = require('./Object3D.js');
+
+/**
+ * 
+ * @param {any} opt must fit the default defined in Objects.prototype._defaults.extrusion 
+ * @param {arr} opt.coordinates could receive a feature.geometry.coordinates
+ */
+function extrusion(opt) {
+
+	opt = utils._validate(opt, Objects.prototype._defaults.extrusion);
+	let shape = extrusion.prototype.buildShape(opt.coordinates);
+	let geometry = extrusion.prototype.buildGeometry(shape, opt.geometryOptions);
+	let mesh = new THREE.Mesh(geometry, opt.materials);
+	opt.obj = mesh;
+	//[jscastro] we convert it in Object3D to add methods, bounding box, model, tooltip...
+	return new Object3D(opt);
+
+}
+
+extrusion.prototype = {
+
+	buildShape: function (coords) {
+		if (coords[0] instanceof (THREE.Vector2 || THREE.Vector3)) return new THREE.Shape(coords);
+		let shape = new THREE.Shape();
+		for (let i = 0; i < coords.length; i++) {
+			if (i === 0) {
+				shape = new THREE.Shape(this.buildPoints(coords[0], coords[0]));
+			} else {
+				shape.holes.push(new THREE.Path(this.buildPoints(coords[i], coords[0])));
+			}
+		}
+		return shape;
+	},
+
+	buildPoints: function (coords, initCoords) {
+		const points = [];
+		let init = utils.projectToWorld([initCoords[0][0], initCoords[0][1], 0]);
+		for (let i = 0; i < coords.length; i++) {
+			let pos = utils.projectToWorld([coords[i][0], coords[i][1], 0]);
+			points.push(new THREE.Vector2(utils.toDecimal((pos.x - init.x), 9), utils.toDecimal((pos.y - init.y), 9)));
+		}
+		return points;
+	},
+
+	buildGeometry: function (shape, settings) {
+		let geometry = new THREE.ExtrudeBufferGeometry(shape, settings);
+		geometry.computeBoundingBox();
+		return geometry;
+	}
+
+}
+
+module.exports = exports = extrusion;
+},{"../three.js":94,"../utils/utils.js":98,"./Object3D.js":78,"./objects.js":90}],82:[function(require,module,exports){
+/**
+ * @author jscastro / https://github.com/jscastro76
+ */
 const utils = require("../utils/utils.js");
 const Objects = require('./objects.js');
-const THREE = require('./CSS2DRenderer.js');
+const CSS2D = require('./CSS2DRenderer.js');
 
 function Label(obj) {
 
@@ -10897,11 +11022,10 @@ function Label(obj) {
 
 	let div = Objects.prototype.drawLabelHTML(obj.htmlElement, obj.cssClass);
 
-	let label = new THREE.CSS2DObject(div);
+	let label = new CSS2D.CSS2DObject(div);
 	label.name = "label";
 	label.visible = obj.alwaysVisible;
 	label.alwaysVisible = obj.alwaysVisible;
-
 	var userScaleGroup = Objects.prototype._makeGroup(label, obj);
 	Objects.prototype._addMethods(userScaleGroup);
 	userScaleGroup.visibility = obj.alwaysVisible;
@@ -10911,10 +11035,10 @@ function Label(obj) {
 
 
 module.exports = exports = Label;
-},{"../utils/utils.js":97,"./CSS2DRenderer.js":76,"./objects.js":89}],82:[function(require,module,exports){
-var THREE = require("../three.js");
-var utils = require("../utils/utils.js");
-var Objects = require('./objects.js');
+},{"../utils/utils.js":98,"./CSS2DRenderer.js":76,"./objects.js":90}],83:[function(require,module,exports){
+const THREE = require("../three.js");
+const utils = require("../utils/utils.js");
+const Objects = require('./objects.js');
 
 function line(obj){
 
@@ -10928,7 +11052,6 @@ function line(obj){
 
 	var geometry = new THREE.LineGeometry();
 	geometry.setPositions( flattenedArray );
-	// geometry.setColors( colors );
 
 	// Material
 	matLine = new THREE.LineMaterial( {
@@ -11906,9 +12029,13 @@ THREE.Wireframe.prototype = Object.assign( Object.create( THREE.Mesh.prototype )
 
 } );
 
-},{"../three.js":93,"../utils/utils.js":97,"./objects.js":89}],83:[function(require,module,exports){
-var utils = require("../utils/utils.js");
-var Objects = require('./objects.js');
+},{"../three.js":94,"../utils/utils.js":98,"./objects.js":90}],84:[function(require,module,exports){
+/**
+ * @author peterqliu / https://github.com/peterqliu
+ * @author jscastro / https://github.com/jscastro76
+ */
+const utils = require("../utils/utils.js");
+const Objects = require('./objects.js');
 const OBJLoader = require("./loaders/OBJLoader.js");
 const MTLLoader = require("./loaders/MTLLoader.js");
 const FBXLoader = require("./loaders/FBXLoader.js");
@@ -11923,15 +12050,11 @@ const daeLoader = new ColladaLoader();
 function loadObj(options, cb, promise) {
 
 	if (options === undefined) return console.error("Invalid options provided to loadObj()");
-
 	options = utils._validate(options, Objects.prototype._defaults.loadObj);
-
 	this.loaded = false;
 
-	//console.time('loadObj Start ');
 	const modelComplete = (m) => {
 		console.log("Model complete!", m);
-
 		if (--remaining === 0) this.loaded = true;
 	}
 	var loader;
@@ -11984,40 +12107,24 @@ function loadObj(options, cb, promise) {
 			}
 			obj.animations = animations;
 			// [jscastro] options.rotation was wrongly used
-			var r = utils.types.rotation(options.rotation, [0, 0, 0]);
-			var s = utils.types.scale(options.scale, [1, 1, 1]);
+			const r = utils.types.rotation(options.rotation, [0, 0, 0]);
+			const s = utils.types.scale(options.scale, [1, 1, 1]);
 			obj.rotation.set(r[0], r[1], r[2]);
 			obj.scale.set(s[0], s[1], s[2]);
 			// [jscastro] normalize specular/metalness/shininess from meshes in FBX and GLB model as it would need 5 lights to illuminate them properly
 			if (options.normalize) { normalizeSpecular(obj); }
 			obj.name = "model";
-			var projScaleGroup = new THREE.Group();
-			projScaleGroup.name = "group";
-			projScaleGroup.add(obj)
-			var userScaleGroup = Objects.prototype._makeGroup(projScaleGroup, options);
-			userScaleGroup.name = "object";
-			//[jscastro] assign the animations to the userScaleGroup before enrolling it in AnimationsManager through _addMethods
-			userScaleGroup.animations = animations;
-
+			let userScaleGroup = Objects.prototype._makeGroup(obj, options);
 			Objects.prototype._addMethods(userScaleGroup);
 			//[jscastro] calculate automatically the pivotal center of the object
 			userScaleGroup.setAnchor(options.anchor);
 			//[jscastro] override the center calculated if the object has adjustments
 			userScaleGroup.setCenter(options.adjustment);
-
-			let anim = userScaleGroup.animations;
-
-			// [jscastro] after adding methods create the bounding box at userScaleGroup but add it to its children for positioning
-			let boxGrid = userScaleGroup.drawBoundingBox();
-			projScaleGroup.add(boxGrid);
-
-			//[jscastro] we add by default a tooltip that can be override later or hide it with threebox `enableTooltips`
-			userScaleGroup.addTooltip(userScaleGroup.uuid, true, userScaleGroup.anchor);
-
-			cb(userScaleGroup);
+			//[jscastro] return to cache
 			promise(userScaleGroup);
-
-			// [jscastro] initialize the default animation to avoid issues with position
+			//[jscastro] then return to the client-side callback
+			cb(userScaleGroup);
+			// [jscastro] initialize the default animation to avoid issues with skeleton position
 			userScaleGroup.idle();
 
 		}, () => (null), error => {
@@ -12057,7 +12164,7 @@ function loadObj(options, cb, promise) {
 }
 
 module.exports = exports = loadObj;
-},{"../utils/utils.js":97,"./loaders/ColladaLoader.js":84,"./loaders/FBXLoader.js":85,"./loaders/GLTFLoader.js":86,"./loaders/MTLLoader.js":87,"./loaders/OBJLoader.js":88,"./objects.js":89}],84:[function(require,module,exports){
+},{"../utils/utils.js":98,"./loaders/ColladaLoader.js":85,"./loaders/FBXLoader.js":86,"./loaders/GLTFLoader.js":87,"./loaders/MTLLoader.js":88,"./loaders/OBJLoader.js":89,"./objects.js":90}],85:[function(require,module,exports){
 const THREE = require('../../three.js');
 
 /**
@@ -16043,7 +16150,7 @@ THREE.ColladaLoader.prototype = Object.assign(Object.create(THREE.Loader.prototy
 
 module.exports = exports = THREE.ColladaLoader;
 
-},{"../../three.js":93}],85:[function(require,module,exports){
+},{"../../three.js":94}],86:[function(require,module,exports){
 const THREE = require('../../three.js');
 const Zlib = require('../Zlib.Inflate.js');
 
@@ -20178,7 +20285,7 @@ THREE.FBXLoader = (function () {
 
 module.exports = exports = THREE.FBXLoader;
 
-},{"../../three.js":93,"../Zlib.Inflate.js":79}],86:[function(require,module,exports){
+},{"../../three.js":94,"../Zlib.Inflate.js":79}],87:[function(require,module,exports){
 const THREE = require('../../three.js');
 /**
  * @author Rich Tibbett / https://github.com/richtr
@@ -23624,7 +23731,7 @@ THREE.GLTFLoader = (function () {
 })();
 
 module.exports = exports = THREE.GLTFLoader;
-},{"../../three.js":93}],87:[function(require,module,exports){
+},{"../../three.js":94}],88:[function(require,module,exports){
 const THREE = require('../../three.js');
 
 const MTLLoader = function ( manager ) {
@@ -24184,7 +24291,7 @@ THREE.MTLLoader.MaterialCreator.prototype = {
 };
 
 module.exports = exports = THREE.MTLLoader;
-},{"../../three.js":93}],88:[function(require,module,exports){
+},{"../../three.js":94}],89:[function(require,module,exports){
 /**
  * @author mrdoob / http://mrdoob.com/
  */
@@ -25060,19 +25167,16 @@ THREE.OBJLoader = (function () {
 })();
 
 module.exports = exports = THREE.OBJLoader;
-},{"../../three.js":93}],89:[function(require,module,exports){
+},{"../../three.js":94}],90:[function(require,module,exports){
 /**
  * @author peterqliu / https://github.com/peterqliu
  * @author jscastro / https://github.com/jscastro76
  */
-
-var utils = require("../utils/utils.js");
-var material = require("../utils/material.js");
+const utils = require("../utils/utils.js");
+const material = require("../utils/material.js");
 const THREE = require('../three.js');
-
 const AnimationManager = require("../animation/AnimationManager.js");
 const CSS2D = require("./CSS2DRenderer.js");
-
 
 function Objects(){
 
@@ -25128,14 +25232,36 @@ Objects.prototype = {
 	_addMethods: function (obj, isStatic) {
 
 		var root = this;
+		const labelName = "label";
+		const tooltipName = "tooltip";
+		const helpName = "help";
 
 		if (isStatic) {
 
 		}
 
 		else {
-
+			
 			if (!obj.coordinates) obj.coordinates = [0, 0, 0];
+
+			//[jscastro] added property for the internal 3D model
+			Object.defineProperty(obj, 'model', {
+				get() {
+					return obj.getObjectByName("model");
+				}
+			});
+
+			let _animations;
+			//[jscastro] added property for the internal 3D model
+			Object.defineProperty(obj, 'animations', {
+				get() {
+					const model = obj.model;
+					if (model) {
+						return model.animations
+					} else return null;
+				},
+				//set(value) { _animations = value}
+			});
 
 			// Bestow this mesh with animation superpowers and keeps track of its movements in the global animation queue			
 			root.animationManager.enroll(obj);
@@ -25165,8 +25291,8 @@ Objects.prototype = {
 				obj.coordinates = lnglat;
 				obj.set({ position: lnglat });
 				//Each time the object is positioned, set modelHeight property and project the floor
-				obj.modelHeight = obj.coordinates[2];
-				obj.setBoundingBoxShadowFloor();
+				obj.modelHeight = obj.coordinates[2] || 0;
+				if (obj.boxGroup) obj.setBoundingBoxShadowFloor();
 				return obj;
 
 			}
@@ -25238,19 +25364,33 @@ Objects.prototype = {
 				tb.map.repaint = true;
 			}
 
-			let _boundingBox;
+
+			//[jscastro] added property for scaled group inside threeboxObject
+			Object.defineProperty(obj, 'scaleGroup', {
+				get() {
+					return obj.getObjectByName("scaleGroup");
+				}
+			})
+
+			//[jscastro] added property for boundingBox group helper
+			Object.defineProperty(obj, 'boxGroup', {
+				get() {
+					return obj.getObjectByName("boxGroup");
+				}
+			})
+
 			//[jscastro] added property for boundingBox helper
 			Object.defineProperty(obj, 'boundingBox', {
 				get() {
-					return obj.getObjectByName("BoxModel");
+					return obj.getObjectByName("boxModel");
 				}
 			})
 
 			let _boundingBoxShadow;
-			//[jscastro] added property for boundingBox helper
+			//[jscastro] added property for boundingBox shadow helper
 			Object.defineProperty(obj, 'boundingBoxShadow', {
 				get() {
-					return obj.getObjectByName("BoxShadow");
+					return obj.getObjectByName("boxShadow");
 				}
 			})
 
@@ -25259,12 +25399,12 @@ Objects.prototype = {
 				//let's create 2 wireframes, one for the object and one to project on the floor position
 				let bb = obj.box3();
 				//create the group to return
-				let boxGrid = new THREE.Group();
-				boxGrid.name = "BoxGrid";
-				boxGrid.updateMatrixWorld(true);
+				let boxGroup = new THREE.Group();
+				boxGroup.name = "boxGroup";
+				boxGroup.updateMatrixWorld(true);
 				let boxModel = new THREE.Box3Helper(bb, Objects.prototype._defaults.colors.yellow);
-				boxModel.name = "BoxModel";
-				boxGrid.add(boxModel);
+				boxModel.name = "boxModel";
+				boxGroup.add(boxModel);
 				boxModel.layers.disable(0); // it makes the object invisible for the raycaster
 				//obj.boundingBox = boxModel;
 
@@ -25273,14 +25413,15 @@ Objects.prototype = {
 				//we make the second box flat and at the floor height level
 				bb2.max.z = bb2.min.z;
 				let boxShadow = new THREE.Box3Helper(bb2, Objects.prototype._defaults.colors.black);
-				boxShadow.name = "BoxShadow";
+				boxShadow.name = "boxShadow";
 
-				boxGrid.add(boxShadow);
+				boxGroup.add(boxShadow);
 				boxShadow.layers.disable(0); // it makes the object invisible for the raycaster
 				//obj.boundingBoxShadow = boxShadow;
 
-				boxGrid.visible = false; // visibility is managed from the parent
-				return boxGrid;
+				boxGroup.visible = false; // visibility is managed from the parent
+				obj.scaleGroup.add(boxGroup);
+				obj.setBoundingBoxShadowFloor();
 			}
 
 			//[jscastro] added method to position the shadow box on the floor depending the object height
@@ -25350,33 +25491,24 @@ Objects.prototype = {
 				//[jscastro] if the object options have an adjustment to center the 3D Object different to 0
 				if (center && (center.x != 0 || center.y != 0 || center.z != 0)) {
 					let size = obj.getSize();
-					obj.anchor = { x: -(size.x * center.x), y: -(size.y * center.y), z: -(size.z * center.z) };
+					obj.anchor = { x: obj.anchor.x - (size.x * center.x), y: obj.anchor.y - (size.y * center.y), z: obj.anchor.z - (size.z * center.z) };
 					obj.model.position.set(-obj.anchor.x, -obj.anchor.y, -obj.anchor.z)
 				}
 			}
 
-			let _label;
 			//[jscastro] added property for simulated label
 			Object.defineProperty(obj, 'label', {
-				get() { return obj.getObjectByName("label"); }
+				get() { return obj.getObjectByName(labelName); }
 			});
 
-			let _tooltip;
 			//[jscastro] added property for simulated tooltip
 			Object.defineProperty(obj, 'tooltip', {
-				get() { return obj.getObjectByName("tooltip"); }
+				get() { return obj.getObjectByName(tooltipName); }
 			});
 
-			//[jscastro] added property for the internal 3D model
-			Object.defineProperty(obj, 'model', {
-				get() { return obj.getObjectByName("model"); }
-			});
-
-			let _animations;
-			//[jscastro] added property for the internal 3D model
-			Object.defineProperty(obj, 'animations', {
-				get() { return _animations},
-				set(value) { _animations = value}
+			//[jscastro] added property for help
+			Object.defineProperty(obj, 'help', {
+				get() { return obj.getObjectByName(helpName); }
 			});
 
 			//[jscastro] added property to redefine visible, including the label and tooltip
@@ -25416,44 +25548,76 @@ Objects.prototype = {
 			});
 
 			//[jscastro] add CSS2 label method 
-			obj.addLabel = function (HTMLElement, visible = false, center = obj.anchor) {
+			obj.addLabel = function (HTMLElement, visible, center, height) {
 				if (HTMLElement) {
 					//we add it to the first children to get same boxing and position
 					//obj.children[0].add(obj.drawLabel(text, height));
-					obj.children[0].add(obj.drawLabelHTML(HTMLElement, visible, center));
+					obj.drawLabelHTML(HTMLElement, visible, center, height);
 				}
 			}
 
-			//[jscastro] draw label method can be invoked separately
-			obj.drawLabelHTML = function (HTMLElement, visible = false, center = obj.anchor) {
-				let div = root.drawLabelHTML(HTMLElement, Objects.prototype._defaults.label.cssClass);
-				const box = obj.box3();
-				const size = box.getSize(new THREE.Vector3());
-				let bottomLeft = { x: box.max.x, y: box.max.y, z: box.min.z };
-				if (obj.label) { obj.label.remove; }
-				let label = new CSS2D.CSS2DObject(div);
-				label.name = "label";
-				label.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z * 0.5); //middle-centered
-				label.visible = visible;
-				label.alwaysVisible = visible;
+			//[jscastro] remove CSS2 label method 
+			obj.removeLabel = function () {
+				obj.removeCSS2D(labelName);
+			}
 
+			//[jscastro] draw label method can be invoked separately
+			obj.drawLabelHTML = function (HTMLElement, visible = false, center = obj.anchor, height = 0.5) {
+				let divLabel = root.drawLabelHTML(HTMLElement, Objects.prototype._defaults.label.cssClass);
+				let label = obj.addCSS2D(divLabel, labelName, center, height) //label.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z * 0.5); //middle-centered
+				label.alwaysVisible = visible;
+				label.visible = visible;
 				return label;
 			}
 
 			//[jscastro] add tooltip method 
-			obj.addTooltip = function (tooltipText, mapboxStyle = false, center = obj.anchor) {
-				if (tooltipText) {
-					let divToolTip = root.drawTooltip(tooltipText, mapboxStyle);
+			obj.addTooltip = function (tooltipText, mapboxStyle, center, custom = true, height = 1) {
+				let t = obj.addHelp(tooltipText, tooltipName, mapboxStyle, center, height);
+				t.visible = false;
+				t.custom = custom;
+			}
+
+			//[jscastro] remove CSS2 tooltip method
+			obj.removeTooltip = function () {
+				obj.removeCSS2D(tooltipName);
+			}
+
+			//[jscastro] add tooltip method 
+			obj.addHelp = function (helpText, objName = helpName, mapboxStyle = false, center = obj.anchor, height = 0) {
+				let divHelp = root.drawTooltip(helpText, mapboxStyle);
+				let h = obj.addCSS2D(divHelp, objName, center, height);
+				h.visible = true;
+				return h;
+			}
+
+			//[jscastro] remove CSS2 tooltip method
+			obj.removeHelp = function () {
+				obj.removeCSS2D(helpName);
+			}
+
+			//[jscastro] add CSS2D help method 
+			obj.addCSS2D = function (element, objName, center = obj.anchor, height = 1) {
+				if (element) {
 					const box = obj.box3();
 					const size = box.getSize(new THREE.Vector3());
 					let bottomLeft = { x: box.max.x, y: box.max.y, z: box.min.z };
-					if (obj.tooltip) { obj.tooltip.remove; }
-					let tooltip = new CSS2D.CSS2DObject(divToolTip);
-					tooltip.name = "tooltip";
-					tooltip.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z); //top-centered
-					tooltip.visible = false; //only visible on mouseover or selected
-					//we add it to the first children to get same boxing and position
-					obj.children[0].add(tooltip);
+					obj.removeCSS2D(objName);
+					let c = new CSS2D.CSS2DObject(element);
+					c.name = objName;
+					c.position.set(((-size.x * 0.5) - obj.model.position.x - center.x + bottomLeft.x), ((-size.y * 0.5) - obj.model.position.y - center.y + bottomLeft.y), size.z * height); 
+					c.visible = false; //only visible on mouseover or selected
+					obj.scaleGroup.add(c);
+					return c;
+				}
+			}
+
+			//[jscastro] remove CSS2 help method
+			obj.removeCSS2D = function (objName) {
+				let css2D = obj.getObjectByName(objName);
+				if (css2D) {
+					css2D.dispose();
+					let g = obj.scaleGroup.children;
+					g.splice(g.indexOf(css2D), 1);
 				}
 			}
 
@@ -25492,7 +25656,7 @@ Objects.prototype = {
 			})
 
 			let _receiveShadow = false;
-			//[jscastro] added property for traverse an object to cast a shadow
+			//[jscastro] added property for traverse an object to receive a shadow
 			Object.defineProperty(obj, 'receiveShadow', {
 				get() { return _receiveShadow; },
 				set(value) {
@@ -25512,20 +25676,27 @@ Objects.prototype = {
 				get() { return _wireframe; },
 				set(value) {
 					if (_wireframe != value) {
-
+						if (!obj.model) return;
 						obj.model.traverse(function (c) {
 							if (c.type == "Mesh" || c.type == "SkinnedMesh") {
-								let arrMaterial = [];
+								let materials = [];
 								if (!Array.isArray(c.material)) {
-									arrMaterial.push(c.material);
+									materials.push(c.material);
 								} else {
-									arrMaterial = c.material;
+									materials = c.material;
 								}
-								arrMaterial.forEach(function (m) {
-									m.opacity = (value ? 0.5 : 1);
-									//m.transparent = value;
-									m.wireframe = value;
-								});
+								if (value) {
+									c.userData.materials = materials;
+									c.material = Objects.prototype._defaults.materials.wireframeMaterial;
+									c.material.opacity = (value ? 0.5 : 1);
+									c.material.wireframe = value;
+									c.material.transparent = value;
+
+								} else {
+									let mc = c.userData.materials;
+									c.material = (mc.length > 1 ? mc : mc[0]);
+									c.userData.materials = null;
+								}
 								if (value) { c.layers.disable(0); c.layers.enable(1); } else { c.layers.disable(1); c.layers.enable(0); }
 							}
 							if (c.type == "LineSegments") {
@@ -25545,7 +25716,7 @@ Objects.prototype = {
 				get() { return _selected; },
 				set(value) {
 					if (value) {
-						if (obj.boundingBox) {
+						if (obj.boxGroup) {
 							obj.boundingBox.material = Objects.prototype._defaults.materials.boxSelectedMaterial;
 							obj.boundingBox.parent.visible = true;
 							obj.boundingBox.layers.enable(1);
@@ -25554,11 +25725,12 @@ Objects.prototype = {
 						if (obj.label && !obj.label.alwaysVisible) obj.label.visible = true;
 					}
 					else {
-						if (obj.boundingBox) {
+						if (obj.boxGroup) {
 							obj.boundingBox.parent.visible = false;
 							obj.boundingBox.layers.disable(1);
 							obj.boundingBoxShadow.layers.disable(1);
 							obj.boundingBox.material = Objects.prototype._defaults.materials.boxNormalMaterial;
+							obj.remove(obj.boxGroup);
 						}
 						if (obj.label && !obj.label.alwaysVisible) obj.label.visible = false;
 					}
@@ -25579,7 +25751,9 @@ Objects.prototype = {
 				set(value) {
 					if (value) {
 						if (!obj.selected) {
-							if (obj.boundingBox) {
+							if (obj.userData.bbox && !obj.boundingBox) obj.drawBoundingBox();
+							if (obj.userData.tooltip && !obj.tooltip) obj.addTooltip(obj.uuid, true, obj.anchor, false);
+							if (obj.boxGroup) {
 								obj.boundingBox.material = Objects.prototype._defaults.materials.boxOverMaterial;
 								obj.boundingBox.parent.visible = true;
 								obj.boundingBox.layers.enable(1);
@@ -25598,6 +25772,8 @@ Objects.prototype = {
 								obj.boundingBox.layers.disable(1);
 								obj.boundingBoxShadow.layers.disable(1);
 								obj.boundingBox.material = Objects.prototype._defaults.materials.boxNormalMaterial;
+								obj.remove(obj.boxGroup);
+								if (obj.tooltip && !obj.tooltip.custom) obj.removeTooltip();
 							}
 							if (obj.label && !obj.label.alwaysVisible) { obj.label.visible = false; }
 						}
@@ -25668,27 +25844,71 @@ Objects.prototype = {
 		}
 
 		obj.add = function (o) {
-			obj.children[0].add(o);
+			obj.scaleGroup.add(o);
 			o.position.z = (obj.coordinates[2] ? -obj.coordinates[2] : 0);
 			return o;
 		}
 
 		obj.remove = function (o) {
-			obj.children[0].remove(o);
+			if (!o) return;
+			o.traverse(m => {
+				//console.log('dispose geometry!')
+				if (m.geometry) m.geometry.dispose();
+				if (m.material) {
+					if (m.material.isMaterial) {
+						cleanMaterial(m.material)
+					} else {
+						// an array of materials
+						for (const material of m.material) cleanMaterial(material)
+					}
+				}
+				if (m.dispose) m.dispose();
+			})
+
+			obj.scaleGroup.remove(o);
 			tb.map.repaint = true;
 		}
 
 		//[jscastro] clone + assigning all the attributes
 		obj.duplicate = function (options) {
-			let dupe = obj.clone(true);
-			dupe.userData = options || obj.userData;
-			root._addMethods(dupe);
-			dupe.deepCopy(obj);
 
-			return dupe;
+			let dupe = obj.clone(true);	//clone the whole threebox object
+			dupe.getObjectByName("model").animations = obj.animations; //we must set this explicitly before addMethods
+			if (dupe.userData.feature) {
+				if (options && options.feature) dupe.userData.feature = options.feature;
+				dupe.userData.feature.properties.uuid = dupe.uuid;
+			}
+			root._addMethods(dupe); // add methods
+
+			if (!options || utils.equal(options.scale, obj.userData.scale)) {
+				//no options, no changes, just return the same object
+				dupe.copyAnchor(obj); // copy anchors
+				//[jscastro] we add by default a tooltip that can be overriden later or hide it with threebox `enableTooltips`
+				return dupe;
+			} else {
+				dupe.userData = options;
+				dupe.userData.isGeoGroup = true;
+				dupe.remove(dupe.boxGroup);
+				// [jscastro] rotate and scale the model
+				const r = utils.types.rotation(options.rotation, [0, 0, 0]);
+				const s = utils.types.scale(options.scale, [1, 1, 1]);
+				// [jscastro] reposition to 0,0,0
+				dupe.model.position.set(0, 0, 0);
+				// rotate and scale
+				dupe.model.rotation.set(r[0], r[1], r[2]);
+				dupe.model.scale.set(s[0], s[1], s[2]);
+				//[jscastro] calculate automatically the pivotal center of the object
+				dupe.setAnchor(options.anchor);
+				//[jscastro] override the center calculated if the object has adjustments
+				dupe.setCenter(options.adjustment);
+				return dupe;
+
+			}
+
 		}
 
-		obj.deepCopy = function (o) {
+		//[jscastro] copy anchor values
+		obj.copyAnchor = function (o) {
 
 			obj.anchor = o.anchor;
 			obj.none = { x: 0, y: 0, z: 0 };
@@ -25702,7 +25922,6 @@ Objects.prototype = {
 			obj.left = o.left;
 			obj.right = o.right;
 
-			return obj;
 		}
 
 		obj.dispose = function () {
@@ -25712,10 +25931,12 @@ Objects.prototype = {
 			obj.traverse(o => {
 				//don't dispose th object itself as it will be recursive
 				if (o.parent && o.parent.name == "world") return;
-				if (o.isMesh) {
-					//console.log('dispose geometry!')
-					o.geometry.dispose();
+				if (o.name === "threeboxObject") return;
 
+				//console.log('dispose geometry!')
+				if (o.geometry) o.geometry.dispose();
+
+				if (o.material) {
 					if (o.material.isMaterial) {
 						cleanMaterial(o.material)
 					} else {
@@ -25764,20 +25985,22 @@ Objects.prototype = {
 	},
 
 	_makeGroup: function (obj, options) {
+		let projScaleGroup = new THREE.Group();
+		projScaleGroup.name = "scaleGroup";
+		projScaleGroup.add(obj)
+
 		var geoGroup = new THREE.Group();
 		geoGroup.userData = options || {};
 		geoGroup.userData.isGeoGroup = true;
 		if (geoGroup.userData.feature) {
 			geoGroup.userData.feature.properties.uuid = geoGroup.uuid;
 		}
-		var isArrayOfObjects = obj.length;
+		var isArrayOfObjects = projScaleGroup.length;
+		if (isArrayOfObjects) for (o of projScaleGroup) geoGroup.add(o)
+		else geoGroup.add(projScaleGroup);
 
-		if (isArrayOfObjects) for (o of obj) geoGroup.add(o)
-
-
-		else geoGroup.add(obj);
-
-		utils._flipMaterialSides(obj);
+		//utils._flipMaterialSides(projScaleGroup);
+		geoGroup.name = "threeboxObject";
 
 		return geoGroup
 	},
@@ -25823,7 +26046,6 @@ Objects.prototype = {
 		} else {
 			div.innerHTML = HTMLElement.outerHTML;
 		}
-		//div.style.marginTop = '-' + bottomMargin + 'em';
 		return div;
 	},
 
@@ -25836,6 +26058,7 @@ Objects.prototype = {
 		},
 
 		materials: {
+			wireframeMaterial: new THREE.LineBasicMaterial({ color: new THREE.Color(0xffffff) }),
 			boxNormalMaterial: new THREE.LineBasicMaterial({ color: new THREE.Color(0xff0000) }),
 			boxOverMaterial: new THREE.LineBasicMaterial({ color: new THREE.Color(0xffff00) }),
 			boxSelectedMaterial: new THREE.LineBasicMaterial({ color: new THREE.Color(0x00ff00) })
@@ -25854,15 +26077,16 @@ Objects.prototype = {
 			sides: 20,
 			units: 'scene',
 			material: 'MeshBasicMaterial',
-			anchor: 'bottom-left'
+			anchor: 'bottom-left',
+			bbox: false,
+			tooltip: false
 		},
 
 		label: {
 			htmlElement: null,
 			cssClass: " label3D",
 			alwaysVisible: false,
-			topMargin: -0.5,
-			feature: null
+			topMargin: -0.5
 		},
 
 		tooltip: {
@@ -25879,16 +26103,9 @@ Objects.prototype = {
 			sides: 6,
 			units: 'scene',
 			material: 'MeshBasicMaterial',
-			anchor: 'center'
-		},
-
-		extrusion: {
-			footprint: null,
-			base: 0,
-			top: 100,
-			color: 'black',
-			material: 'MeshBasicMaterial',
-			scaleToLatitude: false
+			anchor: 'center',
+			bbox: false,
+			tooltip: false
 		},
 
 		loadObj: {
@@ -25898,13 +26115,31 @@ Objects.prototype = {
 			scale: 1,
 			rotation: 0,
 			defaultAnimation: 0,
-			anchor: 'bottom-left'
+			anchor: 'bottom-left',
+			bbox: false,
+			tooltip: false
 		},
 
 		Object3D: {
 			obj: null,
 			units: 'scene',
-			anchor: 'bottom-left'
+			anchor: 'bottom-left',
+			bbox: false,
+			tooltip: false
+		},
+
+		extrusion: {
+			coordinates: [[[]]],
+			geometryOptions: {},
+			height: 100,
+			materials: null,
+			scale: 1,
+			rotation: 0,
+			units: 'scene',
+			anchor: 'center',
+			point: [0, 0],
+			bbox: false,
+			tooltip: false
 		}
 	},
 
@@ -25916,30 +26151,34 @@ Objects.prototype = {
 }
 
 module.exports = exports = Objects;
-},{"../animation/AnimationManager.js":74,"../three.js":93,"../utils/material.js":95,"../utils/utils.js":97,"./CSS2DRenderer.js":76}],90:[function(require,module,exports){
-var utils = require("../utils/utils.js");
-var material = require("../utils/material.js");
-var Objects = require('./objects.js');
-var Object3D = require('./Object3D.js');
+},{"../animation/AnimationManager.js":74,"../three.js":94,"../utils/material.js":96,"../utils/utils.js":98,"./CSS2DRenderer.js":76}],91:[function(require,module,exports){
+/**
+ * @author peterqliu / https://github.com/peterqliu
+ * @author jscastro / https://github.com/jscastro76
+*/
+const utils = require("../utils/utils.js");
+const material = require("../utils/material.js");
+const Objects = require('./objects.js');
+const Object3D = require('./Object3D.js');
 
-function Sphere(options) {
+function Sphere(opt) {
 
-	options = utils._validate(options, Objects.prototype._defaults.sphere);
-	var geometry = new THREE.SphereBufferGeometry(options.radius, options.sides, options.sides);
-	var mat = material(options)
-	var output = new THREE.Mesh(geometry, mat);
-
+	opt = utils._validate(opt, Objects.prototype._defaults.sphere);
+	let geometry = new THREE.SphereBufferGeometry(opt.radius, opt.sides, opt.sides);
+	let mat = material(opt)
+	let output = new THREE.Mesh(geometry, mat);
 	//[jscastro] we convert it in Object3D to add methods, bounding box, model, tooltip...
-	return new Object3D({ obj: output, units: options.units, anchor: options.anchor, adjustment: options.adjustment });
+	return new Object3D({ obj: output, units: opt.units, anchor: opt.anchor, adjustment: opt.adjustment, bbox: opt.bbox, tooltip: opt.tooltip });
 
 }
 
 
 module.exports = exports = Sphere;
-},{"../utils/material.js":95,"../utils/utils.js":97,"./Object3D.js":78,"./objects.js":89}],91:[function(require,module,exports){
+},{"../utils/material.js":96,"../utils/utils.js":98,"./Object3D.js":78,"./objects.js":90}],92:[function(require,module,exports){
 const utils = require("../utils/utils.js");
 const Objects = require('./objects.js');
 const CSS2D = require('./CSS2DRenderer.js');
+var THREE = require("../three.js");
 
 function Tooltip(obj) {
 
@@ -25960,34 +26199,30 @@ function Tooltip(obj) {
 }
 
 module.exports = exports = Tooltip;
-},{"../utils/utils.js":97,"./CSS2DRenderer.js":76,"./objects.js":89}],92:[function(require,module,exports){
-var utils = require("../utils/utils.js");
-var material = require("../utils/material.js");
-var Objects = require('./objects.js');
-var THREE = require("../three.js");
-var Object3D = require('./Object3D.js');
+},{"../three.js":94,"../utils/utils.js":98,"./CSS2DRenderer.js":76,"./objects.js":90}],93:[function(require,module,exports){
+/**
+ * @author peterqliu / https://github.com/peterqliu
+ * @author jscastro / https://github.com/jscastro76
+*/
+const utils = require("../utils/utils.js");
+const material = require("../utils/material.js");
+const Objects = require('./objects.js');
+const THREE = require("../three.js");
+const Object3D = require('./Object3D.js');
 
-function tube(obj, world){
+function tube(opt, world){
 
 	// validate and prep input geometry
-	var obj = utils._validate(obj, Objects.prototype._defaults.tube);
-    var straightProject = utils.lnglatsToWorld(obj.geometry);
-	var normalized = utils.normalizeVertices(straightProject);
-
-	var crossSection = tube.prototype.defineCrossSection(obj);
-	var vertices = tube.prototype.buildVertices(crossSection, normalized.vertices, world);
-	var geom = tube.prototype.buildFaces(vertices, normalized.vertices, obj);
-
-	var mat = material(obj);
-
-    var mesh = new THREE.Mesh( geom, mat );
-    //mesh.position.copy(normalized.position);
-
+	opt = utils._validate(opt, Objects.prototype._defaults.tube);
+    let straightProject = utils.lnglatsToWorld(opt.geometry);
+	let normalized = utils.normalizeVertices(straightProject);
+	let crossSection = tube.prototype.defineCrossSection(opt);
+	let vertices = tube.prototype.buildVertices(crossSection, normalized.vertices, world);
+	let geom = tube.prototype.buildFaces(vertices, normalized.vertices, opt);
+	let mat = material(opt);
+	let obj = new THREE.Mesh(geom, mat);
 	//[jscastro] we convert it in Object3D to add methods, bounding box, model, tooltip...
-	return new Object3D({ obj: mesh, units: obj.units, anchor: obj.anchor, adjustment: obj.adjustment });
-
-	//return mesh
-
+	return new Object3D({ obj: obj, units: opt.units, anchor: opt.anchor, adjustment: opt.adjustment, bbox: opt.bbox, tooltip: opt.tooltip });
 }
 
 tube.prototype = {
@@ -26052,7 +26287,7 @@ tube.prototype = {
 			// if first point in input line, rotate and translate it to position
 			if (!lastElbow) {
 
-				var elbow = crossSection.clone();
+				let elbow = crossSection.clone();
 
 				elbow
 					.lookAt(midpointToLookAt)
@@ -26068,16 +26303,16 @@ tube.prototype = {
 
 			else {
 
-				var elbow = [];
+				let elbow = [];
 				plane.position.copy(lineVertex);
 				plane.lookAt(midpointToLookAt.clone().add(lineVertex));
 				plane.updateMatrixWorld();
 
 				lastElbow.forEach(function(v3){
 
-					var raycaster = new THREE.Raycaster(v3, humerus);
+					let raycaster = new THREE.Raycaster(v3, humerus);
 
-					var intersection = raycaster
+					let intersection = raycaster
 						.intersectObject(plane)[0];
 
 					if (intersection) {
@@ -26099,13 +26334,13 @@ tube.prototype = {
 	},
 
 	defineCrossSection: function(obj){
-        var crossSection = new THREE.Geometry();
-        var count = obj.sides;
+        let crossSection = new THREE.Geometry();
+        let count = obj.sides;
 
-        for ( var i = 0; i < count; i ++ ) {
+        for ( let i = 0; i < count; i ++ ) {
 
-            var l = obj.radius;
-            var a = (i+0.5) / count * Math.PI;
+            let l = obj.radius;
+            let a = (i+0.5) / count * Math.PI;
 
             crossSection.vertices.push( 
             	new THREE.Vector3 ( 
@@ -26124,40 +26359,40 @@ tube.prototype = {
 
 	buildFaces: function(geom, spine, obj){
 
-		for (var i in spine) {
+		for (let i in spine) {
 
 			i = parseFloat(i);
-			var vertex = spine[i];
+			let vertex = spine[i];
 
 			if (i < spine.length - 1) {
 
-				for (var p = 0; p < obj.sides; p++) {
+				for (let p = 0; p < obj.sides; p++) {
 
-					var b1 = i * obj.sides + p;
-					var b2 = i * obj.sides + (p+1) % obj.sides
-					var t1 = b1 + obj.sides
-					var t2 = b2 + obj.sides;
+					let b1 = i * obj.sides + p;
+					let b2 = i * obj.sides + (p+1) % obj.sides
+					let t1 = b1 + obj.sides
+					let t2 = b2 + obj.sides;
 
-					var triangle1 = new THREE.Face3(t1, b1, b2);
-					var triangle2 = new THREE.Face3(t1, b2, t2);
+					let triangle1 = new THREE.Face3(t1, b1, b2);
+					let triangle2 = new THREE.Face3(t1, b2, t2);
 					geom.faces.push(triangle1, triangle2)
 				}				
 			}
 		}
 
 		//add endcaps
-		var v = geom.vertices.length;
+		let v = geom.vertices.length;
 
-		for (var c = 0; c+2<obj.sides; c++) {
-			var tri1 = new THREE.Face3(0, c+2, c+1);
-			var tri2 = new THREE.Face3(v-1, v-1-(c+2), v-1-(c+1))
+		for (let c = 0; c+2<obj.sides; c++) {
+			let tri1 = new THREE.Face3(0, c+2, c+1);
+			let tri2 = new THREE.Face3(v-1, v-1-(c+2), v-1-(c+1))
 			geom.faces.push(tri1, tri2)
 		}
 
 		//compute normals to get shading to work properly
 		geom.computeFaceNormals();
 
-		var bufferGeom = new THREE.BufferGeometry().fromGeometry(geom);
+		let bufferGeom = new THREE.BufferGeometry().fromGeometry(geom);
 		return geom
 	}
 }
@@ -26165,7 +26400,7 @@ tube.prototype = {
 module.exports = exports = tube;
 
 
-},{"../three.js":93,"../utils/material.js":95,"../utils/utils.js":97,"./Object3D.js":78,"./objects.js":89}],93:[function(require,module,exports){
+},{"../three.js":94,"../utils/material.js":96,"../utils/utils.js":98,"./Object3D.js":78,"./objects.js":90}],94:[function(require,module,exports){
 // threejs.org/license
 (function(k,ua){"object"===typeof exports&&"undefined"!==typeof module?ua(exports):"function"===typeof define&&define.amd?define(["exports"],ua):(k=k||self,ua(k.THREE={}))})(this,function(k){function ua(){}function v(a,b){this.x=a||0;this.y=b||0}function ya(){this.elements=[1,0,0,0,1,0,0,0,1];0<arguments.length&&console.error("THREE.Matrix3: the constructor no longer reads arguments. use .set() instead.")}function W(a,b,c,d,e,f,g,h,l,m){Object.defineProperty(this,"id",{value:ej++});this.uuid=O.generateUUID();
 this.name="";this.image=void 0!==a?a:W.DEFAULT_IMAGE;this.mipmaps=[];this.mapping=void 0!==b?b:W.DEFAULT_MAPPING;this.wrapS=void 0!==c?c:1001;this.wrapT=void 0!==d?d:1001;this.magFilter=void 0!==e?e:1006;this.minFilter=void 0!==f?f:1008;this.anisotropy=void 0!==l?l:1;this.format=void 0!==g?g:1023;this.internalFormat=null;this.type=void 0!==h?h:1009;this.offset=new v(0,0);this.repeat=new v(1,1);this.center=new v(0,0);this.rotation=0;this.matrixAutoUpdate=!0;this.matrix=new ya;this.generateMipmaps=
@@ -27221,7 +27456,7 @@ Oh;k.UnsignedByteType=1009;k.UnsignedInt248Type=1020;k.UnsignedIntType=1014;k.Un
 Ba;k.WebGLRenderTargetCube=function(a,b,c){console.warn("THREE.WebGLRenderTargetCube( width, height, options ) is now WebGLCubeRenderTarget( size, options ).");return new Zb(a,c)};k.WebGLRenderer=jg;k.WebGLUtils=Th;k.WireframeGeometry=Pc;k.WireframeHelper=function(a,b){console.warn("THREE.WireframeHelper has been removed. Use THREE.WireframeGeometry instead.");return new ma(new Pc(a.geometry),new da({color:void 0!==b?b:16777215}))};k.WrapAroundEnding=2402;k.XHRLoader=function(a){console.warn("THREE.XHRLoader has been renamed to THREE.FileLoader.");
 return new Ta(a)};k.ZeroCurvatureEnding=2400;k.ZeroFactor=200;k.ZeroSlopeEnding=2401;k.ZeroStencilOp=0;k.sRGBEncoding=3001;Object.defineProperty(k,"__esModule",{value:!0})});
 
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 const WORLD_SIZE = 1024000;
 const MERCATOR_A = 6378137.0;
 const FOV = Math.atan(3/4);
@@ -27237,7 +27472,7 @@ module.exports = exports = {
     FOV_DEGREES: FOV * 360 / (Math.PI * 2), // Math.atan(3/4) in degrees
     TILE_SIZE: 512
 }
-},{}],95:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 // This module creates a THREE material from the options object provided into the Objects class.
 // Users can do this in one of three ways:
 
@@ -27290,7 +27525,7 @@ function material (options) {
 
 module.exports = exports = material;
 
-},{"../three.js":93,"../utils/utils.js":97}],96:[function(require,module,exports){
+},{"../three.js":94,"../utils/utils.js":98}],97:[function(require,module,exports){
 /*
  (c) 2011-2015, Vladimir Agafonkin
  SunCalc is a JavaScript library for calculating sun/moon position and light phases.
@@ -27611,7 +27846,7 @@ module.exports = exports = material;
 }());
 
 
-},{}],97:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 var THREE = require("../three.js");
 var Constants = require("./constants.js");
 var validate = require("./validate.js");
@@ -27904,7 +28139,42 @@ var utils = {
 			})
 
 			return output
+		},
+
+	},
+
+	toDecimal: function (n, d) {
+		return Number(n.toFixed(d));
+	},
+
+	equal: function (obj1, obj2) {
+		const keys1 = Object.keys(obj1);
+		const keys2 = Object.keys(obj2);
+
+		if (keys1.length !== keys2.length) {
+			return false;
 		}
+		if (keys1.length == 0 && keys2.length == 0 && keys1 !== keys2) {
+			return false;
+		}
+
+		for (const key of keys1) {
+			const val1 = obj1[key];
+			const val2 = obj2[key];
+			const areObjects = this.isObject(val1) && this.isObject(val2);
+			if (
+				areObjects && !deepEqual(val1, val2) ||
+				!areObjects && val1 !== val2
+			) {
+				return false;
+			}
+		}
+
+		return true;
+	},
+
+	isObject: function (object) {
+		return object != null && typeof object === 'object';
 	},
 
 	_validate: function (userInputs, defaults) {
@@ -27936,7 +28206,7 @@ var utils = {
 }
 
 module.exports = exports = utils
-},{"../three.js":93,"./constants.js":94,"./validate.js":98}],98:[function(require,module,exports){
+},{"../three.js":94,"./constants.js":95,"./validate.js":99}],99:[function(require,module,exports){
 // Type validator
 
 function Validate(){
@@ -28052,7 +28322,7 @@ Validate.prototype = {
 
 
 module.exports = exports = Validate;
-},{}],99:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 window.test = require('tape'),
 window.Threebox = require("../src/Threebox.js"),
 window.THREE = require("../src/three.js");
@@ -28090,4 +28360,4 @@ function precisionRound(number, precision) {
 };
 
 
-},{"../src/Threebox.js":73,"../src/three.js":93,"tape":64}]},{},[99]);
+},{"../src/Threebox.js":73,"../src/three.js":94,"tape":64}]},{},[100]);

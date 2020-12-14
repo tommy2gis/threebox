@@ -1,5 +1,9 @@
-var utils = require("../utils/utils.js");
-var Objects = require('./objects.js');
+/**
+ * @author peterqliu / https://github.com/peterqliu
+ * @author jscastro / https://github.com/jscastro76
+ */
+const utils = require("../utils/utils.js");
+const Objects = require('./objects.js');
 const OBJLoader = require("./loaders/OBJLoader.js");
 const MTLLoader = require("./loaders/MTLLoader.js");
 const FBXLoader = require("./loaders/FBXLoader.js");
@@ -14,15 +18,11 @@ const daeLoader = new ColladaLoader();
 function loadObj(options, cb, promise) {
 
 	if (options === undefined) return console.error("Invalid options provided to loadObj()");
-
 	options = utils._validate(options, Objects.prototype._defaults.loadObj);
-
 	this.loaded = false;
 
-	//console.time('loadObj Start ');
 	const modelComplete = (m) => {
 		console.log("Model complete!", m);
-
 		if (--remaining === 0) this.loaded = true;
 	}
 	var loader;
@@ -62,59 +62,44 @@ function loadObj(options, cb, promise) {
 			let animations = [];
 			switch (options.type) {
 				case "mtl":
-					objs = obj.children;
+					obj = obj.children[0];
+					if(options.material){obj.material=options.material}
 					break;
 				case "gltf":
 				case "dae":
 					animations = obj.animations;
 					obj = obj.scene;
+					if(options.material){
+						obj.children.forEach(item=>item.material=options.material)
+					}
 					break;
 				case "fbx":
 					animations = obj.animations;
+					if(options.material){
+						obj.children.forEach(item=>item.material=options.material)
+					}
 					break;
 			}
-			var projScaleGroup = new THREE.Group();
-			projScaleGroup.name = "group";
-			
-
-			objs.forEach(obj => {
-				obj.animations = animations;
+			obj.animations = animations;
 			// [jscastro] options.rotation was wrongly used
-			var r = utils.types.rotation(options.rotation, [0, 0, 0]);
-			var s = utils.types.scale(options.scale, [1, 1, 1]);
+			const r = utils.types.rotation(options.rotation, [0, 0, 0]);
+			const s = utils.types.scale(options.scale, [1, 1, 1]);
 			obj.rotation.set(r[0], r[1], r[2]);
 			obj.scale.set(s[0], s[1], s[2]);
 			// [jscastro] normalize specular/metalness/shininess from meshes in FBX and GLB model as it would need 5 lights to illuminate them properly
 			if (options.normalize) { normalizeSpecular(obj); }
 			obj.name = "model";
-			projScaleGroup.add(obj)
-			});
-			
-			
-			var userScaleGroup = Objects.prototype._makeGroup(projScaleGroup, options);
-			userScaleGroup.name = "object";
-			//[jscastro] assign the animations to the userScaleGroup before enrolling it in AnimationsManager through _addMethods
-			userScaleGroup.animations = animations;
-
+			let userScaleGroup = Objects.prototype._makeGroup(obj, options);
 			Objects.prototype._addMethods(userScaleGroup);
 			//[jscastro] calculate automatically the pivotal center of the object
 			userScaleGroup.setAnchor(options.anchor);
 			//[jscastro] override the center calculated if the object has adjustments
 			userScaleGroup.setCenter(options.adjustment);
-
-			let anim = userScaleGroup.animations;
-
-			// [jscastro] after adding methods create the bounding box at userScaleGroup but add it to its children for positioning
-			let boxGrid = userScaleGroup.drawBoundingBox();
-			projScaleGroup.add(boxGrid);
-
-			//[jscastro] we add by default a tooltip that can be override later or hide it with threebox `enableTooltips`
-			userScaleGroup.addTooltip(userScaleGroup.uuid, true, userScaleGroup.anchor);
-
-			cb(userScaleGroup);
+			//[jscastro] return to cache
 			promise(userScaleGroup);
-
-			// [jscastro] initialize the default animation to avoid issues with position
+			//[jscastro] then return to the client-side callback
+			cb(userScaleGroup);
+			// [jscastro] initialize the default animation to avoid issues with skeleton position
 			userScaleGroup.idle();
 
 		}, () => (null), error => {

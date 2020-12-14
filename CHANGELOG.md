@@ -1,18 +1,148 @@
+## 2.1.2
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+
+- three.js draw geojson #125
+- add options.rotate and options.scale for Objects3D #126
+- Create a new example with Three.js extrusions based on standard geoJson #127 Added a new example [17-extrusions.html](https://github.com/jscastro76/threebox/blob/master/examples/17-extrusions.html)
+- Convert internal variables (`selectedObject`, `draggedObject`, ...) into instance variables #130
+- Deprecate `tb.setLayerZoomVisibility`, overlaps with `tb.toggleLayer` #134
+
+#### :beetle: Bug fixes
+
+- when an object is wireframed, all its clones are too #124
+- Error when wireframing all the objects #131
+- While dragging an object if mouse overs a label it stops dragging #132
+- A layer shouldn't be shown explicitely if it's not in the right zoom range #133
+
+<br>
+
+- - - 
+
+## 2.1.1
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+
+- [**#105**](https://github.com/jscastro76/threebox/issues/105) In examples tb is not defined . #105
+- [**#107**](https://github.com/jscastro76/threebox/issues/107) CSS2D labels must be refactored to optimize the render #107 
+- [**#108**](https://github.com/jscastro76/threebox/issues/108) Deprecate `tb.setLabelZoomRange` #108
+- [**#109**](https://github.com/jscastro76/threebox/issues/109) add speed param to animations #109
+- [**#114**](https://github.com/jscastro76/threebox/issues/114) `tb.setSunlight` must accept LngLatLike coords #114
+- [**#117**](https://github.com/jscastro76/threebox/issues/117) cache functions must be 100% async #117
+- [**#119**](https://github.com/jscastro76/threebox/issues/119) Create a sample with azure maps #119. Added a new example [17-azuremaps.html](https://github.com/jscastro76/threebox/blob/master/examples/17-azuremaps.html) 
+
+#### :beetle: Bug fixes
+
+- [**#104**](https://github.com/jscastro76/threebox/issues/104) CSS2DLabels doesn't hide properly based on zoom ranges on setLabelZoomRange #104
+- [**#120**](https://github.com/jscastro76/threebox/issues/120) `labelCanvas` z-index overlaps with HTML controls visibility #120
+- [**#122**](https://github.com/jscastro76/threebox/issues/122) when the style changes `tb.zoomLayers` must be reset #122
+- [**#123**](https://github.com/jscastro76/threebox/issues/123) style change doesn't work when `multiLayer = true` #123
+
+<br>
+
+- - - 
+
+## 2.1.0
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+
+- [**#5**](https://github.com/jscastro76/threebox/issues/5) Add a multi layer sample. [16-multilayer.html](https://github.com/jscastro76/threebox/blob/master/examples/16-multilayer.html)
+- [**#95**](https://github.com/jscastro76/threebox/issues/95) `tb.add` should admit layer and source as optional params 
+- [**#96**](https://github.com/jscastro76/threebox/issues/96) `tb.setLayerHeigthProperty` depends on an internal feature on `obj.userData.feature` 
+- [**#98**](https://github.com/jscastro76/threebox/issues/98) Add an init param for multiLayer scenarios, that allows to create a default empty layer in threebox 
+- [**#99**](https://github.com/jscastro76/threebox/issues/99) `setLayoutZoomRange` doesn’t work on multilayer scenarios 
+- [**#101**](https://github.com/jscastro76/threebox/issues/101) `options.adjustment` must be on top of `options.anchor` not instead 
+
+#### :beetle: Bug fixes
+
+- [**#94**](https://github.com/jscastro76/threebox/issues/94) tb.setLayoutPropery is not working when geojson features are not being used.
+- [**#97**](https://github.com/jscastro76/threebox/issues/97) When `enableSelectingObjects` is active and not tooltips 
+- [**#100**](https://github.com/jscastro76/threebox/issues/100) Object anchors are not well calculated on duplicates when downscaled 
+
+<br>
+
+- - - 
+
+## 2.0.9
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+
+- [**#12**](https://github.com/jscastro76/threebox/issues/12) rotationStep, gridStep and altitudeStep must be configurable
+- [**#44**](https://github.com/jscastro76/threebox/issues/44) disable or enable dirLightHelper for realSunlight.
+- [**#89**](https://github.com/jscastro76/threebox/issues/89) Allow drag an Object3D on altitude.
+- [**#90**](https://github.com/jscastro76/threebox/issues/90) When dragging/rotating objects add a label that shows the current values 
+- [**#91**](https://github.com/jscastro76/threebox/issues/91) An object rotated twice, starts again from 0 degrees not from its original position  
+- [**#92**](https://github.com/jscastro76/threebox/issues/92) Refactor `obj.addLabel`, `obj.addTooltip` and add `obj.addHelp` 
+
+#### :beetle: Bug fixes
+
+- [**#93**](https://github.com/jscastro76/threebox/issues/93) Bug on `utils.equal` is only comparing objects, not when is only values
+
+
+<br>
+
+- - - 
+
+## 2.0.8
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+
+- [**#73**](https://github.com/jscastro76/threebox/issues/73) `tb.dispose` must clean `tb.objectsCache`
+- [**#74**](https://github.com/jscastro76/threebox/issues/74) Question: Why is this library not available on npm ?
+- [**#75**](https://github.com/jscastro76/threebox/issues/75) Publish in npm 
+- [**#76**](https://github.com/jscastro76/threebox/issues/76) Refactor Objects.prototype._makeGroup
+- [**#78**](https://github.com/jscastro76/threebox/issues/78) refactor var to const and let 
+- [**#80**](https://github.com/jscastro76/threebox/issues/80) Update example [15-performance.html](https://github.com/jscastro76/threebox/blob/master/examples/15-performance.html) Add built-in animation to example 15-performance.html windmill.
+- [**#82**](https://github.com/jscastro76/threebox/issues/82) Add a method `tb.getSunTimes`
+- [**#85**](https://github.com/jscastro76/threebox/issues/85) We need an object compare method
+- [**#87**](https://github.com/jscastro76/threebox/issues/87) Change `tb.getSunPosition` to accept lnglat coords instead of two params 
+- [**#88**](https://github.com/jscastro76/threebox/issues/88) Add night style change in 12-add3dmodel.html and 13-eiffel.html examples during night hours 
+
+#### :beetle: Bug fixes
+
+- [**#42**](https://github.com/jscastro76/threebox/issues/42) #42 Angular and Threebox. Solved an issue using a `mapboxgl.Point`line
+- [**#77**](https://github.com/jscastro76/threebox/issues/77) #77 example 05-logistics raises an error removing the line
+- [**#79**](https://github.com/jscastro76/threebox/issues/79) #79 Some examples are not using `renderingMode: 3d` in the layer creation 
+- [**#86**](https://github.com/jscastro76/threebox/issues/86) #86 After #56 the feature that comes in userData is not being updated. 
+
+<br>
+
+- - - 
+
+
 ## 2.0.7
 
 Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
 
 #### :sparkles: Enhancements
 
+- [**#24**](https://github.com/jscastro76/threebox/issues/24) Refactor `obj.deepCopy`, these members must be properties found by name
 - [**#54**](https://github.com/jscastro76/threebox/issues/54) vue and threebox,map not defined.
 - [**#63**](https://github.com/jscastro76/threebox/issues/63) `CSS2DObject` is not disposing properly.
+- [**#66**](https://github.com/jscastro76/threebox/issues/66) `tb.dispose` must now call `tb.clear` and return the async value
+- [**#68**](https://github.com/jscastro76/threebox/issues/68) add new methods to remove label & tooltip
+- [**#71**](https://github.com/jscastro76/threebox/issues/71) Defer default boundingBox and tooltip creation.
 - Update example [15-performance.html](https://github.com/jscastro76/threebox/blob/master/examples/15-performance.html) to avoid dupplicated calls when dragging the count GUI control.
 
 #### :beetle: Bug fixes
-
-- [**#61**](https://github.com/jscastro76/threebox/issues/61) .userData not refreshed properly on obj.duplicate.
-- [**#62**](https://github.com/jscastro76/threebox/issues/62) Memory Leak on tb.remove(). Tested
+- [**#61**](https://github.com/jscastro76/threebox/issues/61) `.userData` not refreshed properly on `obj.duplicate`.
+- [**#62**](https://github.com/jscastro76/threebox/issues/62) Memory Leak on `tb.remove()`. Tested
 - [**#64**](https://github.com/jscastro76/threebox/issues/64) Cache instance of a loaded model is disposed when the world children is.
+- [**#65**](https://github.com/jscastro76/threebox/issues/65) addTooltip and addLabel don't remove previous objects.
+- [**#67**](https://github.com/jscastro76/threebox/issues/67) clones have `boundingBoxShadow` line in white.
+- [**#69**](https://github.com/jscastro76/threebox/issues/69) After #56 the labels and tooltips are wrongly positioned.
+- [**#70**](https://github.com/jscastro76/threebox/issues/70) After #56 object boundingBox has the original cached size.
+- [**#72**](https://github.com/jscastro76/threebox/issues/72) After #56 animations are not being cloned.
 
 <br>
 

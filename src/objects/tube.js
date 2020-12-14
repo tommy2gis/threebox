@@ -1,30 +1,26 @@
-var utils = require("../utils/utils.js");
-var material = require("../utils/material.js");
-var Objects = require('./objects.js');
-var THREE = require("../three.js");
-var Object3D = require('./Object3D.js');
+/**
+ * @author peterqliu / https://github.com/peterqliu
+ * @author jscastro / https://github.com/jscastro76
+*/
+const utils = require("../utils/utils.js");
+const material = require("../utils/material.js");
+const Objects = require('./objects.js');
+const THREE = require("../three.js");
+const Object3D = require('./Object3D.js');
 
-function tube(obj, world){
+function tube(opt, world){
 
 	// validate and prep input geometry
-	var obj = utils._validate(obj, Objects.prototype._defaults.tube);
-    var straightProject = utils.lnglatsToWorld(obj.geometry);
-	var normalized = utils.normalizeVertices(straightProject);
-
-	var crossSection = tube.prototype.defineCrossSection(obj);
-	var vertices = tube.prototype.buildVertices(crossSection, normalized.vertices, world);
-	var geom = tube.prototype.buildFaces(vertices, normalized.vertices, obj);
-
-	var mat = material(obj);
-
-    var mesh = new THREE.Mesh( geom, mat );
-    //mesh.position.copy(normalized.position);
-
+	opt = utils._validate(opt, Objects.prototype._defaults.tube);
+    let straightProject = utils.lnglatsToWorld(opt.geometry);
+	let normalized = utils.normalizeVertices(straightProject);
+	let crossSection = tube.prototype.defineCrossSection(opt);
+	let vertices = tube.prototype.buildVertices(crossSection, normalized.vertices, world);
+	let geom = tube.prototype.buildFaces(vertices, normalized.vertices, opt);
+	let mat = material(opt);
+	let obj = new THREE.Mesh(geom, mat);
 	//[jscastro] we convert it in Object3D to add methods, bounding box, model, tooltip...
-	return new Object3D({ obj: mesh, units: obj.units, anchor: obj.anchor, adjustment: obj.adjustment });
-
-	//return mesh
-
+	return new Object3D({ obj: obj, units: opt.units, anchor: opt.anchor, adjustment: opt.adjustment, bbox: opt.bbox, tooltip: opt.tooltip });
 }
 
 tube.prototype = {
@@ -89,7 +85,7 @@ tube.prototype = {
 			// if first point in input line, rotate and translate it to position
 			if (!lastElbow) {
 
-				var elbow = crossSection.clone();
+				let elbow = crossSection.clone();
 
 				elbow
 					.lookAt(midpointToLookAt)
@@ -105,16 +101,16 @@ tube.prototype = {
 
 			else {
 
-				var elbow = [];
+				let elbow = [];
 				plane.position.copy(lineVertex);
 				plane.lookAt(midpointToLookAt.clone().add(lineVertex));
 				plane.updateMatrixWorld();
 
 				lastElbow.forEach(function(v3){
 
-					var raycaster = new THREE.Raycaster(v3, humerus);
+					let raycaster = new THREE.Raycaster(v3, humerus);
 
-					var intersection = raycaster
+					let intersection = raycaster
 						.intersectObject(plane)[0];
 
 					if (intersection) {
@@ -136,13 +132,13 @@ tube.prototype = {
 	},
 
 	defineCrossSection: function(obj){
-        var crossSection = new THREE.Geometry();
-        var count = obj.sides;
+        let crossSection = new THREE.Geometry();
+        let count = obj.sides;
 
-        for ( var i = 0; i < count; i ++ ) {
+        for ( let i = 0; i < count; i ++ ) {
 
-            var l = obj.radius;
-            var a = (i+0.5) / count * Math.PI;
+            let l = obj.radius;
+            let a = (i+0.5) / count * Math.PI;
 
             crossSection.vertices.push( 
             	new THREE.Vector3 ( 
@@ -161,40 +157,40 @@ tube.prototype = {
 
 	buildFaces: function(geom, spine, obj){
 
-		for (var i in spine) {
+		for (let i in spine) {
 
 			i = parseFloat(i);
-			var vertex = spine[i];
+			let vertex = spine[i];
 
 			if (i < spine.length - 1) {
 
-				for (var p = 0; p < obj.sides; p++) {
+				for (let p = 0; p < obj.sides; p++) {
 
-					var b1 = i * obj.sides + p;
-					var b2 = i * obj.sides + (p+1) % obj.sides
-					var t1 = b1 + obj.sides
-					var t2 = b2 + obj.sides;
+					let b1 = i * obj.sides + p;
+					let b2 = i * obj.sides + (p+1) % obj.sides
+					let t1 = b1 + obj.sides
+					let t2 = b2 + obj.sides;
 
-					var triangle1 = new THREE.Face3(t1, b1, b2);
-					var triangle2 = new THREE.Face3(t1, b2, t2);
+					let triangle1 = new THREE.Face3(t1, b1, b2);
+					let triangle2 = new THREE.Face3(t1, b2, t2);
 					geom.faces.push(triangle1, triangle2)
 				}				
 			}
 		}
 
 		//add endcaps
-		var v = geom.vertices.length;
+		let v = geom.vertices.length;
 
-		for (var c = 0; c+2<obj.sides; c++) {
-			var tri1 = new THREE.Face3(0, c+2, c+1);
-			var tri2 = new THREE.Face3(v-1, v-1-(c+2), v-1-(c+1))
+		for (let c = 0; c+2<obj.sides; c++) {
+			let tri1 = new THREE.Face3(0, c+2, c+1);
+			let tri2 = new THREE.Face3(v-1, v-1-(c+2), v-1-(c+1))
 			geom.faces.push(tri1, tri2)
 		}
 
 		//compute normals to get shading to work properly
 		geom.computeFaceNormals();
 
-		var bufferGeom = new THREE.BufferGeometry().fromGeometry(geom);
+		let bufferGeom = new THREE.BufferGeometry().fromGeometry(geom);
 		return geom
 	}
 }
