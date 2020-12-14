@@ -238,7 +238,8 @@ Threebox.prototype = {
 				let intersects = [];
 				if (map.tb.enableSelectingObjects) {
 					//raycast only if we are in a custom layer, for other layers go to the else, this avoids duplicated calls to raycaster
-					intersects = this.tb.queryRenderedFeatures(e.point);
+					//intersects = this.tb.queryRenderedFeatures(e.point);
+					intersects = this.tb.queryRenderedFeatures(e.point).filter(o=>Threebox.prototype.findParent3DObject(o).selectable===true);
 				}
 				intersectionExists = typeof intersects[0] == 'object';
 				// if intersect exists, highlight it
@@ -371,7 +372,8 @@ Threebox.prototype = {
 
 				if (map.tb.enableSelectingObjects) {
 					// calculate objects intersecting the picking ray
-					intersects = this.tb.queryRenderedFeatures(e.point);
+					intersects = this.tb.queryRenderedFeatures(e.point).filter(o=>Threebox.prototype.findParent3DObject(o).hoverable===true);
+					// intersects = this.tb.queryRenderedFeatures(e.point);
 				}
 				intersectionExists = typeof intersects[0] == 'object';
 
@@ -16819,7 +16821,7 @@ Objects.prototype = {
 				get() { return _over; },
 				set(value) {
 					if (value) {
-						if (!obj.selected) {
+						if (!obj.selected&&obj.highlightable) {
 							if (obj.userData.bbox && !obj.boundingBox) obj.drawBoundingBox();
 							if (obj.userData.tooltip && !obj.tooltip) obj.addTooltip(obj.uuid, true, obj.anchor, false);
 							if (obj.boxGroup) {

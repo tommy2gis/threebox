@@ -152,8 +152,10 @@
 						// otherwise you'll receive a 404 error
 						var options = {
 							obj: 'models/soldier.glb',
+							//obj: 'models/girl_walk/scene.gltf',
 							type: 'gltf',
 							scale: 20,
+							//scale: 0.1,
 							units: 'meters',
 							rotation: { x: 90, y: 0, z: 0 },
 							anchor: 'center'//default rotation
@@ -229,31 +231,7 @@
 				tb.add(line);
 
 
-				let texture = new THREE.TextureLoader().load("./road1.png");
-				texture.anisotropy = 16;
-				texture.wrapS = THREE.RepeatWrapping;
-				texture.wrapT = THREE.RepeatWrapping;
-				let camera = tb.camera;
-				let material = new MeshLineMaterial({
-					map: texture,
-					useMap: true,
-					lineWidth: 13,
-					sizeAttenuation: false,
-					transparent: true,
-					near: camera.near,
-					far: camera.far,
-				});
-
-				  const geometry = new THREE.Geometry();
-            for (let i = 0; i < line.length; i += 3) {
-              geometry.vertices.push(
-                new THREE.Vector3(line[i][0], line[i][1], 0)
-              );
-            }
-            const meshLine = new MeshLine();
-            meshLine.setGeometry(geometry);
-            const lineMesh = new THREE.Mesh(meshLine.geometry, material);
-			tb.add(lineMesh);
+				
 				// set destination as the new origin, for the next trip
 				origin = destination;
 

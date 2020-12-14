@@ -580,7 +580,7 @@ Objects.prototype = {
 				get() { return _over; },
 				set(value) {
 					if (value) {
-						if (!obj.selected) {
+						if (!obj.selected&&obj.highlightable) {
 							if (obj.userData.bbox && !obj.boundingBox) obj.drawBoundingBox();
 							if (obj.userData.tooltip && !obj.tooltip) obj.addTooltip(obj.uuid, true, obj.anchor, false);
 							if (obj.boxGroup) {
