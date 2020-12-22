@@ -1,22 +1,89 @@
+## 2.1.6
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+
+- #111 Show the dimensions of a model 
+- #151 Remove auxiliary test method on CameraSync used to debug #145 
+
+#### :beetle: Bug fixes
+- #152 `obj.raycasted` is ignored when an object is hidden and again visible 
+
+<br>
+
+- - - 
+
+## 2.1.5
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+- #3 Make Color of the boundingBox and boundingBoxShadow configurable
+- #29 Make one object not selectable or draggable independently of Threebox params 
+- #150 Check methods doing traverse to avoid doing unnecessary loops 
+
+#### :beetle: Bug fixes
+- #145 Worldwide view demos, have precision issues after #143 
+- #149 `obj.set` with `options.coords` doesn't change the z axis in obj.coordinates 
+
+#### :pencil: Documentation
+- Updated [documentation](/docs/Threebox.md) (`tb.raycasted`, `tb.extrusion`, `tb.loadObj` and `tb.Object3D` params, mime types)
+- Updated [README.md](/).
+- updated [Examples](/examples) documentation. 
+<br>
+
+- - - 
+
+## 2.1.4
+
+Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
+
+#### :sparkles: Enhancements
+- #1 Collisions detection (Depth calculation) 
+- #102 Add stats performance to all the demos 
+- #139 Add a full dispose button to 15-Performance.html demo 
+- #143 CameraSync adjustment to avoid depth issues between 3D objects and Fill-extrusions 
+- #144 Improve 07-alignmentTest.html adding 3D objects inside the building 
+
+#### :beetle: Bug fixes
+- #147 Error in BuildingShadows when used from a script module 
+
+<br>
+
+- - - 
+
+## 2.1.3
+
+Minor version by [@jscastro76](https://github.com/jscastro76), just one hot fix for a critical bug. 
+
+#### :beetle: Bug fixes
+
+#142 CRITICAL BUG: Cannot set property 'toJulian' of undefined
+
+<br>
+
+- - - 
+
 ## 2.1.2
 
 Minor version by [@jscastro76](https://github.com/jscastro76), some enhancements and bugs. 
 
 #### :sparkles: Enhancements
 
-- three.js draw geojson #125
-- add options.rotate and options.scale for Objects3D #126
-- Create a new example with Three.js extrusions based on standard geoJson #127 Added a new example [17-extrusions.html](https://github.com/jscastro76/threebox/blob/master/examples/17-extrusions.html)
-- Convert internal variables (`selectedObject`, `draggedObject`, ...) into instance variables #130
-- Deprecate `tb.setLayerZoomVisibility`, overlaps with `tb.toggleLayer` #134
+- #125 three.js draw geojson.
+- #126 add options.rotate and options.scale for Objects3D. 
+- #127 Create a new example with Three.js extrusions based on standard geoJson. Added a new example [17-extrusions.html](https://github.com/jscastro76/threebox/blob/master/examples/17-extrusions.html)
+- #130 Convert internal variables (`selectedObject`, `draggedObject`, ...) into instance variables .
+- #134 Deprecate `tb.setLayerZoomVisibility`, overlaps with `tb.toggleLayer`.
+- #138 expose `SunCalc.toJulian`
 
 #### :beetle: Bug fixes
 
-- when an object is wireframed, all its clones are too #124
-- Error when wireframing all the objects #131
-- While dragging an object if mouse overs a label it stops dragging #132
-- A layer shouldn't be shown explicitely if it's not in the right zoom range #133
-
+- #124 when an object is wireframed, all its clones are too.
+- #131 Error when wireframing all the objects.
+- #132 While dragging an object if mouse overs a label it stops dragging.
+- #133 A layer shouldn't be shown explicitely if it's not in the right zoom range. 
 <br>
 
 - - - 

@@ -9097,7 +9097,6 @@ Threebox.prototype = {
 					y: e.originalEvent.clientY - rect.top - canvas.clientTop
 				};
 			}
-
 			
 			this.unselectObject = function (o) {
 				//deselect, reset and return
@@ -9424,6 +9423,44 @@ Threebox.prototype = {
 				this.tb.zoomLayers.forEach((l) => {this.tb.toggleLayer(l);});
 			}
 
+			let ctrlDown = false;
+			let shiftDown = false;
+			let ctrlKey = 17, cmdKey = 91, shiftKey = 16, sK = 83; dK = 68;
+
+			function onKeyDown(e) {
+
+				if (e.which === ctrlKey || e.which === cmdKey) ctrlDown = true;
+				if (e.which === shiftKey) shiftDown = true;
+				let obj = this.selectedObject;
+				if (shiftDown && e.which === sK && obj) {
+					//shift + sS
+					let dc = utils.toDecimal;
+					if (!obj.help) {
+						let s = obj.modelSize;
+						let sf = 1;
+						if (obj.userData.units !== 'meters') {
+							//if not meters, calculate scale to the current lat
+							sf = utils.projectedUnitsPerMeter(obj.coordinates[1]);
+							if (!sf) { sf = 1; };
+							sf = dc(sf, 7);
+						}
+
+						obj.addHelp("size(m): " + dc((s.x / sf), 3) + " W, " + dc((s.y / sf), 3) + " L, " + dc((s.z / sf), 3) + " H");
+						this.repaint = true;
+					}
+					else {
+						obj.removeHelp();
+					}
+					return false;
+				}
+
+			};
+
+			function onKeyUp (e) {
+				if (e.which == ctrlKey || e.which == cmdKey) ctrlDown = false;
+				if (e.which === shiftKey) shiftDown = false;
+			}
+
 			//listener to the events
 			//this.on('contextmenu', map.onContextMenu);
 			this.on('click', this.onClick);
@@ -9431,6 +9468,9 @@ Threebox.prototype = {
 			this.on('mouseout', this.onMouseOut)
 			this.on('mousedown', this.onMouseDown);
 			this.on('zoom', this.onZoomEnd);
+
+			document.addEventListener('keydown', onKeyDown.bind(this), true);
+			document.addEventListener('keyup', onKeyUp.bind(this));
 
 		});
 	},
@@ -9630,8 +9670,8 @@ Threebox.prototype = {
 				return;
 			}
 			let z = this.map.getZoom();
-			if (l.minzoom && z < l.minzoom) { console.log("< minzoom"); this.toggle(l.id, false); return; };
-			if (l.maxzoom && z >= l.maxzoom) { console.log(">= maxzoom"); this.toggle(l.id, false); return; };
+			if (l.minzoom && z < l.minzoom) { this.toggle(l.id, false); return; };
+			if (l.maxzoom && z >= l.maxzoom) { this.toggle(l.id, false); return; };
 			this.toggle(l.id, true);
 		};
 	},
@@ -9885,7 +9925,7 @@ Threebox.prototype = {
 
 	programs: function () { return this.renderer.info.programs.length },
 
-	version: '2.1.2',
+	version: '2.1.6',
 
 }
 
@@ -10124,7 +10164,11 @@ AnimationManager.prototype = {
 
 			if (q) this.quaternion.setFromAxisAngle(q[0], q[1]);
 
-			if (w) this.position.copy(w);
+			if (w) {
+				this.position.copy(w);
+				let p = utils.unprojectFromWorld(w);
+				this.coordinates = p;
+			} 
 
 			this.updateMatrixWorld();
 			tb.map.repaint = true
@@ -10358,6 +10402,7 @@ const utils = require("../utils/utils.js");
 const ThreeboxConstants = require("../utils/constants.js");
 
 function CameraSync(map, camera, world) {
+    //    console.log("CameraSync constructor");
     this.map = map;
     this.camera = camera;
     this.active = true;
@@ -10373,7 +10418,8 @@ function CameraSync(map, camera, world) {
     this.state = {
         fov: ThreeboxConstants.FOV,
         translateCenter: new THREE.Matrix4().makeTranslation(ThreeboxConstants.WORLD_SIZE / 2, -ThreeboxConstants.WORLD_SIZE / 2, 0),
-        worldSizeRatio: ThreeboxConstants.TILE_SIZE / ThreeboxConstants.WORLD_SIZE
+        worldSizeRatio: ThreeboxConstants.TILE_SIZE / ThreeboxConstants.WORLD_SIZE,
+        worldSize: ThreeboxConstants.TILE_SIZE * this.map.transform.scale
     };
 
     // Listen for move events from the map and update the Three.js camera
@@ -10391,22 +10437,23 @@ function CameraSync(map, camera, world) {
 
 CameraSync.prototype = {
     setupCamera: function () {
-
+        //console.log("setupCamera");
         const t = this.map.transform;
         this.camera.aspect = t.width / t.height; //bug fixed, if aspect is not reset raycast will fail on map resize
         this.camera.updateProjectionMatrix();
-        const halfFov = this.state.fov / 2;
+        this.halfFov = this.state.fov / 2;
         const offset = { x: t.width / 2, y: t.height / 2 };//t.centerOffset;
-        const cameraToCenterDistance = 0.5 / Math.tan(halfFov) * t.height;
+        const cameraToCenterDistance = 0.5 / Math.tan(this.halfFov) * t.height;
         const maxPitch = t._maxPitch * Math.PI / 180;
-        const acuteAngle = Math.PI / 2 - maxPitch;
+        this.acuteAngle = Math.PI / 2 - maxPitch;
 
         this.state.cameraToCenterDistance = cameraToCenterDistance;
         this.state.offset = offset;
-        this.state.cameraTranslateZ = new THREE.Matrix4().makeTranslation(0, 0, cameraToCenterDistance);
-        this.state.maxFurthestDistance = cameraToCenterDistance * 0.95 * (Math.cos(acuteAngle) * Math.sin(halfFov) / Math.sin(Math.max(0.01, Math.min(Math.PI - 0.01, acuteAngle - halfFov))) + 1);
+        this.state.cameraTranslateZ = new THREE.Matrix4().makeTranslation(0, 0, this.state.cameraToCenterDistance);
+        this.state.maxFurthestDistance = this.state.cameraToCenterDistance * 0.95 * (Math.cos(this.acuteAngle) * Math.sin(this.halfFov) / Math.sin(Math.max(0.01, Math.min(Math.PI - 0.01, this.acuteAngle - this.halfFov))) + 1);
 
         this.updateCamera();
+
     },
 
     updateCamera: function (ev) {
@@ -10415,22 +10462,24 @@ CameraSync.prototype = {
             return;
         }
 
-        // Furthest distance optimized by @satorbs
-        // https://github.com/satorbs/threebox/blob/master/src/camera/CameraSync.js
+        // Furthest distance optimized by @jscastro76
         const t = this.map.transform;
         const groundAngle = Math.PI / 2 + t._pitch;
-        const fovAboveCenter = this.state.fov * (0.5 + this.state.offset.y / t.height);
-        const topHalfSurfaceDistance = Math.sin(fovAboveCenter) * this.state.cameraToCenterDistance / Math.sin(utils.clamp(Math.PI - groundAngle - fovAboveCenter, 0.01, Math.PI - 0.01));
+        this.cameraToCenterDistance = 0.5 / Math.tan(this.halfFov) * t.height;
+        this.state.cameraTranslateZ = new THREE.Matrix4().makeTranslation(0, 0, this.cameraToCenterDistance);
+        const topHalfSurfaceDistance = Math.sin(this.halfFov) * this.state.cameraToCenterDistance / Math.sin(Math.PI - groundAngle - this.halfFov);
+        const pitchAngle = Math.cos((Math.PI / 2) - t._pitch); //pitch seems to influence heavily the depth calculation and cannot be more than 60 = PI/3
 
-        // Calculate z distance of the farthest fragment that should be rendered.
-        const furthestDistance = Math.cos(Math.PI / 2 - t._pitch) * topHalfSurfaceDistance + this.state.cameraToCenterDistance;
+        // Calculate z distance of the farthest fragment that should be rendered. 
+        const furthestDistance = pitchAngle * topHalfSurfaceDistance + this.state.cameraToCenterDistance;
 
         // Add a bit extra to avoid precision problems when a fragment's distance is exactly `furthestDistance`
-        const farZ = Math.min(furthestDistance * 1.01, this.state.maxFurthestDistance);
+        const farZ = furthestDistance * 1.01;
 
         // someday @ansis set further near plane to fix precision for deckgl,so we should fix it to use mapbox-gl v1.3+ correctly
         // https://github.com/mapbox/mapbox-gl-js/commit/5cf6e5f523611bea61dae155db19a7cb19eb825c#diff-5dddfe9d7b5b4413ee54284bc1f7966d
-        const nearZ = (t.height / 50);
+        const nz = (t.height / 50); //min near z as coded by @ansis
+        const nearZ = Math.max(nz * pitchAngle, nz); //on changes in the pitch nz could be too low
 
         this.camera.projectionMatrix = utils.makePerspectiveMatrix(this.state.fov, t.width / t.height, nearZ, farZ);
 
@@ -10457,9 +10506,6 @@ CameraSync.prototype = {
             .premultiply(this.state.translateCenter)
             .premultiply(scale)
             .premultiply(translateMap)
-
-
-        // utils.prettyPrintMatrix(this.camera.projectionMatrix.elements);
     },
 
     calcCameraMatrix(pitch, angle, trz) {
@@ -10798,6 +10844,8 @@ function Object3D(opt) {
 	userScaleGroup.setAnchor(opt.anchor);
 	//[jscastro] override the center calculated if the object has adjustments
 	userScaleGroup.setCenter(opt.adjustment);
+	//[jscastro] if the object is excluded from raycasting
+	userScaleGroup.raycasted = opt.raycasted;
 	userScaleGroup.visibility = true;
 
 	return userScaleGroup
@@ -10901,7 +10949,7 @@ class BuildingShadows {
 		gl.useProgram(this.program);
 		const source = this.map.style.sourceCaches['composite'];
 		const coords = source.getVisibleCoordinates().reverse();
-		const buildingsLayer = map.getLayer(this.buildingsLayerId);
+		const buildingsLayer = this.map.getLayer(this.buildingsLayerId);
 		const context = this.map.painter.context;
 		const { lng, lat } = this.map.getCenter();
 		const pos = this.tb.getSunPosition(this.tb.lightDateTime, [lng, lat]);
@@ -12066,7 +12114,8 @@ function loadObj(options, cb, promise) {
 			loader = objLoader;
 			break;
 		case "gltf":
-			// [jscastro] Support for GLTF
+		case "glb":
+			// [jscastro] Support for GLTF/GLB
 			loader = gltfLoader;
 			break;
 		case "fbx":
@@ -12097,6 +12146,7 @@ function loadObj(options, cb, promise) {
 					obj = obj.children[0];
 					break;
 				case "gltf":
+				case "glb":
 				case "dae":
 					animations = obj.animations;
 					obj = obj.scene;
@@ -12120,6 +12170,8 @@ function loadObj(options, cb, promise) {
 			userScaleGroup.setAnchor(options.anchor);
 			//[jscastro] override the center calculated if the object has adjustments
 			userScaleGroup.setCenter(options.adjustment);
+			//[jscastro] if the object is excluded from raycasting
+			userScaleGroup.raycasted = options.raycasted;
 			//[jscastro] return to cache
 			promise(userScaleGroup);
 			//[jscastro] then return to the client-side callback
@@ -25235,6 +25287,7 @@ Objects.prototype = {
 		const labelName = "label";
 		const tooltipName = "tooltip";
 		const helpName = "help";
+		const shadowPlane = "shadowPlane";
 
 		if (isStatic) {
 
@@ -25285,14 +25338,15 @@ Objects.prototype = {
 
 				// CSS2DObjects could bring an specific vertical positioning to correct in units
 				if (obj.userData.topMargin && obj.userData.feature) {
-					lnglat[2] += (obj.userData.feature.properties.height - (obj.userData.feature.properties.base_height || obj.userData.feature.properties.min_height || 0)) * obj.userData.topMargin;
+					lnglat[2] += ((obj.userData.feature.properties.height || 0) - (obj.userData.feature.properties.base_height || obj.userData.feature.properties.min_height || 0)) * (obj.userData.topMargin || 0);
 				}
 
 				obj.coordinates = lnglat;
 				obj.set({ position: lnglat });
 				//Each time the object is positioned, set modelHeight property and project the floor
 				obj.modelHeight = obj.coordinates[2] || 0;
-				if (obj.boxGroup) obj.setBoundingBoxShadowFloor();
+				obj.setBoundingBoxShadowFloor();
+				obj.setCastShadowFloor();
 				return obj;
 
 			}
@@ -25426,7 +25480,7 @@ Objects.prototype = {
 
 			//[jscastro] added method to position the shadow box on the floor depending the object height
 			obj.setBoundingBoxShadowFloor = function () {
-				if (obj.boundingBox) {
+				if (obj.boxGroup && obj.boundingBox) {
 					obj.boundingBoxShadow.box.max.z = -obj.modelHeight;
 					obj.boundingBoxShadow.box.min.z = -obj.modelHeight;
 				}
@@ -25532,7 +25586,7 @@ Objects.prototype = {
 						if (obj.model) {
 							obj.model.traverse(function (c) {
 								if (c.type == "Mesh" || c.type == "SkinnedMesh") {
-									if (_value) {
+									if (_value && obj.raycasted) {
 										c.layers.enable(0); //this makes the meshes visible for raycast
 									} else {
 										c.layers.disable(0); //this makes the meshes invisible for raycast
@@ -25621,52 +25675,64 @@ Objects.prototype = {
 				}
 			}
 
+			//[jscastro] added property for help
+			Object.defineProperty(obj, 'shadowPlane', {
+				get() { return obj.getObjectByName(shadowPlane); }
+			});
+
 			let _castShadow = false;
 			//[jscastro] added property for traverse an object to cast a shadow
 			Object.defineProperty(obj, 'castShadow', {
 				get() { return _castShadow; },
 				set(value) {
-					if (_castShadow != value) {
-						obj.model.traverse(function (c) {
-							if (c.isMesh) c.castShadow = true;
-						});
-						if (value) {
-							// we add the shadow plane automatically 
-							const s = obj.modelSize;
-							const sizes = [s.x, s.y, s.z];
-							const planeSize = Math.max(...sizes) * 10;
-							const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
-							const planeMat = new THREE.ShadowMaterial();
-							planeMat.opacity = 0.5;
-							let plane = new THREE.Mesh(planeGeo, planeMat);
-							plane.layers.enable(1); plane.layers.disable(0); // it makes the object invisible for the raycaster
-							plane.receiveShadow = value;
-							obj.add(plane);
-						} else {
-							// or we remove it 
-							obj.traverse(function (c) {
-								if (c.isMesh && c.material instanceof THREE.ShadowMaterial)
-									obj.remove(c);	
-							});
+					if (!obj.model || _castShadow === value) return;
 
-						}
-						_castShadow = value;
+					obj.model.traverse(function (c) {
+						if (c.isMesh) c.castShadow = true;
+					});
+					if (value) {
+						// we add the shadow plane automatically 
+						const s = obj.modelSize;
+						const sizes = [s.x, s.y, s.z];
+						const planeSize = Math.max(...sizes) * 10;
+						const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
+						const planeMat = new THREE.ShadowMaterial();
+						planeMat.opacity = 0.5;
+						let plane = new THREE.Mesh(planeGeo, planeMat);
+						plane.name = shadowPlane;
+						plane.layers.enable(1); plane.layers.disable(0); // it makes the object invisible for the raycaster
+						plane.receiveShadow = value;
+						obj.add(plane);
+					} else {
+						// or we remove it 
+						obj.traverse(function (c) {
+							if (c.isMesh && c.material instanceof THREE.ShadowMaterial)
+								obj.remove(c);
+						});
+
 					}
+					_castShadow = value;
+
 				}
 			})
+
+			//[jscastro] added method to position the shadow box on the floor depending the object height
+			obj.setCastShadowFloor = function () {
+				if (obj.castShadow) {
+					obj.shadowPlane.position.z = -obj.modelHeight;
+				}
+			}
 
 			let _receiveShadow = false;
 			//[jscastro] added property for traverse an object to receive a shadow
 			Object.defineProperty(obj, 'receiveShadow', {
 				get() { return _receiveShadow; },
 				set(value) {
-					if (_receiveShadow != value) {
-
-						obj.model.traverse(function (c) {
-							if (c.isMesh) c.receiveShadow = true;
-						});
-						_receiveShadow = value;
-					}
+					if (!obj.model || _receiveShadow === value) return;
+					obj.model.traverse(function (c) {
+						if (c.isMesh) c.receiveShadow = true;
+					});
+					_receiveShadow = value;
 				}
 			})
 
@@ -25675,38 +25741,36 @@ Objects.prototype = {
 			Object.defineProperty(obj, 'wireframe', {
 				get() { return _wireframe; },
 				set(value) {
-					if (_wireframe != value) {
-						if (!obj.model) return;
-						obj.model.traverse(function (c) {
-							if (c.type == "Mesh" || c.type == "SkinnedMesh") {
-								let materials = [];
-								if (!Array.isArray(c.material)) {
-									materials.push(c.material);
-								} else {
-									materials = c.material;
-								}
-								if (value) {
-									c.userData.materials = materials;
-									c.material = Objects.prototype._defaults.materials.wireframeMaterial;
-									c.material.opacity = (value ? 0.5 : 1);
-									c.material.wireframe = value;
-									c.material.transparent = value;
+					if (!obj.model || _wireframe === value) return;
+					obj.model.traverse(function (c) {
+						if (c.type == "Mesh" || c.type == "SkinnedMesh") {
+							let materials = [];
+							if (!Array.isArray(c.material)) {
+								materials.push(c.material);
+							} else {
+								materials = c.material;
+							}
+							if (value) {
+								c.userData.materials = materials;
+								c.material = Objects.prototype._defaults.materials.wireframeMaterial;
+								c.material.opacity = (value ? 0.5 : 1);
+								c.material.wireframe = value;
+								c.material.transparent = value;
 
-								} else {
-									let mc = c.userData.materials;
-									c.material = (mc.length > 1 ? mc : mc[0]);
-									c.userData.materials = null;
-								}
-								if (value) { c.layers.disable(0); c.layers.enable(1); } else { c.layers.disable(1); c.layers.enable(0); }
+							} else {
+								let mc = c.userData.materials;
+								c.material = (mc.length > 1 ? mc : mc[0]);
+								c.userData.materials = null;
 							}
-							if (c.type == "LineSegments") {
-								c.layers.disableAll();
-							}
-						});
-						_wireframe = value;
-						// Dispatch new event WireFramed
-						obj.dispatchEvent(new CustomEvent('Wireframed', { detail: obj, bubbles: true, cancelable: true }));
-					}
+							if (value) { c.layers.disable(0); c.layers.enable(1); } else { c.layers.disable(1); c.layers.enable(0); }
+						}
+						if (c.type == "LineSegments") {
+							c.layers.disableAll();
+						}
+					});
+					_wireframe = value;
+					// Dispatch new event WireFramed
+					obj.dispatchEvent(new CustomEvent('Wireframed', { detail: obj, bubbles: true, cancelable: true }));
 				}
 			})
 
@@ -25733,6 +25797,7 @@ Objects.prototype = {
 							obj.remove(obj.boxGroup);
 						}
 						if (obj.label && !obj.label.alwaysVisible) obj.label.visible = false;
+						obj.removeHelp();
 					}
 					if (obj.tooltip) obj.tooltip.visible = value;
 					//only fire the event if value is different
@@ -25743,6 +25808,21 @@ Objects.prototype = {
 					}
 				}
 			})
+
+			let _raycasted = true;
+			//[jscastro] added property for including/excluding an object from raycast
+			Object.defineProperty(obj, 'raycasted', {
+				get() { return _raycasted; },
+				set(value) {
+					if (!obj.model || _raycasted === value) return;
+					obj.model.traverse(function (c) {
+						if (c.type == "Mesh" || c.type == "SkinnedMesh") {
+							if (!value) { c.layers.disable(0); c.layers.enable(1); } else { c.layers.disable(1); c.layers.enable(0); }
+						}
+					});
+					_raycasted = value;
+				}
+			});
 
 			let _over = false;
 			//[jscastro] added property for over state
@@ -25828,7 +25908,6 @@ Objects.prototype = {
 			Object.defineProperty(obj, 'modelSize', {
 				get() {
 					_modelSize = obj.getSize();
-					//console.log(_modelSize);
 					return _modelSize;
 				},
 				set(value) {
@@ -26079,7 +26158,8 @@ Objects.prototype = {
 			material: 'MeshBasicMaterial',
 			anchor: 'bottom-left',
 			bbox: false,
-			tooltip: false
+			tooltip: false,
+			raycasted: true
 		},
 
 		label: {
@@ -26105,7 +26185,8 @@ Objects.prototype = {
 			material: 'MeshBasicMaterial',
 			anchor: 'center',
 			bbox: false,
-			tooltip: false
+			tooltip: false,
+			raycasted: true
 		},
 
 		loadObj: {
@@ -26117,7 +26198,8 @@ Objects.prototype = {
 			defaultAnimation: 0,
 			anchor: 'bottom-left',
 			bbox: false,
-			tooltip: false
+			tooltip: false,
+			raycasted: true
 		},
 
 		Object3D: {
@@ -26125,7 +26207,8 @@ Objects.prototype = {
 			units: 'scene',
 			anchor: 'bottom-left',
 			bbox: false,
-			tooltip: false
+			tooltip: false, 
+			raycasted: true
 		},
 
 		extrusion: {
@@ -26137,9 +26220,9 @@ Objects.prototype = {
 			rotation: 0,
 			units: 'scene',
 			anchor: 'center',
-			point: [0, 0],
 			bbox: false,
-			tooltip: false
+			tooltip: false,
+			raycasted: true
 		}
 	},
 
@@ -26168,7 +26251,7 @@ function Sphere(opt) {
 	let mat = material(opt)
 	let output = new THREE.Mesh(geometry, mat);
 	//[jscastro] we convert it in Object3D to add methods, bounding box, model, tooltip...
-	return new Object3D({ obj: output, units: opt.units, anchor: opt.anchor, adjustment: opt.adjustment, bbox: opt.bbox, tooltip: opt.tooltip });
+	return new Object3D({ obj: output, units: opt.units, anchor: opt.anchor, adjustment: opt.adjustment, bbox: opt.bbox, tooltip: opt.tooltip, raycasted: opt.raycasted });
 
 }
 
@@ -26222,7 +26305,7 @@ function tube(opt, world){
 	let mat = material(opt);
 	let obj = new THREE.Mesh(geom, mat);
 	//[jscastro] we convert it in Object3D to add methods, bounding box, model, tooltip...
-	return new Object3D({ obj: obj, units: opt.units, anchor: opt.anchor, adjustment: opt.adjustment, bbox: opt.bbox, tooltip: opt.tooltip });
+	return new Object3D({ obj: obj, units: opt.units, anchor: opt.anchor, adjustment: opt.adjustment, bbox: opt.bbox, tooltip: opt.tooltip, raycasted: opt.raycasted });
 }
 
 tube.prototype = {
@@ -27458,16 +27541,20 @@ return new Ta(a)};k.ZeroCurvatureEnding=2400;k.ZeroFactor=200;k.ZeroSlopeEnding=
 
 },{}],95:[function(require,module,exports){
 const WORLD_SIZE = 1024000;
-const MERCATOR_A = 6378137.0;
-const FOV = Math.atan(3/4);
+const MERCATOR_A = 6378137.0; // 900913 projection property
+const FOV = Math.atan(3 / 4);
+const EARTH_RADIUS = 6371008.8; //from Mapbox  https://github.com/mapbox/mapbox-gl-js/blob/0063cbd10a97218fb6a0f64c99bf18609b918f4c/src/geo/lng_lat.js#L11
+const EARTH_CIRCUMFERENCE_EQUATOR = 40075017
 
 module.exports = exports = {
     WORLD_SIZE: WORLD_SIZE,
-    PROJECTION_WORLD_SIZE: WORLD_SIZE / (MERCATOR_A * Math.PI * 2),
-    MERCATOR_A: MERCATOR_A, // 900913 projection property
+    PROJECTION_WORLD_SIZE: WORLD_SIZE / (EARTH_RADIUS * Math.PI * 2),
+    MERCATOR_A: EARTH_RADIUS, // 900913 projection property
     DEG2RAD: Math.PI / 180,
     RAD2DEG: 180 / Math.PI,
-    EARTH_CIRCUMFERENCE: 40075000, // In meters
+    EARTH_RADIUS: EARTH_RADIUS,
+    EARTH_CIRCUMFERENCE: 2 * Math.PI * EARTH_RADIUS, //40075000, // In meters
+    EARTH_CIRCUMFERENCE_EQUATOR: EARTH_CIRCUMFERENCE_EQUATOR, //https://github.com/mapbox/mapbox-gl-js/blob/0063cbd10a97218fb6a0f64c99bf18609b918f4c/src/geo/lng_lat.js#L117
     FOV: FOV, // Math.atan(3/4) radians. If this value is changed, FOV_DEGREES must be calculated
     FOV_DEGREES: FOV * 360 / (Math.PI * 2), // Math.atan(3/4) in degrees
     TILE_SIZE: 512
@@ -27559,7 +27646,6 @@ module.exports = exports = material;
     function fromJulian(j) { return new Date((j + 0.5 - J1970) * dayMs); }
     function toDays(date) { return toJulian(date) - J2000; }
 
-
     // general calculations for position
 
     var e = rad * 23.4397; // obliquity of the Earth
@@ -27625,6 +27711,9 @@ module.exports = exports = material;
         };
     };
 
+    SunCalc.toJulian = function (date) {
+        return toJulian(date);
+    };
 
     // sun times configuration (angle, morning name, evening name)
 
@@ -27945,6 +28034,14 @@ var utils = {
 
 	projectedUnitsPerMeter: function (latitude) {
 		return Math.abs(Constants.WORLD_SIZE / Math.cos(Constants.DEG2RAD * latitude) / Constants.EARTH_CIRCUMFERENCE);
+	},
+
+	_circumferenceAtLatitude: function (latitude) {
+		return Constants.EARTH_CIRCUMFERENCE * Math.cos(latitude * Math.PI / 180);
+	},
+
+	mercatorZfromAltitude: function (altitude, lat) {
+		return altitude / this._circumferenceAtLatitude(lat);
 	},
 
 	_scaleVerticesToMeters: function (centerLatLng, vertices) {
